@@ -26,11 +26,11 @@ date_format = "Jan 2006"
   date_start = "2021-06-28"
   date_end = 0
   description = """
-
-  * Developing AI capabilities of internal and customer-facing tools for the analysis of high-throughput microscopy datasets
-  * Designing RESTful web app using AWS+MySQL-based database system for image acquisition, storage, and analysis
-  * Implementing computer vision-based tools using PyTorch to improve effieciency, and reduce cost, of cell differentiation pipelines
-  * Building out propriety software platform for analysis of tissue-engineered muscled cells, yielding 2x speedup in end-to-end processing over original tool
+  
+  * Developing AI capabilities of internal + customer-facing tools analyzing high-throughput microscopy datasets
+  * Designing RESTful web app w/ AWS + MySQL for image storage, and analysis
+  * Implementing computer vision tools using PyTorch to improve efficiency, and reduce cost, of cell differentiation pipelines
+  * Building out propriety software platform for analysis of tissue-engineered muscular cells, yielding 2x speedup in end-to-end processing over original tool
   * Leading development of the data science team
   """
 +++

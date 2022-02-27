@@ -27,12 +27,11 @@ date_format = "Jan 2006"
   date_start = "2014-09-20"
   date_end = "2021-12-13"
   description = """
-
-  * Developed computer vision models based on unsupervised and supervised machine learning algorithms for segmenting cortical tissue using adult human MRI, implemented in Python
-  * Designed graph neural network models to apply existing population-level cortical maps to unmapped MRI images, improving segmentation accuracies by upwards of 15% relative to volumetric CNN models
-  * Initiated cross-department study on resting-state brain dynamics using a novel modal decompoposition algorithm resulting in high-impact publication
-  * Developed turn-key pipeline for processing high-resolution structural and functional MRI images to identify centroids of functional activation using bash, Python, and Java
-  * Analyzed 1000+ adult human brain MRI scans (>1.5TB of data) using shell scripting and distributed computing tools (Sun Grid Engine)
+  
+  * Developed computer vision models based on unsupervised + supervised ML algorithms for segmenting cortical tissue using MRI, implemented in Python
+  * Designed graph neural network models to apply population-level cortical maps to unmapped MRI images, improving segmentation accuracies by >15%, relative to conventional CNN models
+  * Initiated cross-department study on brain dynamics, resulting in high-impact publication
+  * Developed turn-key pipeline for processing 1000+ adult human MRI scans (>1.5TB) using shell scripting and distributed computing (SGE)
   * Thesis work resulted in 2+ high-impact peer-reviewed publications, 2+ international conference posters, and 3+ conference presentations
   """
 
