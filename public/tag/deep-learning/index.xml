@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>deep learning | A Rambling On</title>
+    <link>/tag/deep-learning/</link>
+      <atom:link href="/tag/deep-learning/index.xml" rel="self" type="application/rss+xml" />
+    <description>deep learning</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Mon, 12 Mar 2018 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>/img/Bayes.jpg</url>
+      <title>deep learning</title>
+      <link>/tag/deep-learning/</link>
+    </image>
+    
+    <item>
+      <title>Automated Connectivity-Based Cortical Mapping Using Registration-Constrained Classification</title>
+      <link>/publication/cbp/cbp/</link>
+      <pubDate>Mon, 12 Mar 2018 00:00:00 +0000</pubDate>
+      <guid>/publication/cbp/cbp/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
