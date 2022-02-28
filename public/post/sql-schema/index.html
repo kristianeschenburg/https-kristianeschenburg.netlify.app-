@@ -546,7 +546,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/files/cv.pdf"><span>CV</span></a>
+          <a class="nav-link " href="/personal"><span>Personal</span></a>
         </li>
 
         
@@ -568,7 +568,7 @@
         
 
         <li class="nav-item">
-          <a class="nav-link " href="/personal"><span>Personal</span></a>
+          <a class="nav-link " href="/files/Resume.pdf"><span>Resume</span></a>
         </li>
 
         
@@ -699,8 +699,8 @@
   <div class="article-container">
 
     <div class="article-style">
-      <p>I was recently tasked with examining databases related to some computer vision tools that my company had acquired.  Basically, the framework was as follows&hellip; Clients/users would sign up for some service with the goal in mind of building a model to classify a set of microscopy images.  These models could then be used by the client for downstream services.  The users interacted with this tool via through a WebApp, through which they could upload the relevant training and validation data, as well as the full suite of models that they had previously trained.  The software used AWS EC2 instances to train and test their models, and a database to store all the relevant metadata associated with the users and experiments.</p>
-<p>However, I was not provided with any relevant information about the database schema, rendering interpretation of the API and results difficult.  Given that I had access to the MySQL database, I wanted to be able to visualize the interactions between all the relevant tables.</p>
+      <p>I was recently tasked with examining databases related to some computer vision tools that my company had acquired.  Basically, the framework was as follows&hellip; Clients/users would sign up for some service with the goal in mind of building a model to classify a set of microscopy images.  These models could then be used by the client for downstream services.  The users interacted with this tool through a web application, with which they could upload the training and validation datasets.  They could also interact with models that they might have previously trained.  The software used AWS EC2 instances to train and test their models, and a database to store all the relevant image files and metadata associated with the users and experiments.</p>
+<p>However, I was not provided with any relevant information about the database schema, rendering interpretation of the API and results difficult.  Given that I had access to the MySQL database, I wanted to be able to visualize the interactions between all the relevant SQL tables.</p>
 <p>Assuming that <code>mysql</code> and <code>MySQL Workbench</code> are installed, and that you know the database name and corresponding account password, you can run the following command to export the database to an SQL file.  The <code>-u</code>, <code>-p</code>, and <code>--no-data</code> options correspond to the user ID, password, and desire (or lack thereof) to export the data entries as well.</p>
 <pre><code class="language-bash">mysqldump -u root -p --no-data ${DB_NAME} &gt; ${OUTPUT_NAME}.sql
 </code></pre>
@@ -871,7 +871,7 @@
 
       <div class="media-body">
         <h5 class="card-title"><a href="/"></a></h5>
-        <h6 class="card-subtitle">PhD Student, Biomedical Engineering</h6>
+        <h6 class="card-subtitle">Data Scientist</h6>
         
         <ul class="network-icon" aria-hidden="true">
   

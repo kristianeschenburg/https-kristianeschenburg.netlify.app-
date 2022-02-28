@@ -18,6 +18,71 @@
   </url>
   
   <url>
+    <loc>/publication-type/2/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/authors/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/david-haynor/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/deep-learning/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/graph-neural-networks/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/image-segmentation/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/kristian-m.-eschenburg/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/gnn/cbp/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication_types/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tag/supervised-machine-learning/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/author/tom-grabowski/</loc>
+    <lastmod>2021-12-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/tag/entropy/</loc>
     <lastmod>2021-10-08T15:24:17-07:00</lastmod>
   </url>
@@ -34,11 +99,6 @@
   
   <url>
     <loc>/tag/probability/</loc>
-    <lastmod>2021-10-08T15:24:17-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
     <lastmod>2021-10-08T15:24:17-07:00</lastmod>
   </url>
   
@@ -89,11 +149,6 @@
   
   <url>
     <loc>/tag/ai/</loc>
-    <lastmod>2021-02-14T23:24:17-07:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tag/graph-neural-networks/</loc>
     <lastmod>2021-02-14T23:24:17-07:00</lastmod>
   </url>
   
@@ -238,16 +293,6 @@
   </url>
   
   <url>
-    <loc>/authors/</loc>
-    <lastmod>2020-06-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/author/david-haynor/</loc>
-    <lastmod>2020-06-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/tag/dimensionality-reduction/</loc>
     <lastmod>2020-06-22T00:00:00+00:00</lastmod>
   </url>
@@ -268,22 +313,7 @@
   </url>
   
   <url>
-    <loc>/publication/</loc>
-    <lastmod>2020-06-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/tag/procrustes/</loc>
-    <lastmod>2020-06-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/publication_types/</loc>
-    <lastmod>2020-06-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/author/tom-grabowski/</loc>
     <lastmod>2020-06-22T00:00:00+00:00</lastmod>
   </url>
   
@@ -348,11 +378,6 @@
   </url>
   
   <url>
-    <loc>/publication-type/2/</loc>
-    <lastmod>2019-10-31T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/author/bingni-w.-brunton/</loc>
     <lastmod>2019-10-31T00:00:00+00:00</lastmod>
   </url>
@@ -394,11 +419,6 @@
   
   <url>
     <loc>/author/james-m.-kunert-graf/</loc>
-    <lastmod>2019-10-31T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/author/kristian-m.-eschenburg/</loc>
     <lastmod>2019-10-31T00:00:00+00:00</lastmod>
   </url>
   
@@ -514,11 +534,6 @@
   
   <url>
     <loc>/publication/cbp/cbp/</loc>
-    <lastmod>2018-03-12T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tag/deep-learning/</loc>
     <lastmod>2018-03-12T00:00:00+00:00</lastmod>
   </url>
   

@@ -10,11 +10,11 @@ authors:
 superuser: true
 
 # Role/position
-role: PhD Student, Biomedical Engineering
+role: Data Scientist
 
 # Organizations/Affiliations
 organizations:
-- name: University of Washington
+- name: "PNW"
   url: ""
 
 # Short bio (displayed in user profile at end of posts)
@@ -30,6 +30,7 @@ education:
   courses:
   - course: PhD in Biomedical Engineering
     institution: University of Washington
+    year: 2021
   - course: BSc in Molecular and Cellular Biology
     institution: University of California, Los Angeles
     year: 2012
@@ -56,7 +57,7 @@ social:
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
 # - icon: cv
 #   icon_pack: ai
-#   link: files/cv.pdf
+#   link: files/Resume.pdf
 
 # Enter email to display Gravatar (if Gravatar enabled in Config)
 # email: ""
@@ -68,8 +69,8 @@ social:
 # - Visitors
 ---
 # 
-I'm a Data Scientist, and former Biomedical Engineer, living in the Pacific Northwest.  I completed my PhD at the University of Washington where I developed computational methods to explore relationships between brain structure and brain function using magnetic resonance imaging.  My primary research focus was on designing computer vision models to map the human brain using various MRI modalities, and relating these learned cortical maps to various biological and neurological processes.  I have extensive experience in medical imaging, image processing, machine learning, high-dimensional data analysis, and data visualization.
+I'm a Data Scientist and former Biomedical Engineer living in the Pacific Northwest.  I completed my PhD in Seattle at the University of Washington where I developed computational methods to explore relationships between brain structure and brain function using magnetic resonance imaging.  My primary research focus was on designing computer vision models to map the human brain using various MRI modalities, and relating these learned cortical maps to various biological and neurological processes.  I have extensive experience in medical imaging, image processing, machine learning, high-dimensional data analysis, and data visualization.
 
 I'm a firm believer in the idea that code is as much a part of hypothesis-driven design and the scientific process as any other tool or instrument, and that one of the best ways to drive computational sciences forward is through open-source software development, open-access publication, and technical writing.
 
-When I'm not thinking about science, I like to ski up (and down) hill, mountaineer, trail run, and tend to my plants.  I'm driven by curiosity and fueled by coffee.  I'm currently looking for full-time Data Scientist and Machine Learning Engineer roles.
+When I'm not thinking about science, I like to ski up (and down) hill, mountaineer, trail run, and tend to my plants.  I'm driven by curiosity and fueled by coffee.

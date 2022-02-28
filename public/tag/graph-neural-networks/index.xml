@@ -5,12 +5,20 @@
     <link>/tag/graph-neural-networks/</link>
       <atom:link href="/tag/graph-neural-networks/index.xml" rel="self" type="application/rss+xml" />
     <description>graph neural networks</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Sun, 14 Feb 2021 23:24:17 -0700</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Fri, 24 Dec 2021 00:00:00 +0000</lastBuildDate>
     <image>
       <url>/img/Bayes.jpg</url>
       <title>graph neural networks</title>
       <link>/tag/graph-neural-networks/</link>
     </image>
+    
+    <item>
+      <title>Learning Cortical Parcellations Using Graph Neural Networks</title>
+      <link>/publication/gnn/cbp/</link>
+      <pubDate>Fri, 24 Dec 2021 00:00:00 +0000</pubDate>
+      <guid>/publication/gnn/cbp/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Jumping-Knowledge Representation Learning With LSTMs</title>
