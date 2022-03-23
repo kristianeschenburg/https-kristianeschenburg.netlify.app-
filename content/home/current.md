@@ -19,17 +19,12 @@ date_format = "Jan 2006"
 #   Begin/end multi-line descriptions with 3 quotes `"""`.
 
 [[experience]]
-  title = "Data Scientist"
-  company = "CuriBio"
-  company_url = "https://www.curibio.com/"
+  title = "Senior Data Scientist"
+  company = "Just-Evotec Biologics"
+  company_url = "https://just-evotecbiologics.com/"
   location = "Seatte, WA"
-  date_start = "2021-06-28"
+  date_start = "2022-03-23"
   date_end = 0
   description = """
-  
-  * Developing AI capabilities for analyzing tissue-engineered cells
-  * Designing RESTful web apps w/ AWS + MySQL for image storage and analysis
-  * Implementing computer vision tools to improve efficiency and reduce cost of cell differentiation pipelines
-  * Building out propriety software platform for analysis of tissue-engineered muscular cells, yielding 2x speedup in end-to-end processing over original tool
   """
 +++

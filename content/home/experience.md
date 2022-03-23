@@ -18,6 +18,20 @@ date_format = "Jan 2006"
 #   Leave `date_end` empty if it's your current employer.
 #   Begin/end multi-line descriptions with 3 quotes `"""`.
 
+[[experience]]
+  title = "Data Scientist"
+  company = "CuriBio"
+  company_url = "https://www.curibio.com/"
+  location = "Seatte, WA"
+  date_start = "2021-06-28"
+  date_end = "2022-04-06"
+  description = """
+  
+  * Developed AI capabilities for analyzing tissue-engineered cells
+  * Designed RESTful web apps w/ AWS + MySQL for image storage and analysis
+  * Implemented computer vision tools to improve efficiency and reduce cost of cell differentiation pipelines
+  * Built out propriety software platform for analysis of tissue-engineered muscular cells, yielding 2x speedup in end-to-end processing over original tool
+  """
 
 [[experience]]
   title = "PhD Graduate Student, University of Washington"
