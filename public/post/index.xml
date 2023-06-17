@@ -5,12 +5,431 @@
     <link>/post/</link>
       <atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     <description>Posts</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Tue, 22 Feb 2022 10:24:17 -0700</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Thu, 15 Jun 2023 02:14:14 -0700</lastBuildDate>
     <image>
       <url>/img/Bayes.jpg</url>
       <title>Posts</title>
       <link>/post/</link>
     </image>
+    
+    <item>
+      <title>CI/CD Part 4: Container Registries</title>
+      <link>/post/cicd-4-cr/</link>
+      <pubDate>Thu, 15 Jun 2023 02:14:14 -0700</pubDate>
+      <guid>/post/cicd-4-cr/</guid>
+      <description>&lt;p&gt;This is the last post in a mini-series on 
+&lt;a href=&#34;/post/cicd-1-config/&#34;&gt;designing Gitlab CI/CD pipelines&lt;/a&gt;.  We&amp;rsquo;ve discussed the basic anatomy of a &lt;code&gt;.gitlab-ci.yml&lt;/code&gt; file, how to set up authentication tokens and files for building and pushing packages to a registry, and designing a Dockerfile for building images from a package in the context of a CI/CD pipeline.  In this post, I&amp;rsquo;m going to show how to push your package to a remote AWS Elastic Container Registry (ECR).&lt;/p&gt;
+&lt;p&gt;The structure of this CI/CD job will be analogous to the CI/CD job defined at the end of our first 
+&lt;a href=&#34;/post/cicd-1-config/&#34;&gt;post&lt;/a&gt;, where we pushed an image to the Gitlab Container Registry.&lt;/p&gt;
+&lt;h4 id=&#34;setting-up-aws-variables&#34;&gt;Setting up AWS variables&lt;/h4&gt;
+&lt;p&gt;To build images, tag them, and push them to the remote AWS ECR, I used the definition of a CI/CD job below.  In addition to pre-defined variables that are set internally by Gitlab, we can also manually pre-define variables.  In this case, I&amp;rsquo;ve set a few that allow me to interact with AWS via the command line:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;AWS_DEFAULT_REGION&lt;/code&gt;: self-explanatory&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ECR_REPO_LAMBDA&lt;/code&gt;: &lt;code&gt;${AWS_ACCOUNT_ID}&lt;/code&gt;.dkr.ecr.&lt;code&gt;${AWS_DEFAULT_REGION}&lt;/code&gt;.amazonaws.com/&lt;code&gt;${YOUR_ECR_REPO_NAME}&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;AWS_ACCOUNT_ID&lt;/code&gt;: AWS account ID&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;AWS_ACCESS_KEY&lt;/code&gt;: this is the information contained in the downloaded *.pem file&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;AWS_SECRET_ACCESS_KEY&lt;/code&gt;: this is the information contained in the downloaded *.pem file&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To set variables that are accessible by CI/CD jobs, go to your &lt;strong&gt;Project/Group &amp;gt; Settings &amp;gt; CI/CD &amp;gt; Variables &amp;gt; Expand&lt;/strong&gt; and define the variables of interest:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;./CICD.VariableTab.png&#34; alt=&#34;&#34;&gt;
+&lt;img src=&#34;./CICD.Variables.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;If you define these variables at the Gitlab Group level, they will be propagated down to the project level, so long as the Project falls under the Group scope.&lt;/p&gt;
+&lt;h4 id=&#34;pushing-to-aws-ecr-via-cicd-job&#34;&gt;Pushing to AWS ECR via CI/CD job&lt;/h4&gt;
+&lt;p&gt;Below, we define the actual CI/CD job.   There were two aspects here that I needed to solve.  First, I needed access to a Docker-in-Docker build image e.g. an image that had Docker installed.  And second, this image also needed to have the AWS CLI tool installed.  To that end, I used the &lt;code&gt;bentolor/docker-dind-awscli&lt;/code&gt; 
+&lt;a href=&#34;https://github.com/bentolor/docker-dind-awscli&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;image&lt;/a&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;build-image-ecr:
+  stage: deploy 
+  image: bentolor/docker-dind-awscli
+  services:
+    - docker:dind
+  variables:
+    # convenience variable indicating name of the image with respect to the ECR repo and unique tag ID
+    IMAGE_TAG: $ECR_REPO_LAMBDA:$CI_COMMIT_SHORT_SHA
+
+  before_script:
+    - docker info
+    # authenticate docker with your AWS ECR account
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+  # will push Docker image to AWS ECR
+  script:
+    # build the docker imagae
+    - docker build --compress -t ${IMAGE_TAG} .
+    # tag the image with a unique name
+    - docker tag ${IMAGE_TAG} $ECR_REPO_LAMBDA:latest
+    # push the image to the ECR
+    - docker push ${IMAGE_TAG}
+
+  # here, we only build and push the image if this is a merge event into the &amp;quot;main&amp;quot; branch
+  rules:
+    - if: $CI_PIPELINE_SOURCE == &#39;merge_request_event&#39; &amp;amp;&amp;amp; $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == &amp;quot;main&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And voila!  You have now pushed your built image to a remote container registry!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CI/CD Part 3: Building containers with Docker</title>
+      <link>/post/cicd-3-docker/</link>
+      <pubDate>Tue, 30 May 2023 02:14:14 -0700</pubDate>
+      <guid>/post/cicd-3-docker/</guid>
+      <description>&lt;p&gt;This is the third post in a mini-series on 
+&lt;a href=&#34;/post/cicd-1-config/&#34;&gt;designing Gitlab CI/CD pipelines&lt;/a&gt;.  In the last 
+&lt;a href=&#34;/post/cicd-2-packages/&#34;&gt;post&lt;/a&gt;, we discussed setting up your &lt;code&gt;.pypirc&lt;/code&gt; and &lt;code&gt;.netrc&lt;/code&gt; files in the context of a Gitlab CI/CD pipeline to enable building and pushing packages to a package registry, as well as for installing code from a private registry.  In this post, we&amp;rsquo;ll discuss putting together a Dockerfile for building containers in the context of a Gitlab CI/CD pipeline.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;m using what&amp;rsquo;s called a &amp;ldquo;multi-stage&amp;rdquo; build.  This is exactly what it sounds like &amp;ndash; it breaks the process of building a Docker image into multiple stages.  In doing so, we often have the benefit of a final image that is smaller than a single-stage build, because we only include the artifacts needed to run our containerized application.&lt;/p&gt;
+&lt;p&gt;Similarly, we can leverage multi-stage Docker builds to minimize duplicated code in Dockerfiles.  For example, let&amp;rsquo;s say we have a scenario where we want to build an image for a &lt;code&gt;Production&lt;/code&gt; environment as well as a &lt;code&gt;Test&lt;/code&gt; environment.  The &lt;code&gt;Test&lt;/code&gt; environment might include some additional dependencies, scripts, exports, etc. that the Production environment doesn&amp;rsquo;t.  Instead of creating two Dockerfiles, one for each environment, we can define a single-stage that encompasses the overlapping parts of both the &lt;code&gt;Production&lt;/code&gt; and &lt;code&gt;Test&lt;/code&gt; images, and then define the extra stuff in a separate stage to build the &lt;code&gt;Test&lt;/code&gt; image.&lt;/p&gt;
+&lt;p&gt;In the example below, we have a three-stage Docker build, with stage names:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;base&lt;/code&gt;: sets up some basic environment variables&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;python-deps&lt;/code&gt;: installs your package and creates a virtual environment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;runtime&lt;/code&gt;: the actual application you want to run, with only the necessary files for running it&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;create-a-base-image&#34;&gt;Create a base image&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;# set base image
+# bigger base images yield slower image load times, and have more security vulnerabilities
+FROM python:3.9-slim as base
+
+# install virtual environment in ${project_dir}/.venv
+ENV PIPENV_VENV_IN_PROJECT 1
+# dont write .pyc files
+ENV PYTHONDONTWRITEBYTECODE 1
+# get some more information about faults when building images
+ENV PYTHONFAULTHANDLER 1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id=&#34;install-package-dependencies&#34;&gt;Install package dependencies&lt;/h4&gt;
+&lt;p&gt;If you were building your Docker image locally, you&amp;rsquo;d have access to any authentication tokens or SSH keys necessary to pull from remote or private repositories.  However, Docker is naive to these variables &amp;ndash; we have to explicitly provide them at build time. Within the Dockerfile, we define three environment variables using the &lt;code&gt;ARG&lt;/code&gt; keyword:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;CI_DEPLOY_USER&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_DEPLOY_PASSWORD&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_JOB_TOKEN&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;If you think that these variables look familiar, you&amp;rsquo;re right.  They&amp;rsquo;re the same pre-defined variables that exist in the context of a Gitlab CI/CD pipeline that act as authentication tokens for a &lt;code&gt;.pypric&lt;/code&gt; file and &lt;code&gt;.netrc&lt;/code&gt; &amp;ndash; they&amp;rsquo;re utilized by the &lt;code&gt;setup_tokens.sh&lt;/code&gt; script to setup the &lt;code&gt;.pypirc&lt;/code&gt; and &lt;code&gt;.netrc&lt;/code&gt; files &lt;em&gt;within&lt;/em&gt; the Docker image.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;# image for installing dependencies
+# we only need .venv and app `runtime` image, not all other bloat
+FROM base AS python-deps
+
+####################################
+# ----------------------------------
+ARG CI_DEPLOY_USER
+ARG CI_DEPLOY_PASSWORD
+ARG CI_JOB_TOKEN
+# ----------------------------------
+####################################
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;These variable are available outside of the Docker image, but not within the image itself, so we need to &amp;ldquo;show&amp;rdquo; them to Docker at build time via the &lt;code&gt;--build-arg&lt;/code&gt; flag:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;docker build --build-arg CI_DEPLOY_USER=$CI_DEPLOY_URDER \
+             --build-arg CI_DEPLOY_PASSWORD=$CI_DEPLOY_PASSWORD \
+             --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN \
+             ...
+             ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now they are contained within the Docker image and can be provided to the &lt;code&gt;setup_tokens.sh&lt;/code&gt; script, which then allows us to pull packages down from our remote package registry.  We also no longer need the SSH keys, since we&amp;rsquo;re authenticating through Gitlab itself.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;# install pipenv in `python-deps` image
+RUN python3 -m pip install pipenv
+RUN apt-get update \
+    &amp;amp;&amp;amp; apt-get install --yes --no-install-recommends gcc g++ libffi-dev
+
+# Dependency installation looks a little different for local packages
+WORKDIR /home/app
+
+
+# copy files to `python-deps` image
+COPY setup.py setup_tokens.sh Pipfile Pipfile.lock ./
+# copy over application-specific code that you want to install
+# this is unique to my specific project -- use your own directories here
+COPY templateci/ templateci/
+
+# run setup_tokens script to setup .pypirc and .netrc within image
+RUN chmod +x ./setup_tokens.sh &amp;amp;&amp;amp; ./setup_tokens.sh
+
+# authentication tokens are now available to pipenv
+RUN python3 -m pipenv install --deploy --dev
+
+# get rid of unnecessary libraries after install
+RUN apt-get autoremove --yes gcc g++ libffi-dev \
+    &amp;amp;&amp;amp; rm -rf /var/lib/apt/lists/*
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4 id=&#34;create-your-final-runtime-image&#34;&gt;Create your final runtime image&lt;/h4&gt;
+&lt;p&gt;Above, we created the virtual environment that allows our application to run.  As such, we no longer need the raw source code or any other random files that were contained in the original project directory that might have been needed to build the virtual environment.  Now we create a stage called &lt;code&gt;runtime&lt;/code&gt; in which we copy over the generated virtual environment from the previous stage&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;# image for running the application
+FROM base AS runtime
+
+# Copy virtual environment from `python-deps` image to `runtime` image
+COPY --from=python-deps /home/app/.venv /.venv
+# add virtual environment to PATH
+ENV PATH=&amp;quot;/.venv/bin:$PATH&amp;quot;
+
+# Create new user -- app will run as new user
+RUN useradd --create-home -u 1099 user
+WORKDIR /home/user/app
+USER user
+
+COPY . .
+
+CMD [&amp;quot;python3&amp;quot;, &amp;quot;-m&amp;quot;, &amp;quot;pytest&amp;quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This is the actual image that get&amp;rsquo;s run when we call&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;docker run ${IMAGE_NAME}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CI/CD Part 2: Building and pushing packages</title>
+      <link>/post/cicd-2-packages/</link>
+      <pubDate>Fri, 12 May 2023 02:14:14 -0700</pubDate>
+      <guid>/post/cicd-2-packages/</guid>
+      <description>&lt;p&gt;This is the second post in a mini-series on 
+&lt;a href=&#34;/post/cicd-1-config/&#34;&gt;designing Gitlab CI/CD pipelines&lt;/a&gt;.  In order to build packages and push them to a remote package registry, we use the &lt;code&gt;build&lt;/code&gt; and &lt;code&gt;twine&lt;/code&gt; packages.  &lt;code&gt;build&lt;/code&gt; generates a package, and &lt;code&gt;twine&lt;/code&gt; pushes this package to a registry (or &amp;ldquo;index&amp;rdquo;).  &lt;code&gt;twine&lt;/code&gt; requires access to authentication usernames, passwords, and a registry URL in order to do so.  &lt;code&gt;twine&lt;/code&gt; can access these tokens from a &lt;code&gt;.pypirc&lt;/code&gt; file &amp;ndash; the tokens are generated by the registry, and ensure that the submitting user has permissions to perform a certain action.&lt;/p&gt;
+&lt;p&gt;Other processes, such as pulling or pushing code from a remote repository, often require additional usernames and passwords.  In order to alleviate the need to consistently provide these variables at request time, we can save them in a &lt;code&gt;.netrc&lt;/code&gt; file.&lt;/p&gt;
+&lt;p&gt;These are straightforward to set up locally.  But we also need to set these up to ensure a properly functional CI/CD workflow.  I&amp;rsquo;ve put together a basic script, called &lt;code&gt;setup_tokens.sh&lt;/code&gt; that does just that:&lt;/p&gt;
+&lt;h4 id=&#34;setup_tokenssh&#34;&gt;setup_tokens.sh&lt;/h4&gt;
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+
+# generate .pypirc file
+echo &amp;quot;[distutils]
+index-servers =
+    personal
+
+[personal]
+repository = https://gitlab.com/api/v4/projects/$PACKAGE_REGISTRY_ID/packages/pypi
+username = $CI_DEPLOY_USER
+password = $CI_DEPLOY_PASSWORD&amp;quot; &amp;gt; ~/.pypirc
+
+# generate .netrc file
+echo &amp;quot;machine gitlab.com
+login gitlab-ci-token
+password $CI_JOB_TOKEN&amp;quot; &amp;gt; ~/.netrc
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;.pypirc&lt;/code&gt; refers to your Project Registry via a previously generated authentication token and password, and allows your to build and upload Python packages to that registry.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;.netrc&lt;/code&gt; file enables you to pull private packages from that same registry.  In the context of our work, we&amp;rsquo;ll want to build and push packages to the registry first so that they are available for pulling.  For example, in the &lt;code&gt;Pipfile&lt;/code&gt; for this template project, we have the following:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-toml&#34;&gt;[[source]]
+url = &amp;quot;https://pypi.org/simple&amp;quot;
+verify_ssl = true
+name = &amp;quot;pypi&amp;quot;
+
+[[source]]
+url = &amp;quot;https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.com/api/v4/projects/${$PACKAGE_REGISTRY_ID}/packages/pypi/simple&amp;quot;
+verify_ssl = true
+name = &amp;quot;personal&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We see the same user authentication happening, along with the reference to the Package Registry ID variable.  For local installation of your package, and in order to make sure that your &lt;code&gt;Pipfile&lt;/code&gt; and &lt;code&gt;Pipfile.lock&lt;/code&gt; are in sync, you&amp;rsquo;ll need to define the following local environment variables:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CI_DEPLOY_USER&lt;/code&gt;: generated user token&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_DEPLOY_PASSWORD&lt;/code&gt;: generated token password&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;PACKAGE_REGISTRY_ID&lt;/code&gt;: the ID of the repository that you created that will store your packages&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Building a package locally is straightforward, but doing so within a Gitlab CI/CD pipeline is a little more complicated.  But, we can imagine adding this type of task to a CI/CD pipeline, and conditioning it on a merge request (or something of that kind).&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ve called this job &lt;code&gt;build-package&lt;/code&gt; and it belongs to a stage also called &lt;code&gt;build-package&lt;/code&gt;.  We first set up the &lt;code&gt;.pypirc&lt;/code&gt; and &lt;code&gt;.netrc&lt;/code&gt; files in image running the job, and then install the &lt;code&gt;build&lt;/code&gt; and &lt;code&gt;twine&lt;/code&gt; libraries in the &lt;code&gt;before_script&lt;/code&gt; attribute.  Then, using the &lt;code&gt;script&lt;/code&gt; attribute, we build our package, and push it to our package registry (we&amp;rsquo;ve defined the registry in our &lt;code&gt;.pypirc&lt;/code&gt; file &amp;ndash; here, it&amp;rsquo;s referred to as the &amp;ldquo;personal&amp;rdquo; registry.)&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;image: python:3.9-slim
+variables:
+  PACKAGE_REGISTRY_NAME: &amp;quot;personal&amp;quot;
+
+stages:
+  - build-package
+
+#### BUILDING PACKAGE AND PUSHING TO GITLAB PACKAGE REGISTRY
+build-package:
+  stage: build-package
+  before_script:
+    - chmod +x ./setup_tokens.sh; ./setup_tokens.sh
+    - apt-get update
+    - apt-get install --yes --no-install-recommends gcc g++ libffi-dev
+    - python3 -m pip install build twine
+  script:
+    - python3 -m build
+    - python3 -m twine upload --repository ${PACKAGE_REGISTRY_NAME} dist/* --verbose
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>CI/CD Part 1: Gitlab Pipelines</title>
+      <link>/post/cicd-1-config/</link>
+      <pubDate>Tue, 02 May 2023 02:14:14 -0700</pubDate>
+      <guid>/post/cicd-1-config/</guid>
+      <description>&lt;p&gt;I recently developed a template workflow to help our team adopt a CI/CD-based development strategy.  Many of our web applications and tools were based on simple repository structures.  With growing datasets and ever-increasing use by outside teams, we found ourselves needing to add new features more frequently to many of these tools and believed that continuous integration and deployment could help us not just develop more quickly, but also more intelligently.  Since we use Gitlab to store our code, we decided to use the Gitlab CI/CD tools.&lt;/p&gt;
+&lt;p&gt;Documentation on much of this process was scattered and/or sparse, so I decided to put what I learned and implemented into a more coherent set of notes.  The current post relates to a basic setup of the &lt;code&gt;.gitlab-ci.yml&lt;/code&gt; file and using Gitlab CI/CD.  The next few posts are about what I learned in the process of setting this up, where I&amp;rsquo;ll discuss:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;/post/cicd-2-packages/&#34;&gt;Setting&lt;/a&gt; up authentication for pushing packages to a package registry and for pulling down private repositories&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;/post/cicd-3-docker/&#34;&gt;Designing&lt;/a&gt; Dockerfiles for building images using CI/CD&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;/post/cicd-4-cr/&#34;&gt;Pushing&lt;/a&gt; images to a container registry&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;setup&#34;&gt;Setup&lt;/h2&gt;
+&lt;p&gt;I did all of my testing using my personal Gitlab account.  To separate things out, I created a new Project called &amp;ldquo;Package Registry”, as well as a test repository that was used for building a local Python project called &amp;ldquo;TemplateCI&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;The &amp;ldquo;Package Registry&amp;rdquo; Project serves as just that &amp;ndash; an all-inclusive location for any software packages your CI/CD pipelines build.  You can find the built packages by clicking &lt;strong&gt;${Project Name} &amp;gt; Deploy &amp;gt; Package Registry&lt;/strong&gt;.  Every &amp;ldquo;Project&amp;rdquo; in Gitlab has the ability to store packages in its own registry, but I felt it cleaner to store everything in one repo.  Similarly, the actual code that I&amp;rsquo;ll be packaging will be stored in the &amp;ldquo;TemplateCI&amp;rdquo; repo.&lt;/p&gt;
+&lt;h2 id=&#34;basic-jobs&#34;&gt;Basic jobs&lt;/h2&gt;
+&lt;p&gt;The basis of a Gitlab CI/CD pipeline is the &lt;code&gt;.gitlab-ci.yml&lt;/code&gt; file, which is composed of a set of explicitly-defined and temporally-ordered “stages”.  A stage is composed of a set of “jobs”.  Jobs are the workhorses of the CI/CD pipeline, and define explicit tasks that a CI/CD pipeline runs.  By default, all jobs from one stage run in parallel, unless specified otherwise (using the &lt;code&gt;needs&lt;/code&gt; keyword as an attribute of a job induces a temporal directed acyclic graph – jobs can be made “dependent” on the successful completion of other jobs within a stage).  In this example, I’ve defined three stages:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;run-unit-tests&lt;/li&gt;
+&lt;li&gt;build-package&lt;/li&gt;
+&lt;li&gt;build-image&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Any job associated with the &lt;code&gt;run-unit-tests&lt;/code&gt; stage will run to completion (or failure) PRIOR TO ANY job in the stages &lt;code&gt;build-package&lt;/code&gt; and &lt;code&gt;build-image&lt;/code&gt; starting.  If all jobs in the &lt;code&gt;run-unit-tests&lt;/code&gt; stage complete successfully, then the next stage (&lt;code&gt;build-package&lt;/code&gt;) will begin.  We define individual jobs, and give them a stage attribute.  Stages define the rough ordering of jobs.  Each job runs in the context of an “image” or environment.  We can set a global &lt;code&gt;image&lt;/code&gt; and define stages as&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;# global CI/CD image
+image: python:3.9-slim
+
+# stages of this example pipeline
+stages:
+  - run-unit-tests
+  - build-package
+  - build-image
+
+ variables:
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;or define the image as an attribute of a job.  Gitlab CI/CD by default uses Docker images in which to run jobs.  Setting the image is analogous to using the &lt;code&gt;FROM&lt;/code&gt; command in a Dockerfile.  We&amp;rsquo;ve also set some global variables, here the &lt;code&gt;LC_ALL&lt;/code&gt; and &lt;code&gt;LANG&lt;/code&gt; variables.&lt;/p&gt;
+&lt;p&gt;To “run” Gitlab pipelines for the purpose of CI/CD, we use “runners”, which are build instances installed on a server.  Gitlab offers “shared” runners (use of these is free if you use 
+&lt;a href=&#34;https://www.gitlab.com&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;www.gitlab.com&lt;/a&gt;, but you need to register a credit card to prevent abuse of Gitlab resources).  You can also register your own device(s) to act as a Gitlab runner.&lt;/p&gt;
+&lt;p&gt;Below are examples of two jobs in the &lt;code&gt;run-unit-tests&lt;/code&gt; stage.  These two jobs are effectively the same code, apart from the unique unit tests that they run.  However, we&amp;rsquo;ve made the job &lt;code&gt;unit-tests-2&lt;/code&gt; dependent on the output of the job &lt;code&gt;unit-tests-1&lt;/code&gt; (see the &lt;code&gt;needs&lt;/code&gt; keyword of &lt;code&gt;unit-tests-2&lt;/code&gt;) .  Both jobs use the global &lt;code&gt;python:3.9-slim&lt;/code&gt; image.  We can run some “setup”  stuff (&lt;code&gt;before_script&lt;/code&gt;), run an actual script (&lt;code&gt;script&lt;/code&gt;), and run clean up (&lt;code&gt;after_script&lt;/code&gt;, not shown) &amp;ndash; these delineations (before, during, after) are for organizational purposes, and not due to any explicit functional differences in the delineations.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;### Ignore the script called &amp;quot;setup_tokens.sh&amp;quot; for now -- we&#39;ll discuss this in another post. ###
+
+
+# example job #1
+unit-tests-1:
+  stage: run-unit-tests
+  before_script:
+    - chmod +x ./setup_tokens.sh; ./setup_tokens.sh
+    - python3 -m pip install pipenv
+    - apt-get update
+    - apt-get install --yes --no-install-recommends gcc g++ libffi-dev
+    - python3 -m pipenv install --deploy --dev
+  # run first set of unit tests
+  script:
+    - python3 -m pipenv run pytest -k &#39;test_examples1.py&#39;
+ 
+
+# example job #2
+unit-tests-2:
+  stage: run-unit-tests
+  before_script:
+    - chmod +x ./setup_tokens.sh; ./setup_tokens.sh
+    - python3 -m pip install pipenv
+    - apt-get update
+    - apt-get install --yes --no-install-recommends gcc g++ libffi-dev
+    - python3 -m pipenv install --deploy --dev
+  # run second set of unit tests
+  script:
+    - python3 -m pipenv run pytest -k &#39;test_examples2.py&#39;
+  # wait for job 1 to finish
+  needs: [unit-tests-1]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;conditional-pipeline-jobs&#34;&gt;Conditional pipeline jobs&lt;/h2&gt;
+&lt;p&gt;The above jobs are relatively simple and will run every time you push a repository to Gitlab.  However, sometimes, we might only want to run a job if certain conditions are met.  For example, we might only want to build a package from the &lt;code&gt;main&lt;/code&gt; branch, or only after a merge request is made.  To this end, we can add “rules” to a job that restrict when it is actually run.&lt;/p&gt;
+&lt;p&gt;Below is a more complicated job example.  The overarching goal of this job is to build a Docker image from a local Python project and push the image to the Gitlab Container Registry.  There’s a lot going on here, so I’ll break it up into pieces, but here is the whole job:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;# Conditional job
+# Building a docker image and pushing this container to a container registry
+# Link to main image: https://github.com/bentolor/docker-dind-awscli
+
+# Conditions:
+# --- merge request events
+# --- target branch of merge request is &amp;quot;main&amp;quot;
+
+# job name
+build-image-glcr:
+  
+  # stage of pipeline
+  stage: build-image
+  # image that job is based on
+  image: docker:20.10.16
+  # sub-services of job
+  services:
+    - docker:20.10.16-dind
+  # variables available to the job
+  variables:
+    DOCKER_TLS_CERTDIR: &amp;quot;/certs&amp;quot;
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    
+  # some setup scripts -- here, just making sure docker is available
+  before_script:
+    - docker info
+
+  # meat of the job -- authentication, building, run, push
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build 
+      --build-arg CI_DEPLOY_USER=$CI_DEPLOY_USER 
+      --build-arg CI_DEPLOY_PASSWORD=$CI_DEPLOY_PASSWORD 
+      --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN
+      -t $IMAGE_TAG .
+    - docker run $IMAGE_TAG
+    - docker push $IMAGE_TAG
+
+  # job conditions
+  rules:
+    - if: $CI_PIPELINE_SOURCE == &#39;merge_request_event&#39; &amp;amp;&amp;amp; $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == &amp;quot;main&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This job is associated with a new stage called &lt;code&gt;build-image&lt;/code&gt; that will run as the last stage of this example CI/CD pipeline.  Without going into the specifics of the 
+&lt;a href=&#34;/post/cicd-3-docker/&#34;&gt;Dockerfile&lt;/a&gt; just yet, this stage builds and pushes a Docker image to a remote repository.  We defined the job image as &lt;code&gt;docker:20.10.16&lt;/code&gt; and an additional “service” attribute as &lt;code&gt;docker:20.10.16-dind&lt;/code&gt; where “dind” means “Docker-in-Docker”.  The Docker-in-Docker feature allows an image to run Docker itself (pretty meta, huh).  The idea here is to instantiate a job from a specific Docker container (“image”) which itself has Docker installed (“dind”), which will allow the docker:20.10.16 image to build &lt;em&gt;another&lt;/em&gt; Docker container.  We’ve also defined some variables:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DOCKER_TLS_CERTDIR&lt;/code&gt;: needed to allow the larger scale image to communicate with a service (honestly, I don’t quite understand this and documentation on CI/CD &amp;ldquo;services&amp;rdquo; is sparse)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;IMAGE_TAG&lt;/code&gt;: refers to the container destination and the image “name” &amp;ndash; this just makes our lives easier by turning into a variable what would otherwise be a really long string&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;#### Build Docker image and push to Gitlab Container Registry
+build-image-glcr:
+  stage: build-image
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DOCKER_TLS_CERTDIR: &amp;quot;/certs&amp;quot;
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next up, we have all the script stuff.  You’ll probably recognize most of the &lt;code&gt;docker ${command}&lt;/code&gt; commands.  We first “authenticate” the current job with the Gitlab container registry (apparently there are a variety of ways to “authenticate” with Docker using one set of variables or another – the way below is the way I was able to get working, but there are 
+&lt;a href=&#34;https://stackoverflow.com/questions/61251622/how-to-authenticate-to-gitlabs-container-registry-before-building-a-docker-imag&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;other solutions&lt;/a&gt;).  We then build the Docker image, run the image, and push the image to the container registry.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker build 
+    --build-arg CI_DEPLOY_USER=$CI_DEPLOY_USER 
+    --build-arg CI_DEPLOY_PASSWORD=$CI_DEPLOY_PASSWORD 
+    --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN
+    -t $IMAGE_TAG .
+  - docker run $IMAGE_TAG
+  - docker push $IMAGE_TAG
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You’ll notice a bunch of variables that I didn&amp;rsquo;t explicitly define anywhere:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CI_REGISTRY_USER&lt;/code&gt;: username for project (I think we can also use &lt;code&gt;CI_DEPLOY_USER&lt;/code&gt;, though it looks like there might be some things to figure out with branch / variable protections / non-protections)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_REGISTRY_PASSWORD&lt;/code&gt;: defaults to &lt;code&gt;CI_JOB_TOKEN&lt;/code&gt; value (this value is ephemeral e.g. valid only for one job at a time I think?  I think we can also use the &lt;code&gt;CI_DEPLOY_PASSWORD&lt;/code&gt; for a longer-lived alternative, though it looks like there might be some things to figure out with branch / variable protections / non-protections)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_REGISTRY&lt;/code&gt;: defaults to &lt;code&gt;https://gitlab.com/${group}/${project-name}/container_registry&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_DEPLOY_USER&lt;/code&gt;: generated user token&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_DEPLOY_PASSWORD&lt;/code&gt;: generated token password&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CI_JOB_TOKEN&lt;/code&gt;: see documentation 
+&lt;a href=&#34;https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These are all 
+&lt;a href=&#34;https://docs.gitlab.com/ee/ci/variables/predefined_variables.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;“predefined” variables&lt;/a&gt;, meaning they already exist in the Gitlab CI/CD context as part of having a 
+&lt;a href=&#34;https://www.gitlab.com&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;www.gitlab.com&lt;/a&gt; account, without you explicitly defining them.  However, I did run into some issues using &lt;code&gt;CI_DEPLOY_USER&lt;/code&gt; and &lt;code&gt;CI_DEPLOY_PASSWORD&lt;/code&gt;.  In addition to having predefined variables provided by Gitlab CI/CD, we can also 
+&lt;a href=&#34;./docs/SettingEnvVariables.md&#34;&gt;&lt;em&gt;manually&lt;/em&gt; predefine variables&lt;/a&gt; for a whole Gitlab Project or for a whole Group.  Go the page for your &lt;strong&gt;Project/Group &amp;gt; Settings &amp;gt; CI/CD &amp;gt; Variables &amp;gt; Expand&lt;/strong&gt;.  For example, I defined the &lt;code&gt;CI_DEPLOY_USER&lt;/code&gt; and &lt;code&gt;CI_DEPLOY_PASSWORD&lt;/code&gt; variables for my Group.  These variables are the Group-level authentication tokens and are now made accessible to all Gitlab CI/CD jobs running under this Group.  Additionally, although not shown here (because it&amp;rsquo;s used within the &lt;code&gt;setup_tokens.sh&lt;/code&gt; script), we&amp;rsquo;ve also defined an environment variable called &lt;code&gt;PACKAGE_REGISTRY_ID&lt;/code&gt; that tells the CI/CD pipeline where to build and push packages.&lt;/p&gt;
+&lt;p&gt;And finally, what we’ve been waiting for, conditional pipeline jobs:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;rules:
+  - if: $CI_PIPELINE_SOURCE == &#39;merge_request_event&#39; &amp;amp;&amp;amp; $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == &amp;quot;main&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As part of this job, I&amp;rsquo;ve defined a rule that indicates that this job should &lt;strong&gt;only&lt;/strong&gt; be run 1) upon a merge request event (i.e. if you click “Create Merge Request” in the console), and 2) if the name of the target branch of that merge request event is &lt;code&gt;main&lt;/code&gt;.  For example, if I create a new branch called &lt;code&gt;dev&lt;/code&gt; off of &lt;code&gt;main&lt;/code&gt; and create a merge request in the Gitlab console, this job will run.  However, it’s important to note that, if you push a commit to the &lt;code&gt;dev&lt;/code&gt; branch &lt;em&gt;after&lt;/em&gt; creating the merge request, this job will &lt;em&gt;still&lt;/em&gt; run, even if you havn’t created a &lt;em&gt;new&lt;/em&gt; merge request e.g. &lt;code&gt;CI_PIPELINE_SOURCE&lt;/code&gt; == &amp;ldquo;merge_request_event&amp;rdquo; will always default to &lt;code&gt;TRUE&lt;/code&gt; after the first merge request event, as long as the source branch is still actively being developed.  Additionally, the job itself for this &lt;strong&gt;will run the source branch code, not the target branch code&lt;/strong&gt;.  For Gitlab Premium users, there is an additional criteria called a “merged_result_event”, which would run the target branch (&lt;code&gt;main&lt;/code&gt;) code after merging the source branch (&lt;code&gt;dev&lt;/code&gt;) into the target branch.&lt;/p&gt;
+&lt;p&gt;Some of the (many) external links I used in this process:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://docs.gitlab.com/ee/ci/variables/predefined_variables.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Predefined&lt;/a&gt; CI/CD variables&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://gitlab.com/gitlab-org/gitlab/-/issues/214014&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Adding&lt;/a&gt; variables to the Gitlab CI/CD context&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://gitlab.com/gitlab-org/gitlab/-/issues/350582&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Setting&lt;/a&gt; up a ~/.netrc file with Gitlab credentials&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://stackoverflow.com/questions/72789599/gitlab-ci-cd-execute-script-file-that-exist-in-the-repository&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Executing&lt;/a&gt; a bash scripting within a Gitlab CI/CD pipeline&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://stackoverflow.com/questions/58939500/how-to-pass-gitlab-ci-file-variable-to-dockerfile-and-docker-container&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Passing&lt;/a&gt; variables to Docker image at build time&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://www.shellhacks.com/gitlab-ci-cd-build-docker-image-push-to-registry/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Building&lt;/a&gt; Docker image and pushing to registry&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://docs.gitlab.com/ee/user/packages/container_registry/authenticate_with_container_registry.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Authenticating&lt;/a&gt; container registries&lt;/li&gt;
+&lt;li&gt;
+&lt;a href=&#34;https://docs.gitlab.com/ee/user/packages/pypi_repository/#authenticate-with-the-package-registry&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Setting&lt;/a&gt; up a ~/.pypirc files with Gitlab credentials&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Visualizing SQL Schemas</title>
@@ -44,10 +463,10 @@
 &lt;figure &gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/sql-schema/reverse_hucaf06a6fd22e2d570ceaac7c0a8c909b_156034_2000x2000_fit_lanczos_2.png&#34; &gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/sql-schema/reverse_hucaf06a6fd22e2d570ceaac7c0a8c909b_156034_2000x2000_fit_lanczos_3.png&#34; &gt;
 
 
-  &lt;img data-src=&#34;/post/sql-schema/reverse_hucaf06a6fd22e2d570ceaac7c0a8c909b_156034_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;536&#34; height=&#34;248&#34;&gt;
+  &lt;img data-src=&#34;/post/sql-schema/reverse_hucaf06a6fd22e2d570ceaac7c0a8c909b_156034_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;536&#34; height=&#34;248&#34;&gt;
 &lt;/a&gt;
 
 
@@ -76,10 +495,10 @@
 &lt;figure &gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/sql-schema/schema_hu2c2607ea4c922e6e62e731c3eaf56347_263063_2000x2000_fit_lanczos_2.png&#34; &gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/sql-schema/schema_hu2c2607ea4c922e6e62e731c3eaf56347_263063_2000x2000_fit_lanczos_3.png&#34; &gt;
 
 
-  &lt;img data-src=&#34;/post/sql-schema/schema_hu2c2607ea4c922e6e62e731c3eaf56347_263063_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;766&#34; height=&#34;756&#34;&gt;
+  &lt;img data-src=&#34;/post/sql-schema/schema_hu2c2607ea4c922e6e62e731c3eaf56347_263063_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;766&#34; height=&#34;756&#34;&gt;
 &lt;/a&gt;
 
 
@@ -104,13 +523,13 @@ H(X) = - \sum_{x} p(x) \cdot log(p(x))
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Entropy measures the degree of uncertainty in a probability distribution.  It is independent of the values $X$ takes, and is entirely dependent on the density of $X$.  We can think of entropy as measuring how &amp;ldquo;peaked&amp;rdquo; a distribution is. Assume we are given a binary random variable $Y$&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-Y \sim Bernoulli(p) \\&lt;br&gt;
+Y \sim Bernoulli(p) \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;such that&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 Y =
 \begin{cases}
-1 &amp;amp; \text{with probability $p$} \\&lt;br&gt;
+1 &amp;amp; \text{with probability $p$} \\
 0 &amp;amp; \text{with probability $1-p$}
 \end{cases}
 \end{align}$$&lt;/p&gt;
@@ -136,10 +555,10 @@ Y =
 &lt;figure &gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_2.png&#34; &gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_3.png&#34; &gt;
 
 
-  &lt;img data-src=&#34;/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;424&#34; height=&#34;280&#34;&gt;
+  &lt;img data-src=&#34;/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;424&#34; height=&#34;280&#34;&gt;
 &lt;/a&gt;
 
 
@@ -149,8 +568,8 @@ Y =
 &lt;p&gt;Immediately evident is that the entropy curve peaks when $p=0.5$.  We are entirely uncertain what value $y$ will take if we have an equal chance of sampling either 0 or 1.  However, when $p = 0$ or $p=1$, we know exactly which value $y$ will take &amp;ndash; we aren&amp;rsquo;t uncertain at all.&lt;/p&gt;
 &lt;p&gt;Entropy is naturally related to the conditional entropy.  Given two variables $X$ and $Y$, conditional entropy is defined as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-H(Y|X) &amp;amp;= -\sum_{x}\sum_{y} = p(x,y)  \cdot log(\frac{p(x,y)}{p(x)}) \\&lt;br&gt;
-&amp;amp;= -\sum_{x}\sum_{y} p(y|x) \cdot p(x) \cdot log(p(y|x)) \\&lt;br&gt;
+H(Y|X) &amp;amp;= -\sum_{x}\sum_{y} = p(x,y)  \cdot log(\frac{p(x,y)}{p(x)}) \\
+&amp;amp;= -\sum_{x}\sum_{y} p(y|x) \cdot p(x) \cdot log(p(y|x)) \\
 &amp;amp;= -\sum_{x} p(x) \sum_{y} p(y|X=x) \cdot log(p(y|X=x))
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where $H(Y|X=x) = -\sum_{y} p(y|X=x) \cdot log(p(y|X=x))$, the conditional of entropy of $Y$ given that $X=x$.  Here, we&amp;rsquo;ve used the fact that $p(x,y) = p(y|x) \cdot p(x) = p(x|y) \cdot p(y)$.To compute $H(Y|X)$, we take the weighted average of these conditional entropies, where weights are defined by the marginal probabilities of $X$.&lt;/p&gt;
@@ -158,20 +577,20 @@ H(Y|X) &amp;amp;= -\sum_{x}\sum_{y} = p(x,y)  \cdot log(\frac{p(x,y)}{p(x)}) \\&
 &lt;p&gt;Related to entropy is the idea of mutual information.  Mutual information is a measure of the mutual dependence between two variables.  We can ask the following question:  does knowing something about variable $X$ tell us anything about variable $Y$?&lt;/p&gt;
 &lt;p&gt;The mutual information between $X$ and $Y$ is defined as:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-I(X,Y) &amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\&lt;br&gt;
-&amp;amp;= \sum_{x}\sum_{y}p(x,y) \cdot \log(p(x,y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(y)) \\&lt;br&gt;
-&amp;amp;= -H(X,Y) - \sum_{x}p(x) \cdot log(p(x)) - \sum_{y}p(y) \cdot log(p(y)) \\&lt;br&gt;
+I(X,Y) &amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\
+&amp;amp;= \sum_{x}\sum_{y}p(x,y) \cdot \log(p(x,y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(y)) \\
+&amp;amp;= -H(X,Y) - \sum_{x}p(x) \cdot log(p(x)) - \sum_{y}p(y) \cdot log(p(y)) \\
 &amp;amp;= H(X) + H(Y) - H(X,Y)
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;$I(X,Y)$ is symmetric in $X$ and $Y$:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-I(X,Y) &amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\&lt;br&gt;
-&amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x|y)}{p(y)}\Big) \\&lt;br&gt;
-&amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log(p(x|y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) \\&lt;br&gt;
-&amp;amp;= -H(X|Y) - \sum_{x}\sum_{y} p(x|y) \cdot p(y) \cdot log(p(x)) \\&lt;br&gt;
-&amp;amp;= -H(X|Y) - \sum_{x}log(p(x) \sum_{y}p(x|y) \cdot p(y) \\&lt;br&gt;
-&amp;amp;= -H(X|Y) - \sum_{x} p(x) \cdot log(p(x)) \\&lt;br&gt;
-&amp;amp;= H(X) - H(X|Y) \\&lt;br&gt;
+I(X,Y) &amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\
+&amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x|y)}{p(y)}\Big) \\
+&amp;amp;= \sum_{x}\sum_{y} p(x,y) \cdot log(p(x|y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) \\
+&amp;amp;= -H(X|Y) - \sum_{x}\sum_{y} p(x|y) \cdot p(y) \cdot log(p(x)) \\
+&amp;amp;= -H(X|Y) - \sum_{x}log(p(x) \sum_{y}p(x|y) \cdot p(y) \\
+&amp;amp;= -H(X|Y) - \sum_{x} p(x) \cdot log(p(x)) \\
+&amp;amp;= H(X) - H(X|Y) \\
 &amp;amp;= H(Y) - H(Y|X)
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;We interpret the above to mean the following: if we are given any information about X (Y), can we reduce the uncertainty around what Y (X) should be?  We understand how much variability there is in each variable independently &amp;ndash; this is measured by the marginal entropy $H(Y)$.  If knowing $X$ reduces this uncertainty, then the conditional entropy $H(Y|X)$ should be small.  If knowing $X$ does not reduce this uncertainty, then $H(Y|X)$ can be at most as large as $H(Y)$, and we have learned nothing about our dependent variable $Y$.&lt;/p&gt;
@@ -185,8 +604,8 @@ Z = f(A \otimes B)
 &lt;p&gt;$$\begin{align}
 A \otimes B =
 \begin{bmatrix}
-(a_{1},b_{1}) &amp;amp; \dots &amp;amp; (a_{1},b_{k}) \\&lt;br&gt;
-\vdots &amp;amp; \ddots &amp;amp; \vdots \\&lt;br&gt;
+(a_{1},b_{1}) &amp;amp; \dots &amp;amp; (a_{1},b_{k}) \\
+\vdots &amp;amp; \ddots &amp;amp; \vdots \\
 (a_{p}, b_{1}) &amp;amp; \dots &amp;amp; (a_{p}, b_{k})
 \end{bmatrix}
 \end{align}$$&lt;/p&gt;
@@ -212,10 +631,10 @@ A \otimes B =
 &lt;figure &gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_2.png&#34; &gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_3.png&#34; &gt;
 
 
-  &lt;img data-src=&#34;/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;424&#34; height=&#34;424&#34;&gt;
+  &lt;img data-src=&#34;/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;424&#34; height=&#34;424&#34;&gt;
 &lt;/a&gt;
 
 
@@ -224,9 +643,9 @@ A \otimes B =
 
 &lt;p&gt;We define the mutual information between $Z$ and $C$ as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-I(Z,C) &amp;amp;= \sum_{z}\sum_{c} p(z,c) \cdot log\Big(\frac{p(z,c)}{p(z)p(c)} \Big) \\&lt;br&gt;
-&amp;amp;= H(Z) - H(Z|C) \\&lt;br&gt;
-&amp;amp;= H(Z) - H(X|(A,B)) \\&lt;br&gt;
+I(Z,C) &amp;amp;= \sum_{z}\sum_{c} p(z,c) \cdot log\Big(\frac{p(z,c)}{p(z)p(c)} \Big) \\
+&amp;amp;= H(Z) - H(Z|C) \\
+&amp;amp;= H(Z) - H(X|(A,B)) \\
 &amp;amp;= H(Z) - \sum_{a,b} p(a,b) \sum_{z} p(z|(A,B)=(a,b)) \cdot log(p(z|(A,B)=(a,b)))
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where the pair $(a,b)$ represents a bin or subsection of the tensor-product space.  The code for this approach can be found below:&lt;/p&gt;
@@ -375,12 +794,12 @@ def mutual_information_grid(X,Y,Z):
 &lt;p&gt;In a recent paper, the authors propose one approach to address this question, which they call &amp;ldquo;jumping knowledge representation learning&amp;rdquo;&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.  Instead of utilizing the output of the last convolution layer to inform the prediction, jumping-knowledge networks aggregate the embeddings from all hidden layers to inform the final prediction.  The authors develop an approach to study the &amp;ldquo;influence distribution&amp;rdquo; of nodes: for a given node $x$, the influence distribution $I_{x}$ characterizes how much the final embedding of node $x$ is influenced by the input features of every other node:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-I(x,y) &amp;amp;= \sum_{i=1}^{m} |\frac{\delta h_{x}^{k}}{\delta h_{y}^{0}}|_{i} \\&lt;br&gt;
-I_{x}(y) &amp;amp;= I(x,y) \Big/\sum_{z} I(x,z)
+I(x,y) &amp;amp;= \sum_{i=1}^{m} |\frac{\delta h_{x}^{k}}{\delta h_{y}^{0}}|&lt;em&gt;{i} \\
+I&lt;/em&gt;{x}(y) &amp;amp;= I(x,y) \Big/\sum_{z} I(x,z)
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;They show that influence distribution $I_{x}$ for a $k$-layer graph convolution network is equal, in expectation, to the $k$-step random walk distribution.  They point out that the random walk distribution of expander-like nodes converge quickly &amp;ndash; the final embeddings of these nodes are represenative of the whole graph and carry global information &amp;ndash; while the random-walk distribution of nodes with tree-like topology converge slowly &amp;ndash; these nodes carry more-local information&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.  These two conclusions are related to the spectral gap of the graph &amp;ndash; the smallest non-zero eigenvalue of the graph Laplacian.  A large spectral gap indicates high-connectivity, while a low spectral gap indicates low connectivity.  From a graph theory perspective, this local connectivity is related to the idea of centrality.  Nodes with high centrality will easily saturate their random walk distribution, but will also aggregate information from large neighborhoods quickly.  For graph neural networks with fixed aggregation kernels, this has important implications for representation learning, because the feature distributions of nodes with different topologies will not correspond to the same degree of locality, which may not lead to the best learned representations for all nodes.  A radius that is too large may result in over-smoothing of node features, while a radius that is too small may not be robust enough to learn optimal node embeddings.&lt;/p&gt;
-&lt;p&gt;The jumping knowledge network architecture is conceptually similar to other graph neural networks, and we can, in fact, simply incorporate the jumping knowledge mechanism as an additional layer.  The goal is to adaptively learn the effective neighborhood size on a node-by-node basis, rather than enforcing the same aggregation radius for every node (remember, we want to account for local topological and feature variations).  The authors suggest three possible aggregation functions: concatentation, max-pooling, and an LSTM-attention mechanism &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.  Each aggregator learns an optimal combination of the hidden embeddings, which is then pushed through a linear layer to generate the final network output.  Concatenation determines the optimal linear combination of hidden embeddings for the entire dataset simultaneously, so it is not a node-specific aggregator.  Max-pooling selects the most important hidden layer for each feature element on a node-by-node basis &amp;ndash; however, empirically, I found that max-pooling was highly unstable in terms of model learning.  The LSTM-attention aggregator treats the hidden embeddings as a sequence of elements, and assigns a unique attention score to each hidden embedding &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;The jumping knowledge network architecture is conceptually similar to other graph neural networks, and we can, in fact, simply incorporate the jumping knowledge mechanism as an additional layer.  The goal is to adaptively learn the effective neighborhood size on a node-by-node basis, rather than enforcing the same aggregation radius for every node (remember, we want to account for local topological and feature variations).  The authors suggest three possible aggregation functions: concatentation, max-pooling, and an LSTM-attention mechanism &lt;sup id=&#34;fnref1:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.  Each aggregator learns an optimal combination of the hidden embeddings, which is then pushed through a linear layer to generate the final network output.  Concatenation determines the optimal linear combination of hidden embeddings for the entire dataset simultaneously, so it is not a node-specific aggregator.  Max-pooling selects the most important hidden layer for each feature element on a node-by-node basis &amp;ndash; however, empirically, I found that max-pooling was highly unstable in terms of model learning.  The LSTM-attention aggregator treats the hidden embeddings as a sequence of elements, and assigns a unique attention score to each hidden embedding &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 
 
 
@@ -453,30 +872,30 @@ $$&lt;/p&gt;
 
 &lt;p&gt;$$
 \begin{align}
-f_{t} &amp;amp;= \sigma(W_{f}X_{t} + U_{f}h_{t-1} + b_{f}) \\&lt;br&gt;
-i_{t} &amp;amp;= \sigma(W_{i}X_{t} + U_{i}h_{t-1} + b_{i}) \\&lt;br&gt;
-o_{t} &amp;amp;= \sigma(W_{o}X_{t} + U_{o}h_{t-1} + b_{o}) \\&lt;br&gt;
+f_{t} &amp;amp;= \sigma(W_{f}X_{t} + U_{f}h_{t-1} + b_{f}) \\
+i_{t} &amp;amp;= \sigma(W_{i}X_{t} + U_{i}h_{t-1} + b_{i}) \\
+o_{t} &amp;amp;= \sigma(W_{o}X_{t} + U_{o}h_{t-1} + b_{o}) \\
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;where $W$, $U$, and $b$ are learnable parameters of the gates.  Here, $X_{t}$ is the $t$-th sequence element, $h_{t-1}$ represents the learned LSTM cell embedding for element $t-1$, and $C_{t-1}$ represents the current memory state, given the previous $1, 2 \dots t-1$ elements.  The input and forget gates determine which aspects of a sequence element are informative / uninformative, and decide what information to keep / forget, while the output gate combines the previous memory state with our new knowledge.  We can roughly think of this process as updating our prior beliefs, in the Bayesian sense, with new incoming data.&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-\tilde{c_{t}} &amp;amp;= \sigma(W_{c}X_{t} + U_{c}h_{t-1} + b_{c}) \\&lt;br&gt;
-c_{t} &amp;amp;= f_{t}\circ c_{t-1} + i_{t} \tilde{c}_{t} \\&lt;br&gt;
-h_{t} &amp;amp;= o_{t} \circ tanh(c_{t})
+\tilde{c_{t}} &amp;amp;= \sigma(W_{c}X_{t} + U_{c}h_{t-1} + b_{c}) \\
+c_{t} &amp;amp;= f_{t}\circ c_{t-1} + i_{t} \tilde{c}&lt;em&gt;{t} \\
+h&lt;/em&gt;{t} &amp;amp;= o_{t} \circ tanh(c_{t})
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;The embeddings for each element learned by the LSTM cell are represented by $h_{t}$.  In the original paper&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;, the authors propose to apply a bi-directional LSTM to simultaneously learn forwards and backwards embeddings, which are concatenated and pushed through a single-layer perceptron to compute layer-specific attention weights for each node:&lt;/p&gt;
+&lt;p&gt;The embeddings for each element learned by the LSTM cell are represented by $h_{t}$.  In the original paper&lt;sup id=&#34;fnref2:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;, the authors propose to apply a bi-directional LSTM to simultaneously learn forwards and backwards embeddings, which are concatenated and pushed through a single-layer perceptron to compute layer-specific attention weights for each node:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-\alpha_{i}^{t} &amp;amp;= \sigma(\vec{w}_{t}^{T}(h^{F}_{i, t} || h^{B}_{i, t})) \\&lt;br&gt;
-\alpha_{i}^{t} &amp;amp;= \frac{\exp{(\alpha_{i}^{t})}}{\sum_{t=1}^{L} \exp{(\alpha_{i}^{t})}}
+\alpha_{i}^{t} &amp;amp;= \sigma(\vec{w}&lt;em&gt;{t}^{T}(h^{F}&lt;/em&gt;{i, t} || h^{B}&lt;em&gt;{i, t})) \\
+\alpha&lt;/em&gt;{i}^{t} &amp;amp;= \frac{\exp{(\alpha_{i}^{t})}}{\sum_{t=1}^{L} \exp{(\alpha_{i}^{t})}}
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;The softmax-normalized attention weights represent a probability distribution over attention weights&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\sum_{t=1}^{L} \alpha_{i}^{t} &amp;amp;= 1 \\&lt;br&gt;
-\\&lt;br&gt;
+\sum_{t=1}^{L} \alpha_{i}^{t} &amp;amp;= 1 \\
+\\
 \alpha_{i}^{t} &amp;amp;&amp;gt;= 0
 \end{align}
 $$&lt;/p&gt;
@@ -508,7 +927,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-comparison-of-the-group-average-predicted-cortical-segmentation-produced-by-the-jkgat-model-to-the-ground-truth-cortical-segmentation--the-ground-truth-was-previously-generated-herehttpswwwncbinlmnihgovpmcarticlespmc4990127--the-consensus-cortical-map-corresponds-very-well-to-the-true-map&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./prediction_G.png&#34; data-caption=&#34;Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated here.  The consensus cortical map corresponds very well to the true map.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./prediction_G.png&#34; data-caption=&#34;Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated 
+here.  The consensus cortical map corresponds very well to the true map.&#34;&gt;
 
 
   &lt;img src=&#34;./prediction_G.png&#34; alt=&#34;&#34;  &gt;
@@ -518,7 +938,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated &lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4990127/&#34;&gt;here&lt;/a&gt;.  The consensus cortical map corresponds very well to the true map.
+    Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated 
+&lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4990127/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;.  The consensus cortical map corresponds very well to the true map.
   &lt;/figcaption&gt;
 
 
@@ -630,31 +1051,31 @@ $$&lt;/p&gt;
 
 &lt;/figure&gt;
 
-&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
-&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
 &lt;p&gt;Xu et al. 
-&lt;a href=&#34;https://arxiv.org/pdf/1806.03536.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Representation Learning on Graphs with Jumping Knowledge Networks&lt;/a&gt;. 2018. &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://arxiv.org/pdf/1806.03536.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Representation Learning on Graphs with Jumping Knowledge Networks&lt;/a&gt;. 2018.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref2:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
 &lt;p&gt;Dinitz et a. 
-&lt;a href=&#34;https://arxiv.org/pdf/1611.01755.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Low-Diameter Graphs are Good Expanders&lt;/a&gt;. 2017. &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://arxiv.org/pdf/1611.01755.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Low-Diameter Graphs are Good Expanders&lt;/a&gt;. 2017.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
 &lt;p&gt;Lutzeyer et al. 
-&lt;a href=&#34;https://arxiv.org/pdf/1712.03769.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparing Graph Spectra of Adjacency and Laplacian Matrices&lt;/a&gt;. 2017. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://arxiv.org/pdf/1712.03769.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparing Graph Spectra of Adjacency and Laplacian Matrices&lt;/a&gt;. 2017.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
 &lt;p&gt;Gers, Felix.  
-&lt;a href=&#34;http://www.felixgers.de/papers/phd.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Long Short-Term Memory in Recurrent Neural Networks&lt;/a&gt;. 2001. &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;http://www.felixgers.de/papers/phd.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Long Short-Term Memory in Recurrent Neural Networks&lt;/a&gt;. 2001.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
 &lt;p&gt;Fan et al. 
-&lt;a href=&#34;https://www.mdpi.com/2073-4441/12/1/175/htm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparison of Long Short Term Memory Networks and the Hydrological Model in Runoff Simulation&lt;/a&gt;.  2020. &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://www.mdpi.com/2073-4441/12/1/175/htm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparison of Long Short Term Memory Networks and the Hydrological Model in Runoff Simulation&lt;/a&gt;.  2020.&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/section&gt;
+&lt;/div&gt;
 </description>
     </item>
     
@@ -686,7 +1107,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-figure-from-velickovic-et-alhttpsarxivorgpdf171010903pdf--for-a-source-node-i-and-destination-node-j-vectors-vech_i-and-vech_j-are-the-input-feature-vectors-of-nodes-i-and-j-in-layer-l--mathbfw-is-a-learned-affine-projection-matrix--mathbfveca-is-the-learned-attention-function--the-source-and-destination-node-input-features-are-pushed-through-the-attention-layer-as-alpha_ij--sigmabigvecatmathbfwbigvech_i--vech_jbigbig-where-sigma-is-an-activation-function-and-alpha_ij-the-unnormalized-attention-that-node-i-pays-to-node-j-in-layer-l--attention-weights-are-then-passed-through-a-softmax-layer-mapping-the-attentions-between-01&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./attention_mechanism.png&#34; data-caption=&#34;Figure from Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./attention_mechanism.png&#34; data-caption=&#34;Figure from 
+Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].&#34;&gt;
 
 
   &lt;img src=&#34;./attention_mechanism.png&#34; alt=&#34;&#34;  &gt;
@@ -696,7 +1118,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Figure from &lt;a href=&#34;https://arxiv.org/pdf/1710.10903.pdf&#34;&gt;Velickovic et al&lt;/a&gt;.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
+    Figure from 
+&lt;a href=&#34;https://arxiv.org/pdf/1710.10903.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Velickovic et al&lt;/a&gt;.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
   &lt;/figcaption&gt;
 
 
@@ -898,7 +1321,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-various-maps-of-the-primate-visual-cortex--tootell-et-al-2003httpswwwjneurosciorgcontent23103981&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; data-caption=&#34;Various maps of the primate visual cortex.  Tootell et al, 2003.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; data-caption=&#34;Various maps of the primate visual cortex.  
+Tootell et al, 2003.&#34;&gt;
 
 
   &lt;img src=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; alt=&#34;&#34;  &gt;
@@ -908,7 +1332,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Various maps of the primate visual cortex.  &lt;a href=&#34;https://www.jneurosci.org/content/23/10/3981&#34;&gt;Tootell et al, 2003&lt;/a&gt;.
+    Various maps of the primate visual cortex.  
+&lt;a href=&#34;https://www.jneurosci.org/content/23/10/3981&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Tootell et al, 2003&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -921,11 +1346,11 @@ G = -\sum_{k=1}^{k}\sum_{l \in \mathcal{L}} \sum_{h \in \mathcal{L} \setminus \m
 &lt;p&gt;where $w_{l}^{k}$ is the probability weight assigned to label $h \in \mathcal{L}\setminus \mathcal{N_{l}}$ i.e. the set of labels not adjacent to label $l$.  In order to follow the idea of a cross-entropy, we enforce the following constraints on weights $\mathbf{w}$:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-w_{l}^{k} &amp;gt;&amp;amp;= 0 \\&lt;br&gt;
+w_{l}^{k} &amp;gt;&amp;amp;= 0 \\
 \sum_{l \in \mathcal{L}} w_{l}^{k} &amp;amp;= 1
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to &lt;strong&gt;not&lt;/strong&gt; be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}_{l} = j) = 0.05$, then $log(1-p(x^{k}_{l} = j))$ will be small.  However, if $p(x^{k}_{l} = j) = 0.95$, then $log(1-p(x^{k}_{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &amp;ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}_{l} \in \mathcal{N_{t}}$, we simply set $w_{l}^{k} = 0$ &amp;ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.&lt;/p&gt;
+&lt;p&gt;such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to &lt;strong&gt;not&lt;/strong&gt; be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}&lt;em&gt;{l} = j) = 0.05$, then $log(1-p(x^{k}&lt;/em&gt;{l} = j))$ will be small.  However, if $p(x^{k}&lt;em&gt;{l} = j) = 0.95$, then $log(1-p(x^{k}&lt;/em&gt;{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &amp;ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}&lt;em&gt;{l} \in \mathcal{N&lt;/em&gt;{t}}$, we simply set $w_{l}^{k} = 0$ &amp;ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.&lt;/p&gt;
 &lt;p&gt;Below, I&amp;rsquo;ve implemented this loss function using 
 &lt;a href=&#34;https://pytorch.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Pytorch&lt;/a&gt; and 
 &lt;a href=&#34;https://www.dgl.ai/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Graph Library&lt;/a&gt;.  Assume that we are given the adjacency matrix of our mesh, the logits of our model, and the true label of our training data:&lt;/p&gt;
@@ -1029,7 +1454,8 @@ optimizer.step() # update weights and parameters w.r.t new gradient
 &lt;figure id=&#34;figure-demonstration-of-graph-convolution-network-from-thomas-kipfhttpstkipfgithubiograph-convolutional-networks&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; data-caption=&#34;Demonstration of graph convolution network from Thomas Kipf.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; data-caption=&#34;Demonstration of graph convolution network from 
+Thomas Kipf.&#34;&gt;
 
 
   &lt;img src=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; alt=&#34;&#34;  &gt;
@@ -1039,7 +1465,8 @@ optimizer.step() # update weights and parameters w.r.t new gradient
   
   
   &lt;figcaption&gt;
-    Demonstration of graph convolution network from &lt;a href=&#34;https://tkipf.github.io/graph-convolutional-networks/&#34;&gt;Thomas Kipf&lt;/a&gt;.
+    Demonstration of graph convolution network from 
+&lt;a href=&#34;https://tkipf.github.io/graph-convolutional-networks/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Thomas Kipf&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -1049,10 +1476,10 @@ optimizer.step() # update weights and parameters w.r.t new gradient
 &lt;a href=&#34;http://arxiv.org/abs/1803.10336&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;, where the authors utilitize Gaussian kernels as filters over the neighborhood of nodes.  However, the authors did not open-source their code &amp;ndash; as such, I needed to implement this method myself.  Assume our input data to layer $l$ is $Y^{(l)} \in \mathbb{R}^{N \times q}$ for $N$ nodes in the graph.  We can define the Gaussian kernel-weighted convolution as follows:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}_{i}} \sum_{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
+z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}&lt;em&gt;{i}} \sum&lt;/em&gt;{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}&lt;em&gt;{i}, \hat{\mu}&lt;/em&gt;{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:&lt;/p&gt;
+&lt;p&gt;Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}&lt;em&gt;{i}, \hat{\mu}&lt;/em&gt;{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
 \phi(\hat{\mu_{i}}, \hat{\mu_{j}}; \sigma_{k}^{(l)}, \mu_{k}^{(l)}  ) = \exp^{-\sigma_{k}^{(l)} \left\Vert (\hat{\mu_{i}} - \hat{\mu_{j}}) - \mu_{k}^{(l)} \right\Vert^{2}}
@@ -1077,7 +1504,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-figure-from-wu-et-alhttpswwwncbinlmnihgovpmcarticlespmc7052684--v_i-is-our-voxel-of-interest-and-v_ki-for-demonstration-purposes-is-an-adjacent-node--both-v_i-and-v_ki-are-characterized-by-embedding-vectors-e_i-e_ki-in-mathbbrq-from-which-we-compute-the-kernel-weight-phi_ik-characterizing-how-similar-the-two-vertices-embedding-vectors-are&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./gaussian_radius.png&#34; data-caption=&#34;Figure from Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./gaussian_radius.png&#34; data-caption=&#34;Figure from 
+Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.&#34;&gt;
 
 
   &lt;img src=&#34;./gaussian_radius.png&#34; alt=&#34;&#34;  &gt;
@@ -1087,7 +1515,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Figure from &lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/&#34;&gt;Wu et al.&lt;/a&gt;.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.
+    Figure from 
+&lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Wu et al.&lt;/a&gt;.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.
   &lt;/figcaption&gt;
 
 
@@ -1233,17 +1662,19 @@ tensor([[0.1873, 0.7217],
 &lt;figure id=&#34;figure-intersecting-2d-linear-subspaceshttpswwwresearchgatenetpublication327930102_optimal_exploitation_of_subspace_prior_information_in_matrix_sensing&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Intersecting 2D linear subspaces.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Intersecting 2D linear 
+subspaces.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;640&#34; height=&#34;483&#34;&gt;
+  &lt;img data-src=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;640&#34; height=&#34;483&#34;&gt;
 &lt;/a&gt;
 
 
   
   
   &lt;figcaption&gt;
-    Intersecting 2D linear &lt;a href=&#34;https://www.researchgate.net/publication/327930102_Optimal_Exploitation_of_Subspace_Prior_Information_in_Matrix_Sensing&#34;&gt;subspaces&lt;/a&gt;.
+    Intersecting 2D linear 
+&lt;a href=&#34;https://www.researchgate.net/publication/327930102_Optimal_Exploitation_of_Subspace_Prior_Information_in_Matrix_Sensing&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;subspaces&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -1253,8 +1684,8 @@ tensor([[0.1873, 0.7217],
 &lt;a href=&#34;https://en.wikipedia.org/wiki/QR_decomposition&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;QR decomposition&lt;/a&gt; and the 
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Singular_value_decomposition&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Singular Value Decomposition&lt;/a&gt;.  For two subspaces $[U, W]$, we compute the QR decomposition of both:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-U &amp;amp;= Q_{u}R_{u}\\&lt;br&gt;
-W &amp;amp;= Q_{w}R_{w}\\&lt;br&gt;
+U &amp;amp;= Q_{u}R_{u}\\
+W &amp;amp;= Q_{w}R_{w}\\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where $Q_{u}$ and $Q_{w} \in \mathbb{R}^{n \times k}$ are orthonormal bases such that $Q_{u}^{T}Q_{u} = Q_{w}^{T}Q_{w} = I_{k}$ that span the same subspace as the original columns of $U$ and $W$, and $R_{u}$ and $R_{w} \in \mathbb{R}^{k \times k}$ are lower triangular matrices.  Next, we compute the matrix $D = \langle Q_{u}, Q_{w} \rangle = Q_{u}^{T} Q_{w} \in \mathbb{R}^{k \times k}$, and then apply the singular value decomposition:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
@@ -1262,7 +1693,7 @@ D = USV^{T}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;We can sort of think of $D$ as the cross-covariance matrix.  As such, the singular vectors represent the main orthogonal axes of cross-covariation between our two subspaces, while the singular values represent angles.  In order to compute the principle angles of our subspaces, we simply take&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\theta &amp;amp;= cos^{-1}(S) \\&lt;br&gt;
+\theta &amp;amp;= cos^{-1}(S) \\
 &amp;amp;=cos^{-1}[\sigma_{1}, \sigma_{2}&amp;hellip;\sigma_{k}]
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;which gives us the principle angles (in radians).  Because the SVD is invariant to sign (+/-), the principle angles range between $\Big[0, \frac{\pi}{2}\Big]$.  This means that subspaces that span the same space have a principle angle of 0, and subspaces that are orthogonal (maximally far apart) to one another have a principle angle of $\frac{\pi}{2}$.&lt;/p&gt;
@@ -1294,17 +1725,19 @@ d(X_{i}, X_{j}) = \sqrt{\sum_{n=1}^{k} cos^{-1}(\sigma_{n})^{2}}
 &lt;figure id=&#34;figure-grassmann-manifold-and-its-tangent-spacehttpsdeepaiorgpublicationautomatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Grassmann manifold and its tangent space.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Grassmann manifold and its 
+tangent space.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;398&#34; height=&#34;249&#34;&gt;
+  &lt;img data-src=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;398&#34; height=&#34;249&#34;&gt;
 &lt;/a&gt;
 
 
   
   
   &lt;figcaption&gt;
-    Grassmann manifold and its &lt;a href=&#34;https://deepai.org/publication/automatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version&#34;&gt;tangent space&lt;/a&gt;.
+    Grassmann manifold and its 
+&lt;a href=&#34;https://deepai.org/publication/automatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;tangent space&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -1432,32 +1865,32 @@ with open(&amp;quot;README.md&amp;quot;, &amp;quot;r&amp;quot;) as fh:
 
 &lt;p&gt;Scroll down and click &lt;code&gt;Add API Token&lt;/code&gt;:&lt;/p&gt;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-&lt;figure &gt;
-
-
-  &lt;a data-fancybox=&#34;&#34; href=&#34;notebook_figures/packages/PyPi_Token.png&#34; &gt;
-
-
-  &lt;img src=&#34;notebook_figures/packages/PyPi_Token.png&#34; alt=&#34;&#34;  &gt;
-&lt;/a&gt;
-
-
-
-&lt;/figure&gt;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ &lt;figure &gt;
+ 
+ 
+   &lt;a data-fancybox=&#34;&#34; href=&#34;notebook_figures/packages/PyPi_Token.png&#34; &gt;
+ 
+ 
+   &lt;img src=&#34;notebook_figures/packages/PyPi_Token.png&#34; alt=&#34;&#34;  &gt;
+ &lt;/a&gt;
+ 
+ 
+ 
+ &lt;/figure&gt;
 
 &lt;p&gt;Follow the instructions there, making sure to select &amp;ldquo;Entire Account&amp;rdquo; option under the &lt;code&gt;Scope&lt;/code&gt; tab.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;DO NOT CLOSE THIS WINDOW WHEN THIS IS COMPLETE&lt;/strong&gt;&lt;/p&gt;
@@ -1729,10 +2162,10 @@ done &amp;lt;${subjects}
 &lt;figure id=&#34;figure-example-of-qstat-command-after-submitting-jobs-view-qsub&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/submitting-batch-jobs-with-qsub/qsub_huaabaffbba137fe798b5631086ab7846a_122046_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Example of qstat command, after submitting jobs view qsub.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/submitting-batch-jobs-with-qsub/qsub_huaabaffbba137fe798b5631086ab7846a_122046_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Example of qstat command, after submitting jobs view qsub.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/submitting-batch-jobs-with-qsub/qsub_huaabaffbba137fe798b5631086ab7846a_122046_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;799&#34; height=&#34;323&#34;&gt;
+  &lt;img data-src=&#34;/post/submitting-batch-jobs-with-qsub/qsub_huaabaffbba137fe798b5631086ab7846a_122046_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;799&#34; height=&#34;323&#34;&gt;
 &lt;/a&gt;
 
 
@@ -1760,7 +2193,7 @@ done &amp;lt;${subjects}
 &lt;p&gt;The authors use some conventional brain imaging software to compute the gradient of their data.  The domain of this data is a triangulated mesh, described by the graph $G = (V, E)$, where $V$ are vertices in Euclidean space and $E$ the edges between these vertices.  In short, for a vertex, $v_{i}$, we first need to compute the gradient vector of the scalar field at $v_{i}$.  We &amp;ldquo;unfold&amp;rdquo; the 3D positions of adjacent vertices onto the tangent plane of $v_{i}$ &amp;ndash; which we can do by orthogonally projecting the adjacent vertices onto the affine subspace at $v_{i}$ and then weighting appropriately.  We then regress the graph signal (our scalar field) onto these unfolded positions.  The $L_{2}$ norm of this vector is the gradient at $v_{i}$.&lt;/p&gt;
 &lt;p&gt;For each vertex, we have a normal vector to the surface $N$, its spatial 3D coordinates $v_{i} = (x, y, z)$, and a list of its adjacent vertices.  We can compute the orthogonal projector onto affine subspace spanned by $N$, $P_{N}$, and it&amp;rsquo;s orthogonal complement, $Q_{N}$, as:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-P_{N} &amp;amp;= N(N^{T}N)^{-1}N^{T} \\&lt;br&gt;
+P_{N} &amp;amp;= N(N^{T}N)^{-1}N^{T} \\
 Q_{N} &amp;amp;= I - P_{N}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;For any vertex, $v_{j}$, we can compute the orthogonal projection onto the affine subspace spanned by $Q_{N}$ as:&lt;/p&gt;
@@ -1771,17 +2204,17 @@ q(v_{j}) = Q_{N}(v_{j} - v_{i}) + v_{i}
 &lt;p&gt;$$
 S_{i} = f(i) -
 \begin{bmatrix}
-f(v_{1}) \\&lt;br&gt;
-f(v_{2}) \\&lt;br&gt;
-\vdots \\&lt;br&gt;
+f(v_{1}) \\
+f(v_{2}) \\
+\vdots \\
 f(v_{j})
 \end{bmatrix}
 \in \mathbb{R}^{j} \;\;\;
 R_{i} =
 \begin{bmatrix}
-q(v_{1}) \\&lt;br&gt;
-q(v_{2}) \\&lt;br&gt;
-\vdots \\&lt;br&gt;
+q(v_{1}) \\
+q(v_{2}) \\
+\vdots \\
 q(v_{j})
 \end{bmatrix} \in \mathbb{R}^{j \times 3}
 $$&lt;/p&gt;
@@ -1792,7 +2225,7 @@ S_{i} = R_{i}\beta
 &lt;p&gt;where $\beta \in \mathbb{R}^{3}$, which indicates how much each coordinate axis contributes to variation in the scalar field at $v_{i}$.  The gradient value at vertex $v_{i} = \left || \beta \right||_{2}$.&lt;/p&gt;
 &lt;h3 id=&#34;watershed-by-flooding-algorithm&#34;&gt;Watershed By Flooding Algorithm&lt;/h3&gt;
 &lt;p&gt;The new scalar field of $L_{2}$ norms is our gradient field, which describes how &amp;ldquo;quickly&amp;rdquo; our original data changes at each vertex.  We can now apply the 
-&lt;a href=&#34;https://en.wikipedia.org/wiki/Watershed_%28image_processing%29&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Watershed Algorithm&lt;/a&gt; to segment our mesh data.  In brief, the watershed algorithm treats the gradient field as a *topographic map*: low-elevation areas (areas with a small gradient) are &amp;ldquo;water basins&amp;rdquo;.  If we imagine water flooding this map from the bottom up, basins at low elevation will flood first, while areas at higher elevations will fill last.  When water basins meet, the water has reached a &amp;ldquo;boundary&amp;rdquo; (or ridgeline, if we&amp;rsquo;re using the topographic map idea).&lt;/p&gt;
+&lt;a href=&#34;https://en.wikipedia.org/wiki/Watershed_%28image_processing%29&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Watershed Algorithm&lt;/a&gt; to segment our mesh data.  In brief, the watershed algorithm treats the gradient field as a &lt;em&gt;topographic map&lt;/em&gt;: low-elevation areas (areas with a small gradient) are &amp;ldquo;water basins&amp;rdquo;.  If we imagine water flooding this map from the bottom up, basins at low elevation will flood first, while areas at higher elevations will fill last.  When water basins meet, the water has reached a &amp;ldquo;boundary&amp;rdquo; (or ridgeline, if we&amp;rsquo;re using the topographic map idea).&lt;/p&gt;
 &lt;p&gt;I&amp;rsquo;ve implemented an algorithm variant called 
 &lt;a href=&#34;https://www.sciencedirect.com/science/article/pii/S0098300418307957&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Priority Flooding&amp;rdquo;&lt;/a&gt;, using Python&amp;rsquo;s 
 &lt;a href=&#34;https://docs.python.org/2/library/heapq.html&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;heapq&lt;/a&gt; 
@@ -2199,14 +2632,14 @@ for mean, case_data in samples.items():
 &lt;p&gt;For the slopes, we have&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-\beta_{Control} &amp;amp;\sim Beta(a=5, b=3) \&lt;br&gt;
+\beta_{Control} &amp;amp;\sim Beta(a=5, b=3) \
 \beta_{Case} &amp;amp;\sim Beta(a=10, b=2)
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;and for the intercepts, we have&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-I_{Control} &amp;amp;\sim Normal(\mu=0, \sigma=1) \&lt;br&gt;
+I_{Control} &amp;amp;\sim Normal(\mu=0, \sigma=1) \
 I_{Case} &amp;amp;\sim Normal(\mu=4, \sigma=1)
 \end{align}
 $$&lt;/p&gt;
@@ -2543,7 +2976,7 @@ print(len(initialized_list))
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Taylor_series&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Taylor Series&lt;/a&gt; approximation.&lt;/p&gt;
 &lt;p&gt;In the univariate case, if we have a random variable, $X_{n}$, that converges in distribution to a $N(0, \sigma^{2})$ distribution, we can apply a function to this random variable as:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\sqrt{n}(X_{n} - \theta) \xrightarrow{d} N(0,\sigma^{2}) \\&lt;br&gt;
+\sqrt{n}(X_{n} - \theta) \xrightarrow{d} N(0,\sigma^{2}) \\
 \sqrt{n}(g(X_{n}) - g(\theta)) \xrightarrow{d} ; ?
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;However, we don&amp;rsquo;t know the asymptotic variance of this transformed variable just yet.  In this case, we can approximate our function $g(x)$ using a Taylor Series approximation, evaluated at $\theta$:&lt;/p&gt;
@@ -2556,8 +2989,8 @@ g(x) = g(\theta) + g\prime(\theta)(x-\theta) + O()
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Continuous_mapping_theorem&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Continious Mapping Theorem&lt;/a&gt;, we know that since $\bar{\theta} \xrightarrow{p} \theta$, we know that $g\prime(\bar{\theta}) \xrightarrow{p} g\prime(\theta)$&lt;/p&gt;
 &lt;p&gt;Plugging this back in to our original equation and applying Slutsky&amp;rsquo;s Perturbation Theorem, we have:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;= \sqrt{n}(\Big[g(\theta) + g\prime(\theta)(x-\theta)\Big] - g(\theta)) \\&lt;br&gt;
-&amp;amp;= \sqrt{n}(g\prime(\theta)(x-\theta)) \\&lt;br&gt;
+&amp;amp;= \sqrt{n}(\Big[g(\theta) + g\prime(\theta)(x-\theta)\Big] - g(\theta)) \\
+&amp;amp;= \sqrt{n}(g\prime(\theta)(x-\theta)) \\
 &amp;amp;= g\prime(\theta)\sqrt{n}(X_{n} - \theta)
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;and since we know that $\sqrt{n}(\bar{X_{n}} - \theta)  \xrightarrow{d} N(0,\sigma^{2})$, we now know that $g\prime(\theta) \sqrt{n}(\bar{X_{n}} - \theta) \xrightarrow{d} N(0,g\prime(\theta)^{2} \sigma^{2})$.  As such, we have that:&lt;/p&gt;
@@ -2733,14 +3166,14 @@ for j ,m in enumerate(mus):
 &lt;p&gt;where the variance $\sigma^{2}(\lambda)$ depends on the mean, $\lambda$.  In order to stabilize the variance of this variable, we can apply the 
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Delta_method&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Delta Method&lt;/a&gt;, in order to generate a variable that converges to a standard Normal distribution asymptotically.&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\sqrt{n}(g(X_{\lambda}) - g(\lambda)) \xrightarrow{d} N(0,g\prime(\theta)^{2}\sigma^{2}) \&lt;br&gt;
+\sqrt{n}(g(X_{\lambda}) - g(\lambda)) \xrightarrow{d} N(0,g\prime(\theta)^{2}\sigma^{2}) \
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;g\prime(\theta)^{2} \theta = 1 \\&lt;br&gt;
-&amp;amp;g\prime(\theta)^{2} = \frac{1}{\theta} \\&lt;br&gt;
-&amp;amp;g\prime(\theta) = \frac{1}{\sqrt{\theta}} \\&lt;br&gt;
-&amp;amp;g(\theta) = \int \frac{\partial{\theta}}{\sqrt{\theta}} \\&lt;br&gt;
+&amp;amp;g\prime(\theta)^{2} \theta = 1 \\
+&amp;amp;g\prime(\theta)^{2} = \frac{1}{\theta} \\
+&amp;amp;g\prime(\theta) = \frac{1}{\sqrt{\theta}} \\
+&amp;amp;g(\theta) = \int \frac{\partial{\theta}}{\sqrt{\theta}} \\
 &amp;amp;g(\theta) = 2\sqrt{\theta}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;is our variance stabilizing function.&lt;/p&gt;
@@ -2894,20 +3327,20 @@ for i,n in enumerate(N):
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Logistic_function&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;logistic function&lt;/a&gt; via logistic regression to assess whether or not a banknote is real or fake, using a set of features.   I&amp;rsquo;ll compute confidence intervals of our prediction probabilities using the Delta Method.  There are four unique predictors in this case: the &lt;strong&gt;variance&lt;/strong&gt;, &lt;strong&gt;skew&lt;/strong&gt;, &lt;strong&gt;kurtosis&lt;/strong&gt;, and &lt;strong&gt;entropy&lt;/strong&gt; of the Wavelet-transformed banknote image.  I&amp;rsquo;ll treat each of these predictors independently, using polynomial basis function of degree 3.&lt;/p&gt;
 &lt;p&gt;In this example, we&amp;rsquo;re interested in the standard error of our probability estimate.  Our function is the Logistic Function, as follows:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-g(\beta) &amp;amp;= \frac{1}{1+e^{-x^{T}\beta}} \\&lt;br&gt;
+g(\beta) &amp;amp;= \frac{1}{1+e^{-x^{T}\beta}} \\
 &amp;amp;= \frac{e^{x^{T}\beta}}{1+e^{x^{T}\beta}}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where the gradient of this multivariate function is:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\nabla g(\beta) &amp;amp;= \frac{\partial g}{\partial \beta} e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} \\&lt;br&gt;
-&amp;amp;= x^{T}e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - x^{T}e^{x^{T}\beta}e^{x^{T}\beta} \\&lt;br&gt;
-&amp;amp;= x^{T}\Big(e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - e^{x^{T}\beta}e^{x^{T}\beta}\Big)(1+e^{x^{T}\beta})^{-2} \\&lt;br&gt;
-&amp;amp;= x^{T} \frac{e^{x^{T}\beta}}{(1+e^{x^{T}\beta})^{2}} \\&lt;br&gt;
+\nabla g(\beta) &amp;amp;= \frac{\partial g}{\partial \beta} e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} \\
+&amp;amp;= x^{T}e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - x^{T}e^{x^{T}\beta}e^{x^{T}\beta} \\
+&amp;amp;= x^{T}\Big(e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - e^{x^{T}\beta}e^{x^{T}\beta}\Big)(1+e^{x^{T}\beta})^{-2} \\
+&amp;amp;= x^{T} \frac{e^{x^{T}\beta}}{(1+e^{x^{T}\beta})^{2}} \\
 \nabla g(\beta) &amp;amp;= x^{T} g(\beta)(1-g(\beta))
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;so that the final estimate of our confidence interval becomes&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp; \sim N(0,x^{T} g(\beta)(1-g(\beta)) \Sigma g(\beta)(1-g(\beta))x) \\&lt;br&gt;
+&amp;amp; \sim N(0,x^{T} g(\beta)(1-g(\beta)) \Sigma g(\beta)(1-g(\beta))x) \\
 &amp;amp; \sim N(0, \nabla g(\beta)^{T} \Sigma \nabla g(\beta))
 \end{align}$$&lt;/p&gt;
 &lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import pandas as pd
@@ -3089,10 +3522,10 @@ plt.tight_layout()
 &lt;figure id=&#34;figure-example-of-cortical-map-and-array-of-connectivity-features&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Example of cortical map, and array of connectivity features.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Example of cortical map, and array of connectivity features.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1296&#34; height=&#34;432&#34;&gt;
+  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1296&#34; height=&#34;432&#34;&gt;
 &lt;/a&gt;
 
 
@@ -3122,31 +3555,31 @@ d &amp;amp;= \sqrt{(\bar{x} - \mu)\Sigma^{-1}(\bar{x}-\mu)^{T}}
 &lt;p&gt;$$\begin{align}
 d^{2} &amp;amp;= (\bar{x} - \mu)\Sigma^{-1}(\bar{x}-\mu)^{T}
 \end{align}$$&lt;/p&gt;
-&lt;p&gt;where $\Sigma^{-1}$ is the inverse covariance matrix.  If our $X$&#39;s were initially distributed with a multivariate normal distribution, $N_{p}(\mu,\Sigma)$ (assuming $\Sigma$ is non-degenerate i.e. positive definite), the squared Mahalanobis distance, $d^{2}$ has a $\chi^{2}_{p}$ distribution.  We show this below.&lt;/p&gt;
+&lt;p&gt;where $\Sigma^{-1}$ is the inverse covariance matrix.  If our $X$&amp;rsquo;s were initially distributed with a multivariate normal distribution, $N_{p}(\mu,\Sigma)$ (assuming $\Sigma$ is non-degenerate i.e. positive definite), the squared Mahalanobis distance, $d^{2}$ has a $\chi^{2}_{p}$ distribution.  We show this below.&lt;/p&gt;
 &lt;p&gt;We know that $(X-\mu)$ is distributed $N_{p}(0,\Sigma)$.  We also know that, since $\Sigma$ is symmetric and real, that we can compute the eigendecomposition of $\Sigma$ as:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 \Sigma = U \Lambda U^{T}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;and consequentially, because $U$ is an orthogonal matrix, and because $\Lambda$ is diagonal, we know that $\Sigma^{-1}$ is:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\Sigma^{-1} &amp;amp;= (U \Lambda U^{T})^{-1} \\&lt;br&gt;
-&amp;amp;= U \Lambda^{-1} U^{T} \\&lt;br&gt;
-&amp;amp;= (U \Lambda^{\frac{-1}{2}}) (U \Lambda^{\frac{-1}{2}})^{T} \\&lt;br&gt;
+\Sigma^{-1} &amp;amp;= (U \Lambda U^{T})^{-1} \\
+&amp;amp;= U \Lambda^{-1} U^{T} \\
+&amp;amp;= (U \Lambda^{\frac{-1}{2}}) (U \Lambda^{\frac{-1}{2}})^{T} \\
 &amp;amp;= R R^{T}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Therefore, we know that $R^{T}(X-\mu) \sim N_{p}(0,I_{p})$:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-X &amp;amp;\sim N_{p}(\mu,\Sigma) \\&lt;br&gt;
-(X-\mu) = Y &amp;amp;\sim N_{p}(0,\Sigma)\\&lt;br&gt;
-R^{T}Y = Z &amp;amp;\sim N_{p}(0, R^{T} \Sigma R) \\&lt;br&gt;
-&amp;amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} U^{T} (U \Lambda U^{T}) U \Lambda^{\frac{-1}{2}}) \\&lt;br&gt;
-&amp;amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} I_{p} \Lambda I_{p} \Lambda^{\frac{-1}{2}}) \\&lt;br&gt;
+X &amp;amp;\sim N_{p}(\mu,\Sigma) \\
+(X-\mu) = Y &amp;amp;\sim N_{p}(0,\Sigma)\\
+R^{T}Y = Z &amp;amp;\sim N_{p}(0, R^{T} \Sigma R) \\
+&amp;amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} U^{T} (U \Lambda U^{T}) U \Lambda^{\frac{-1}{2}}) \\
+&amp;amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} I_{p} \Lambda I_{p} \Lambda^{\frac{-1}{2}}) \\
 &amp;amp;\sim N_{p}(0,I_{p})
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;so that we have&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;= (X-\mu)\Sigma^{-1}(X-\mu)^{T} \\&lt;br&gt;
-&amp;amp;= (X-\mu)RR^{T}(X-\mu)^{T} \\&lt;br&gt;
+&amp;amp;= (X-\mu)\Sigma^{-1}(X-\mu)^{T} \\
+&amp;amp;= (X-\mu)RR^{T}(X-\mu)^{T} \\
 &amp;amp;= Z^{T}Z
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;the sum of $p$ standard Normal random variables, which is the definition of a $\chi_{p}^{2}$ distribution with $p$ degrees of freedom.  So, given that we start with a $MVN$ random variable, the squared Mahalanobis distance is $\chi^{2}_{p}$ distributed.  Because the sample mean and sample covariance are consistent estimators of the population mean and population covariance parameters, we can use these estimates in our computation of the Mahalanobis distance.&lt;/p&gt;
@@ -3155,12 +3588,12 @@ R^{T}Y = Z &amp;amp;\sim N_{p}(0, R^{T} \Sigma R) \\&lt;br&gt;
 M(A, B) = \sqrt{(A - \mu(B))\Sigma(B)^{-1}(A-\mu(B))^{T}}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;then $M(A,B) \neq M(B,A)$, clearly.  Because the parameter estimates are not guaranteed to be the same, it&amp;rsquo;s straightforward to see why this is the case.&lt;/p&gt;
-&lt;p&gt;Now, back to the task at hand.  For a specified target region, $l_{T}$, with a set of vertices, $V_{T} = {v \; : \; l(v) \; = \; l_{T}, \; \forall \; v \in V}$, each with their own distinct connectivity fingerprints, I want to explore which areas of the cortex have connectivity fingerprints that are different from or similar to $l_{T}$&#39;s features, in distribution.  I can do this by using the Mahalanobis Distance.  And based on the analysis I showed above, we know that the data-generating process of these distances is related to the $\chi_{p}^{2}$ distribution.&lt;/p&gt;
+&lt;p&gt;Now, back to the task at hand.  For a specified target region, $l_{T}$, with a set of vertices, $V_{T} = {v \; : \; l(v) \; = \; l_{T}, \; \forall \; v \in V}$, each with their own distinct connectivity fingerprints, I want to explore which areas of the cortex have connectivity fingerprints that are different from or similar to $l_{T}$&amp;rsquo;s features, in distribution.  I can do this by using the Mahalanobis Distance.  And based on the analysis I showed above, we know that the data-generating process of these distances is related to the $\chi_{p}^{2}$ distribution.&lt;/p&gt;
 &lt;p&gt;First, I&amp;rsquo;ll estimate the covariance matrix, $\Sigma_{T}$, of our target region, $l_{T}$, using the 
 &lt;a href=&#34;http://perso.ens-lyon.fr/patrick.flandrin/LedoitWolf_JMA2004.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Ledoit-Wolf estimator&lt;/a&gt; (the shrunken covariance estimate has been shown to be a more reliable estimate of the population covariance), and mean connectivity fingerprint, $\mu_{T}$.  Then, I&amp;rsquo;ll compute $d^{2} = M^{2}(A,A)$ for every $\{v: v \in V_{T}\}$.  The empirical distribution of these distances should follow a $\chi_{p}^{2}$ distribution.  If we wanted to do hypothesis testing, we would use this distribution as our null distribution.&lt;/p&gt;
 &lt;p&gt;Next, in order to assess whether this intra-regional similarity is actually informative, I&amp;rsquo;ll also compute the similarity of $l_{T}$ to every other region, $\{ l_{k} \; : \; \forall \; k \in L \setminus \{T\} \}$ &amp;ndash; that is, I&amp;rsquo;ll compute $M^{2}(A, B) \; \forall \; B \in L \setminus T$.  If the connectivity samples of our region of interest are as similar to one another as they are to other regions, then $d^{2}$ doesn&amp;rsquo;t really offer us any discriminating information &amp;ndash; I don&amp;rsquo;t expect this to be the case, but we need to verify this.&lt;/p&gt;
 &lt;p&gt;Then, as a confirmation step to ensure that our empirical data actually follows the theoretical $\chi_{p}^{2}$ distribution, I&amp;rsquo;ll compute the location and scale 
-&lt;a href=&#34;https://en.wikipedia.org/wiki/Maximum_likelihood_estimation&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Maximumim Likelihood&lt;/a&gt;(MLE) parameter estimates of our $d^{2}$ distribution, keeping the *d.o.f.* (e.g. $p$) fixed.&lt;/p&gt;
+&lt;a href=&#34;https://en.wikipedia.org/wiki/Maximum_likelihood_estimation&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Maximumim Likelihood&lt;/a&gt;(MLE) parameter estimates of our $d^{2}$ distribution, keeping the &lt;em&gt;d.o.f.&lt;/em&gt; (e.g. $p$) fixed.&lt;/p&gt;
 &lt;p&gt;See below for Python code and figures&amp;hellip;&lt;/p&gt;
 &lt;h3 id=&#34;step-1-compute-parameter-estimates&#34;&gt;Step 1: Compute Parameter Estimates&lt;/h3&gt;
 &lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;%matplotlib inline
@@ -3310,10 +3743,10 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
 &lt;figure id=&#34;figure-density-and-qq-plot-of-null-distribution&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Density and QQ plot of null distribution.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Density and QQ plot of null distribution.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;864&#34; height=&#34;864&#34;&gt;
+  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;864&#34; height=&#34;864&#34;&gt;
 &lt;/a&gt;
 
 
@@ -3351,10 +3784,10 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
 &lt;figure id=&#34;figure-region-of-interest&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Region of interest.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Region of interest.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1440&#34; height=&#34;821&#34;&gt;
+  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1440&#34; height=&#34;821&#34;&gt;
 &lt;/a&gt;
 
 
@@ -3388,10 +3821,10 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
 &lt;figure id=&#34;figure-estimated-squared-mahalanobis-distances-overlaid-on-cortical-surface&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Estimated squared Mahalanobis distances, overlaid on cortical surface.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Estimated squared Mahalanobis distances, overlaid on cortical surface.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1440&#34; height=&#34;821&#34;&gt;
+  &lt;img data-src=&#34;/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1440&#34; height=&#34;821&#34;&gt;
 &lt;/a&gt;
 
 
@@ -3418,18 +3851,18 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Convergence_of_random_variables#Convergence_in_probability&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;convergence in probability&lt;/a&gt; with some plots demonstrating the concept.&lt;/p&gt;
 &lt;p&gt;From CB, we have the definition of &lt;em&gt;convergence in probability&lt;/em&gt;: a sequence of random variables $X_{1}, X_{2}, &amp;hellip; X_{n}$ converges in probability to a random variable $X$, if for every $\epsilon &amp;gt; 0$,&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\lim_{n \to \infty} P(| X_{n} - X | \geq \epsilon) = 0 \\&lt;br&gt;
+\lim_{n \to \infty} P(| X_{n} - X | \geq \epsilon) = 0 \\
 \end{align}$$&lt;/p&gt;
-&lt;p&gt;Intuitively, this means that, if we have some random variable $X_{k}$ and another random variable $X$, the absolute difference between $X_{k}$ and $X$ gets smaller and smaller as $k$ increases.  The probability that this difference exceeds some value, $\epsilon$, shrinks to zero as $k$ tends towards infinity.  Using *convergence in probability*, we can derive the 
+&lt;p&gt;Intuitively, this means that, if we have some random variable $X_{k}$ and another random variable $X$, the absolute difference between $X_{k}$ and $X$ gets smaller and smaller as $k$ increases.  The probability that this difference exceeds some value, $\epsilon$, shrinks to zero as $k$ tends towards infinity.  Using &lt;em&gt;convergence in probability&lt;/em&gt;, we can derive the 
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Law_of_large_numbers#Weak_law&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Weak Law of Large Numbers&lt;/a&gt; (WLLN):&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 \lim_{n \to \infty} P(|\bar{X}_{n} - \mu | \geq \epsilon) = 0
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;which we can take to mean that the sample mean converges in probability to the population mean as the sample size goes to infinity.  If we have finite variance (that is $Var(X) &amp;lt; \infty$), we can prove this using Chebyshev&amp;rsquo;s Law&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;= P(|\bar{X}_{n} - \mu | \geq \epsilon) \\&lt;br&gt;
-&amp;amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{E\Big[(\bar{X}_{n} - \mu)^{2}\Big]}{\epsilon^{2}} \\&lt;br&gt;
-&amp;amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{Var(\bar{X_{n}})}{\epsilon^{2}} \\&lt;br&gt;
+&amp;amp;= P(|\bar{X}_{n} - \mu | \geq \epsilon) \\
+&amp;amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{E\Big[(\bar{X}_{n} - \mu)^{2}\Big]}{\epsilon^{2}} \\
+&amp;amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{Var(\bar{X_{n}})}{\epsilon^{2}} \\
 &amp;amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{\sigma^{2}}{n^{2}\epsilon^{2}}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where $\frac{\sigma^{2}}{n^{2} \epsilon^{2}} \rightarrow 0$ as $n \rightarrow \infty$.  Intuitively, this means, that the sample mean converges to the population mean &amp;ndash; and the probability that their difference is larger than some value is bounded by the variance of the estimator.  Because we showed that the variance of the estimator (right hand side) shrinks to zero, we can show that the difference between the sample mean and population mean converges to zero.&lt;/p&gt;
@@ -3660,7 +4093,7 @@ for E in e:
 &lt;p&gt;The above plots show that, as sample size increases, the mean estimator and variance estimator both converge to their true population parameters.  Likewise, examining the empirical probability plots, we can see that the probability that either estimate exceeds the epsilon thresholds shrinks to zero as the sample size increases.&lt;/p&gt;
 &lt;p&gt;If we wish to consider a stronger degree of convergence, we can consider &lt;em&gt;convergence almost surely&lt;/em&gt;, which says the following:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-P(\lim_{n \to \infty} |X_{n} - X| \geq \epsilon) = 0 \&lt;br&gt;
+P(\lim_{n \to \infty} |X_{n} - X| \geq \epsilon) = 0 \
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;which considers the entire joint distribution of estimates $( X_{1}, X_{2}&amp;hellip;X_{n}, X)$, rather than all pairwise estimates $(X_{1},X), (X_{2},X)&amp;hellip; (X_{n},X)$ &amp;ndash; the entire set of estimates must converge to $X$ as the sample size approaches infinity.&lt;/p&gt;
 </description>
@@ -3675,32 +4108,32 @@ P(\lim_{n \to \infty} |X_{n} - X| \geq \epsilon) = 0 \&lt;br&gt;
 &lt;p&gt;Let&amp;rsquo;s say that we have a set of independent, Poisson-distributed random variables $Y_{1}, Y_{2}&amp;hellip; Y_{k}$ with rate parameters $\lambda_{1}, \lambda_{2}, &amp;hellip;\lambda_{k}$.  We can model the sum of these random variables as a new random variable $N = \sum_{i=1}^{k} Y_{i}$.&lt;/p&gt;
 &lt;p&gt;Let start with $k=2$.  We can define the distrbution of $F_{N}(n)$ as follows:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;= P(N \leq n) \\&lt;br&gt;
-&amp;amp;= P(Y_{1} + Y_{2} \leq n) \\&lt;br&gt;
-&amp;amp;= P(Y_{1} = y_{1}, Y_{2} = n - y_{1}) \\&lt;br&gt;
-&amp;amp;= P(Y_{1} = y_{1}) \cdot P(Y_{2} = n-y_{1}) \\&lt;br&gt;
-&amp;amp;= \sum_{y_{1}=0}^{n} \frac{e^{-\lambda_{1}}\lambda_{1}^{y_{1}}}{y_{1}!} \cdot \frac{e^{-\lambda_{2}}\lambda_{2}^{n-y_{1}}}{(n-y_{1})!} \\&lt;br&gt;
-&amp;amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\&lt;br&gt;
-&amp;amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{n!}{n!}\frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\&lt;br&gt;
+&amp;amp;= P(N \leq n) \\
+&amp;amp;= P(Y_{1} + Y_{2} \leq n) \\
+&amp;amp;= P(Y_{1} = y_{1}, Y_{2} = n - y_{1}) \\
+&amp;amp;= P(Y_{1} = y_{1}) \cdot P(Y_{2} = n-y_{1}) \\
+&amp;amp;= \sum_{y_{1}=0}^{n} \frac{e^{-\lambda_{1}}\lambda_{1}^{y_{1}}}{y_{1}!} \cdot \frac{e^{-\lambda_{2}}\lambda_{2}^{n-y_{1}}}{(n-y_{1})!} \\
+&amp;amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\
+&amp;amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{n!}{n!}\frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\
 &amp;amp;= \frac{e^{-(\lambda_{1}+\lambda_{2})}}{n!} \sum_{y_{1}=0}^{n} {n\choose y_{1}} \lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Here, we can apply the Binomial Theorem to the summation to get the following (remember that the Binomial Theorem says, for two numbers $x$ and $y$, that $(x+y)^{n} = \sum_{i=0}^{n} {n \choose i}x^{i}y^{n-i}$):&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\frac{e^{-(\lambda_{1}+\lambda_{2})}(\lambda_{1} + \lambda_{2})^{n}}{n!} \\&lt;br&gt;
+\frac{e^{-(\lambda_{1}+\lambda_{2})}(\lambda_{1} + \lambda_{2})^{n}}{n!} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;which we see is in fact just another Poisson distribution with rate parameter equal to $\lambda_{1} + \lambda_{2}$.  This shows that the sum of independent Poisson distributed random variables is also a Poisson random variable, with rate parameter equal to the sum of the univariate rates.  By induction, we see that for $k$ independent Poisson distributed random variables $Y_{1}&amp;hellip;Y_{k}$, their sum $\sum_{i=1}^{k} Y_{i} \sim Poisson(\sum_{i=1}^{k} \lambda_{i})$.&lt;/p&gt;
 &lt;p&gt;Now let&amp;rsquo;s say we&amp;rsquo;re interested in modeling the conditional distribution of $(Y_{1}&amp;hellip;Y_{k}) \mid \sum_{i=1}^{k} = n$.  By definition of conditional probability, we have that&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-P(\bar{Y} \mid N=n) &amp;amp;= \frac{P(\bar{Y} ; \cap ; N=n)}{P(N=n)} \\&lt;br&gt;
+P(\bar{Y} \mid N=n) &amp;amp;= \frac{P(\bar{Y} ; \cap ; N=n)}{P(N=n)} \\
 &amp;amp;= \frac{P(\bar{Y})}{P(N=n)}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;We have the following:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-P(\bar{Y} \mid N=n) &amp;amp;= \frac{P(\bar{Y} \; \cap \; N=n)}{P(N=n)} \\&lt;br&gt;
-&amp;amp;= \Big( \prod_{i=1}^{k} \frac{e^{-\lambda_{i}} \cdot \lambda_{i}^{y_{i}}}{y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\&lt;br&gt;
-&amp;amp;= \Big( \frac{ e^{-\sum_{i=1}^{k}} \prod_{i=1}^{k} \lambda_{i}^{y_{i}}}{\prod_{i=1}^{k} y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\&lt;br&gt;
-&amp;amp;= { n \choose y_{1}, y_{2}, &amp;hellip;y_{k}} \frac{\prod_{i=1}^{k} \lambda_{i}^{y_{i}}} { \sum_{i}^{k} \lambda_{i})^{n}} \\&lt;br&gt;
-&amp;amp;= { n \choose y_{1}, y_{2}, &amp;hellip;y_{k}}  \prod_{i=1}^{k} \Big( \frac{ \lambda_{i} }{\sum_{i}^{k} \lambda_{i}} \Big)^{y_{i}} \\&lt;br&gt;
+P(\bar{Y} \mid N=n) &amp;amp;= \frac{P(\bar{Y} \; \cap \; N=n)}{P(N=n)} \\
+&amp;amp;= \Big( \prod_{i=1}^{k} \frac{e^{-\lambda_{i}} \cdot \lambda_{i}^{y_{i}}}{y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\
+&amp;amp;= \Big( \frac{ e^{-\sum_{i=1}^{k}} \prod_{i=1}^{k} \lambda_{i}^{y_{i}}}{\prod_{i=1}^{k} y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\
+&amp;amp;= { n \choose y_{1}, y_{2}, &amp;hellip;y_{k}} \frac{\prod_{i=1}^{k} \lambda_{i}^{y_{i}}} { \sum_{i}^{k} \lambda_{i})^{n}} \\
+&amp;amp;= { n \choose y_{1}, y_{2}, &amp;hellip;y_{k}}  \prod_{i=1}^{k} \Big( \frac{ \lambda_{i} }{\sum_{i}^{k} \lambda_{i}} \Big)^{y_{i}} \\
 &amp;amp;\sim MultiNom(n; \frac{\lambda_{1}}{\sum_{i=1}^{k}}, \frac{\lambda_{2}}{\sum_{i=1}^{k}}, &amp;hellip; \frac{\lambda_{k}}{\sum_{i=1}^{k}})
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;So finally, we see that, given the sum of independent Poisson random variables, that conditional distribution of each element of the Poisson vector is Multinomial distributed, with count probabilities scaled by the sum of the individual rates.  Importantly, we can extend these ideas (specifically the sum of independent Poisson random variables) to other models, such as splitting and merging homogenous and non-homogenous Poisson Point Processes.&lt;/p&gt;
@@ -3739,10 +4172,10 @@ P(\bar{Y} \mid N=n) &amp;amp;= \frac{P(\bar{Y} \; \cap \; N=n)}{P(N=n)} \\&lt;br
 &lt;figure id=&#34;figure-diffusion-tractography-from-biomedical-image-computing-group-at-usc&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/tractography_hu8ae5fba2fb76724b387c190a224453c7_1527079_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Diffusion tractography from Biomedical Image Computing Group at USC.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/tractography_hu8ae5fba2fb76724b387c190a224453c7_1527079_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Diffusion tractography from Biomedical Image Computing Group at USC.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/tractography_hu8ae5fba2fb76724b387c190a224453c7_1527079_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1194&#34; height=&#34;964&#34;&gt;
+  &lt;img data-src=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/tractography_hu8ae5fba2fb76724b387c190a224453c7_1527079_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1194&#34; height=&#34;964&#34;&gt;
 &lt;/a&gt;
 
 
@@ -3821,10 +4254,10 @@ P(\bar{Y} \mid N=n) &amp;amp;= \frac{P(\bar{Y} \; \cap \; N=n)}{P(N=n)} \\&lt;br
 &lt;figure id=&#34;figure-surface-flow-seeded-tractography-from-st-onge-et-al-2018&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/StOngeSurfaceFlow_huccc9786cfee1a75fb9df9e205b998b03_376537_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Surface-flow seeded tractography from St-Onge et al. 2018.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/StOngeSurfaceFlow_huccc9786cfee1a75fb9df9e205b998b03_376537_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Surface-flow seeded tractography from St-Onge et al. 2018.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/StOngeSurfaceFlow_huccc9786cfee1a75fb9df9e205b998b03_376537_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;821&#34; height=&#34;237&#34;&gt;
+  &lt;img data-src=&#34;/post/headfirst-into-uncommented-c&amp;#43;&amp;#43;/StOngeSurfaceFlow_huccc9786cfee1a75fb9df9e205b998b03_376537_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;821&#34; height=&#34;237&#34;&gt;
 &lt;/a&gt;
 
 
@@ -4197,10 +4630,10 @@ for rt in txfn:
 &lt;figure &gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/two-weeks-of-open-science/Couch_RickMorty_hua8d62f86464ff5493405d877a1b50d1e_453080_2000x2000_fit_lanczos_2.png&#34; &gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/two-weeks-of-open-science/Couch_RickMorty_hua8d62f86464ff5493405d877a1b50d1e_453080_2000x2000_fit_lanczos_3.png&#34; &gt;
 
 
-  &lt;img data-src=&#34;/post/two-weeks-of-open-science/Couch_RickMorty_hua8d62f86464ff5493405d877a1b50d1e_453080_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;950&#34; height=&#34;534&#34;&gt;
+  &lt;img data-src=&#34;/post/two-weeks-of-open-science/Couch_RickMorty_hua8d62f86464ff5493405d877a1b50d1e_453080_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;950&#34; height=&#34;534&#34;&gt;
 &lt;/a&gt;
 
 
@@ -4209,7 +4642,7 @@ for rt in txfn:
 
 &lt;p&gt;The 
 &lt;a href=&#34;https://twitter.com/search?q=%23nh18&amp;amp;src=tyah&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;#NH18&lt;/a&gt; participants varied in status from graduate students, to post-docs, to industry members, and traveled from all around the world to Seattle, but each one of us was, in one way or another, involved with neuroscience research.  As one of my new friends put it on Twitter: 
-&lt;a href=&#34;https://twitter.com/rxxqx/status/1027238653662093313&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Spent yesterday in a room full of relative strangers who were collaborating, mentoring, &amp;amp; supporting. Devoid of egos or tribalism. Feels like what science (&amp;amp; society) should be.&amp;quot;&lt;/a&gt;  The sense of community was strong, positivity was plentiful, and people supported one another &amp;ndash; without regard for experience or any sense of &lt;em&gt;return-on-investment&lt;/em&gt;.  We had an established &lt;strong&gt;Git person&lt;/strong&gt;, &lt;strong&gt;Python person&lt;/strong&gt;, &lt;strong&gt;data viz person&lt;/strong&gt;, &lt;strong&gt;fMRI person&lt;/strong&gt;, &lt;strong&gt;C++ person&lt;/strong&gt;, etc. &amp;ndash; if you had a question or ran into an issue, with high probability there was someone who could and would help you out.  Everyone was genuinely exicted to learn, to share, to create, to bond, and especially, &lt;em&gt;~to neuro/computer/data-science~&lt;/em&gt;.&lt;/p&gt;
+&lt;a href=&#34;https://twitter.com/rxxqx/status/1027238653662093313&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;&amp;ldquo;Spent yesterday in a room full of relative strangers who were collaborating, mentoring, &amp;amp; supporting. Devoid of egos or tribalism. Feels like what science (&amp;amp; society) should be.&amp;rdquo;&lt;/a&gt;  The sense of community was strong, positivity was plentiful, and people supported one another &amp;ndash; without regard for experience or any sense of &lt;em&gt;return-on-investment&lt;/em&gt;.  We had an established &lt;strong&gt;Git person&lt;/strong&gt;, &lt;strong&gt;Python person&lt;/strong&gt;, &lt;strong&gt;data viz person&lt;/strong&gt;, &lt;strong&gt;fMRI person&lt;/strong&gt;, &lt;strong&gt;C++ person&lt;/strong&gt;, etc. &amp;ndash; if you had a question or ran into an issue, with high probability there was someone who could and would help you out.  Everyone was genuinely exicted to learn, to share, to create, to bond, and especially, &lt;em&gt;~to neuro/computer/data-science~&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;&amp;mdash; &lt;strong&gt;to science&lt;/strong&gt; &amp;mdash;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;(origin: probably Newton)&lt;/li&gt;
@@ -4316,10 +4749,10 @@ for rt in txfn:
 &lt;p&gt;Recall that we are given an initial data matrix&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 X = \begin{bmatrix}
-x_{n_{1},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{1},m_{3}} &amp;amp; &amp;hellip; \\&lt;br&gt;
-x_{n_{2},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{2},m_{3}} &amp;amp; &amp;hellip; \\&lt;br&gt;
-x_{n_{3},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{3},m_{3}} &amp;amp; &amp;hellip; \\&lt;br&gt;
-&amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; \\&lt;br&gt;
+x_{n_{1},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{1},m_{3}} &amp;amp; &amp;hellip; \\
+x_{n_{2},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{2},m_{3}} &amp;amp; &amp;hellip; \\
+x_{n_{3},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{3},m_{3}} &amp;amp; &amp;hellip; \\
+&amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; \\
 \end{bmatrix}
 \in R^{n \times m}
 \end{align}$$&lt;/p&gt;
@@ -4327,14 +4760,14 @@ x_{n_{3},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{3},m_{3}} &amp;amp; &a
 &lt;p&gt;$$\begin{align}
 X^{\ast} &amp;amp;=
 \begin{bmatrix}
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
-\vec{x}_1 &amp;amp; \vec{x}_2  &amp;amp; \dots &amp;amp; \vec{x}_{m-1}  \\&lt;br&gt;
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
-\end{bmatrix} \in R^{n \times (m-1)} \\&lt;br&gt;
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
+\vec{x}_1 &amp;amp; \vec{x}_2  &amp;amp; \dots &amp;amp; \vec{x}_{m-1}  \\
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
+\end{bmatrix} \in R^{n \times (m-1)} \\
 Y &amp;amp;= \begin{bmatrix}
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
-\vec{x}_2 &amp;amp; \vec{x}_3  &amp;amp; \dots &amp;amp; \vec{x}_{m}  \\&lt;br&gt;
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
+\vec{x}_2 &amp;amp; \vec{x}_3  &amp;amp; \dots &amp;amp; \vec{x}_{m}  \\
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
 \end{bmatrix} \in R^{n \times (m-1)}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;and we are interested in solving for the linear operator $A$, such that&lt;/p&gt;
@@ -4343,49 +4776,49 @@ Y = AX^{\ast}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;For simplicity, since we are no longer using the full matrix, I&amp;rsquo;ll just refer to $X^{\ast}$ as $X$.  In the previous post, we made the constraint that $n &amp;gt; m$, and that rank($X$) $\leq m &amp;lt; n$.  Here, however, we&amp;rsquo;ll reverse this assumption, and such that $m &amp;gt; n$, and that rank($X$) $\leq m &amp;lt; n$, such that $XX^{T}$ is invertible, so by multiplying both sides by $X^{T}$ we have&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-AXX^{T} &amp;amp;= YX^{T} \\&lt;br&gt;
-A &amp;amp;= YX^{T}(XX^{T})^{-1} \\&lt;br&gt;
+AXX^{T} &amp;amp;= YX^{T} \\
+A &amp;amp;= YX^{T}(XX^{T})^{-1} \\
 A &amp;amp;= QP_{x}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where $Q = YX^{T}$ and $P_{x} = (XX^{T})^{-1}$.  Now, let&amp;rsquo;s say you observe some new data $x_{m+1}, y_{m+1}$, and you want to incorporate this new data into your $A$ matrix.  As in the previous post on 
 &lt;a href=&#34;/post/rank-one-updates/&#34;&gt;rank-one updates&lt;/a&gt;, we saw that directly computing the inverse could potentially be costly, so we want to refrain from doing that if possible.  Instead, we&amp;rsquo;ll use the Shermann-Morrison-Woodbury theorem again to incorporate our new $x_{m+1}$ sample into our inverse matrix, just as before:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-(X_{m+1}X^{T}_{m+1})^{-1} = P_{x} + \frac{P_{x}x_{m+1}x_{m+1}^{T}P_{x}}{1 + x_{m+1}^{T}P_{x}x_{m+1}}
+(X_{m+1}X^{T}&lt;em&gt;{m+1})^{-1} = P&lt;/em&gt;{x} + \frac{P_{x}x_{m+1}x_{m+1}^{T}P_{x}}{1 + x_{m+1}^{T}P_{x}x_{m+1}}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Likewise, since we&amp;rsquo;re appending new data to our $Y$ and $X$ matrices, we also have&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 Y_{m+1} = \begin{bmatrix}
-Y &amp;amp; y_{m+1} \end{bmatrix} \\&lt;br&gt;
-X_{m+1} = \begin{bmatrix} \\&lt;br&gt;
-X &amp;amp; x_{m+1} \end{bmatrix} \\&lt;br&gt;
+Y &amp;amp; y_{m+1} \end{bmatrix} \\
+X_{m+1} = \begin{bmatrix} \\
+X &amp;amp; x_{m+1} \end{bmatrix} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;such that&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-Y_{m+1} X_{m+1}^{T} &amp;amp;= YX^{T} + y_{m+1}x_{m+1}^{T} \\&lt;br&gt;
+Y_{m+1} X_{m+1}^{T} &amp;amp;= YX^{T} + y_{m+1}x_{m+1}^{T} \\
 &amp;amp;= Q + y_{m+1}x_{m+1}^{T}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;which is simply the sum of our original matrix $Q$, plus a rank-one matrix.  The authors go on to describe some pretty cool &amp;ldquo;local&amp;rdquo; DMD schemes, by incorporating weights, as well as binary thresholds, that are time-dependent into the computation of the linear operator, $A$.&lt;/p&gt;
-&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
-&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
 &lt;p&gt;P.J. Schmid. 
-&lt;a href=&#34;https://hal-polytechnique.archives-ouvertes.fr/file/index/docid/1020654/filename/DMS0022112010001217a.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dynamic mode decomposition of numerical and experimental data&lt;/a&gt;. Journal of Fluid Mechanics 656.1. 2010. &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://hal-polytechnique.archives-ouvertes.fr/file/index/docid/1020654/filename/DMS0022112010001217a.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dynamic mode decomposition of numerical and experimental data&lt;/a&gt;. Journal of Fluid Mechanics 656.1. 2010.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
 &lt;p&gt;Tu et al. 
-&lt;a href=&#34;http://cwrowley.princeton.edu/papers/Tu-DMD.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On Dynamic Mode Decomposition: Theory And Applications&lt;/a&gt; &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;http://cwrowley.princeton.edu/papers/Tu-DMD.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On Dynamic Mode Decomposition: Theory And Applications&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
 &lt;p&gt;Kunert-Graf et al. 
-&lt;a href=&#34;https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Extracting Reproducible Time-Resolved Resting State Networks Using Dynamic Mode Decomposition&lt;/a&gt;. Front. Comput. Neurosci. 2019. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Extracting Reproducible Time-Resolved Resting State Networks Using Dynamic Mode Decomposition&lt;/a&gt;. Front. Comput. Neurosci. 2019.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
 &lt;p&gt;Zhang et al. 
-&lt;a href=&#34;https://arxiv.org/abs/1707.02876&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Online dynamic mode decomposition for time-varying systems&lt;/a&gt;. 2017. &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://arxiv.org/abs/1707.02876&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Online dynamic mode decomposition for time-varying systems&lt;/a&gt;. 2017.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/section&gt;
+&lt;/div&gt;
 </description>
     </item>
     
@@ -4402,10 +4835,10 @@ Y_{m+1} X_{m+1}^{T} &amp;amp;= YX^{T} + y_{m+1}x_{m+1}^{T} \\&lt;br&gt;
 &lt;p&gt;Let&amp;rsquo;s assume that you&amp;rsquo;ve taken $n$ measurements from specific points in space for $m$ time points, where for now we assume that $m\lt n$.  For now, we&amp;rsquo;ll assume that the sampling frequency, $\omega$, is stable across the entire experiment.  We define our entire data matrix as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 X = \begin{bmatrix}
-x_{n_{1},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{1},m_{3}} &amp;amp; &amp;hellip; \\&lt;br&gt;
-x_{n_{2},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{2},m_{3}} &amp;amp; &amp;hellip; \\&lt;br&gt;
-x_{n_{3},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{3},m_{3}} &amp;amp; &amp;hellip; \\&lt;br&gt;
-&amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; \\&lt;br&gt;
+x_{n_{1},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{1},m_{3}} &amp;amp; &amp;hellip; \\
+x_{n_{2},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{2},m_{3}} &amp;amp; &amp;hellip; \\
+x_{n_{3},m_{1}} &amp;amp; x_{n_{1},m_{2}} &amp;amp; x_{n_{3},m_{3}} &amp;amp; &amp;hellip; \\
+&amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; &amp;amp; &amp;hellip; \\
 \end{bmatrix}
 \in R^{n \times m}
 \end{align}$$&lt;/p&gt;
@@ -4416,14 +4849,14 @@ x_{t+1} = A x_{t} \; \; \forall \; \; t = 1,2,&amp;hellip;m-1
 &lt;p&gt;Given our full data matrix $X$, we can define two matrices $X^{*}$ and $Y$ such that&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 X^{*} &amp;amp;= \begin{bmatrix}
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
-\vec{x}_{1} &amp;amp; \vec{x}_{2}  &amp;amp; \dots &amp;amp; \vec{x}_{m-1} \\&lt;br&gt;
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
-\end{bmatrix} \in R^{n \times (m-1)} \\&lt;br&gt;
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
+\vec{x}_{1} &amp;amp; \vec{x}_{2}  &amp;amp; \dots &amp;amp; \vec{x}_{m-1} \\
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
+\end{bmatrix} \in R^{n \times (m-1)} \\
 Y &amp;amp;= \begin{bmatrix}
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
-\vec{x}_2 &amp;amp; \vec{x}_3  &amp;amp; \dots &amp;amp; \vec{x}_{m}  \\&lt;br&gt;
-\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\&lt;br&gt;
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
+\vec{x}_2 &amp;amp; \vec{x}_3  &amp;amp; \dots &amp;amp; \vec{x}_{m}  \\
+\vert &amp;amp; \vert &amp;amp; \dots &amp;amp; \vert \\
 \end{bmatrix} \in R^{n \times (m-1)}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;so that we can write&lt;/p&gt;
@@ -4432,43 +4865,43 @@ Y = AX^{\ast}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;If $n$ is small, this is relatively easy to compute &amp;ndash; however, if $n$ is large, as is the case when modeling temporal dynamics in resting-state MRI, it would be computationally inefficient to compute A directly.  To alleviate this, we can make use of the Singular Value Decomposition (SVD) of our predictor matrix $X^{\ast}$.  We define the SVD of $X^{\ast}$ as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-X^{\ast} = U \Sigma V^{T} \&lt;br&gt;
+X^{\ast} = U \Sigma V^{T} \
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;as well as the Moore-Penrose psuedo-inverse of $X^{\ast} = X^{\dagger}$ as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-X^{\dagger} = V \Sigma^{-1} U^{T} \\&lt;br&gt;
+X^{\dagger} = V \Sigma^{-1} U^{T} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;such that we can write&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-YX^{\dagger}  = YV \Sigma^{-1} U^{T} = A X^{\ast}X^{\dagger} = A \\&lt;br&gt;
+YX^{\dagger}  = YV \Sigma^{-1} U^{T} = A X^{\ast}X^{\dagger} = A \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Additionally, if we assume that $rank(X^{\ast}) = r \leq m$, then we can use the truncated SVD such that&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-U &amp;amp; \in R^{n \times r} \\&lt;br&gt;
-V^{T} &amp;amp; \in R^{r \times m} \\&lt;br&gt;
+U &amp;amp; \in R^{n \times r} \\
+V^{T} &amp;amp; \in R^{r \times m} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;and&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
 \Sigma = \begin{bmatrix}
-\sigma_{1} &amp;amp; 0 &amp;amp; 0 &amp;amp; &amp;hellip; \\&lt;br&gt;
-0 &amp;amp; \sigma_{2} &amp;amp; 0 &amp;amp; &amp;hellip; \\&lt;br&gt;
-0 &amp;amp; 0 &amp;amp; \ddots &amp;amp; &amp;hellip; \\&lt;br&gt;
-\vdots &amp;amp; \vdots &amp;amp; \vdots &amp;amp; \sigma_{r} \\&lt;br&gt;
+\sigma_{1} &amp;amp; 0 &amp;amp; 0 &amp;amp; &amp;hellip; \\
+0 &amp;amp; \sigma_{2} &amp;amp; 0 &amp;amp; &amp;hellip; \\
+0 &amp;amp; 0 &amp;amp; \ddots &amp;amp; &amp;hellip; \\
+\vdots &amp;amp; \vdots &amp;amp; \vdots &amp;amp; \sigma_{r} \\
 \end{bmatrix} \in R^{r \times r}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;As it stands now, we still compute an $A \in R^{n \times n}$ matrix.  However, because we have a potentially low-rank system, we can apply a Similarity Transformation to $A$ in order to reduce its dimensionality, without changing its spectrum.  Using our spatial singular vectors $U$, we define&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\tilde{A} &amp;amp;= U^{T} A U \\&lt;br&gt;
-&amp;amp;= U^{T} (YV \Sigma^{-1} U^{T}) U \\&lt;br&gt;
-&amp;amp;= U^{T} Y V \Sigma^{-1} \\&lt;br&gt;
+\tilde{A} &amp;amp;= U^{T} A U \\
+&amp;amp;= U^{T} (YV \Sigma^{-1} U^{T}) U \\
+&amp;amp;= U^{T} Y V \Sigma^{-1} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where $\tilde{A} \in R^{r \times r}$.  If we consider the above SVD, we see that $U$ is the matrix of left singular vectors, an orthogonal basis that spans $C(X^{\ast})$, which is an r-dimensional subspace of $R^{n}$.  Thus, the similarity transform represents a mapping $f(A) = U^{T} A U : R^{n} \rightarrow R^{r}$.  We now have a reduced-dimensional representation of our linear operator, from which we can compute the spatial modes and dynamic behavior of each mode.  First, however, because of the notion of variance captured by the singular values of our original predictor matrix, we weight $\tilde{A}$ by the singular values as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\hat{A} = \Sigma^{\frac{1}{2}} \tilde{A} \Sigma^{\frac{1}{2}} \\&lt;br&gt;
+\hat{A} = \Sigma^{\frac{1}{2}} \tilde{A} \Sigma^{\frac{1}{2}} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;such that our computed spatial modes have been weighted by the amount they contribute to our measured signal.  We can now compute the eigendecomposition of $\hat{A}$ as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\hat{A} W = W \Lambda \\&lt;br&gt;
+\hat{A} W = W \Lambda \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where the eigenvectors $W$ are the reduced-dimension representations of our spatial modes, and the eigenvalues $\Lambda$ capture the dynamic behavior of our spatial modes.  Because our original data matrix $X^{\ast}$ had spatial dimension $n$ and our eigenvectors have dimension $r$, we need to up-project our eigenvectors $W$ to compute the final spatial modes, via&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
@@ -4481,32 +4914,32 @@ V^{T} &amp;amp; \in R^{r \times m} \\&lt;br&gt;
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where $\gamma_{i}$ is a growth-decay constant and $f_{i}$ is the frequency of oscillation of the spatial mode $\phi_{i}$.  We can compute these two constants as&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\gamma_{i} &amp;amp;= \frac{\text{real}(\text{ln}(\lambda_{i}))}{\Delta t} \\&lt;br&gt;
+\gamma_{i} &amp;amp;= \frac{\text{real}(\text{ln}(\lambda_{i}))}{\Delta t} \\
 f_{i} &amp;amp;= \frac{\text{imag}(\text{ln}(\lambda_{i}))}{2\pi \Delta t}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;So, we can see that DMD linearizes our measured time series, by fitting what can be analogized to a &amp;ldquo;global&amp;rdquo; regression.  That is, instead of computing how a single time point predicts the next time point, which could readily be solved using the simple &lt;strong&gt;Normal equations&lt;/strong&gt;, DMD computes how a matrix of time points predicts another matrix of time points that is shifted one unit of time into the future.  To this extent, DMD minimizes the Frobenius norm of&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\min \limits_{A} \lVert Y - AX^{\ast} \rVert^{2}_{F} \\&lt;br&gt;
+\min \limits_{A} \lVert Y - AX^{\ast} \rVert^{2}_{F} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;However, rather than explicitly computing the matrix $A$, DMD computes the eigenvectors and eigenvalues of $A$, by utilizing the &lt;strong&gt;Singular Value Decomposition&lt;/strong&gt;, along with a &lt;strong&gt;Similarity Transformation&lt;/strong&gt;, in order to generate a reduced-dimensional representation of $A$.&lt;/p&gt;
 &lt;p&gt;This spectral decomposition of our linear operator is of particular importance, because it sheds light on the fact the DMD models the temporal dynamics of our system using a &lt;strong&gt;Fourier basis&lt;/strong&gt;.  Each spatial mode is represented by a particular Fourier frequency along and growth-decay constant that determines the future behavior of our spatial mode.  Additionally, the Fourier basis also determines what sorts of time series can be modeled using DMD &amp;ndash; time series that are expected to have sinusoidal behavior will be more reliably modeled using DMD, whereas signals that show abrupt spike patterns might be more difficult to model.&lt;/p&gt;
-&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
-&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
 &lt;p&gt;P.J. Schmid. 
-&lt;a href=&#34;https://hal-polytechnique.archives-ouvertes.fr/file/index/docid/1020654/filename/DMS0022112010001217a.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dynamic mode decomposition of numerical and experimental data&lt;/a&gt;. Journal of Fluid Mechanics 656.1. 2010. &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://hal-polytechnique.archives-ouvertes.fr/file/index/docid/1020654/filename/DMS0022112010001217a.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Dynamic mode decomposition of numerical and experimental data&lt;/a&gt;. Journal of Fluid Mechanics 656.1. 2010.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
 &lt;p&gt;Tu et al. 
-&lt;a href=&#34;http://cwrowley.princeton.edu/papers/Tu-DMD.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On Dynamic Mode Decomposition: Theory And Applications&lt;/a&gt; &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;http://cwrowley.princeton.edu/papers/Tu-DMD.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;On Dynamic Mode Decomposition: Theory And Applications&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
 &lt;p&gt;Kunert-Graf et al. 
-&lt;a href=&#34;https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Extracting Reproducible Time-Resolved Resting State Networks Using Dynamic Mode Decomposition&lt;/a&gt;. Front. Comput. Neurosci. 2019. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Extracting Reproducible Time-Resolved Resting State Networks Using Dynamic Mode Decomposition&lt;/a&gt;. Front. Comput. Neurosci. 2019.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/section&gt;
+&lt;/div&gt;
 </description>
     </item>
     
@@ -4520,17 +4953,17 @@ f_{i} &amp;amp;= \frac{\text{imag}(\text{ln}(\lambda_{i}))}{2\pi \Delta t}
 &lt;p&gt;&lt;strong&gt;Marginal Distributions&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Now assume that $\mathbf{y} = [\mathbf{y_{1}}, \mathbf{y_{2}} ] \sim N(\mathbf{\mu},\Sigma)$, where $\mathbf{\mu} = \begin{bmatrix} \mu_{1} \ \mu_{2} \end{bmatrix}$, and $\Sigma$ is an arbitrary covariance matrix, where we cannot assume independence.  If $\Sigma$ is non-singular, we can decompose $\Sigma$ as&lt;/p&gt;
 &lt;p&gt;$$ \Sigma = \begin{bmatrix}
-\Sigma_{11} &amp;amp; \Sigma_{21}^{T} \\&lt;br&gt;
+\Sigma_{11} &amp;amp; \Sigma_{21}^{T} \\
 \Sigma_{21} &amp;amp; \Sigma_{22}
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;and, using the inversion lemmas from [Blockwise Matrix Inversion]({% post_url 2018-05-08-blockwise-matrix-inversion %}), define its inverse $\Sigma^{-1} = V$ as&lt;/p&gt;
 &lt;p&gt;$$
 V = \begin{bmatrix}
-V_{11} &amp;amp; V_{21}^{T} \\&lt;br&gt;
-V_{21} &amp;amp; V_{22} \\&lt;br&gt;
+V_{11} &amp;amp; V_{21}^{T} \\
+V_{21} &amp;amp; V_{22} \\
 \end{bmatrix}
 \begin{bmatrix}
-(\Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})^{-1} &amp;amp; -\Sigma^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1} \\&lt;br&gt;
+(\Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})^{-1} &amp;amp; -\Sigma^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1} \\
 -\Sigma_{22}^{-1}\Sigma_{21}(\Sigma_{11}-\Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})^{-1} &amp;amp; (\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;From the properties of transformations of Normal random variables, we can define the marginal of $$y_{1}$$ as&lt;/p&gt;
@@ -4541,11 +4974,11 @@ By \sim N(B\mu,B\Sigma B^{T})
 &lt;p&gt;$$ \begin{bmatrix} \mathbf{I} &amp;amp; 0 \end{bmatrix} \begin{bmatrix} \mathbf{\mu_{1}} \ \mathbf{\mu_{2}} \end{bmatrix} = \mathbf{\mu_{1}}$$
 $$\begin{bmatrix} \mathbf{I} &amp;amp; 0
 \end{bmatrix} \begin{bmatrix}
-\Sigma_{11} &amp;amp; \Sigma_{12} \\&lt;br&gt;
+\Sigma_{11} &amp;amp; \Sigma_{12} \\
 \Sigma_{21} &amp;amp; \Sigma_{22}
 \end{bmatrix}
 \begin{bmatrix}
-\mathbf{I} \\&lt;br&gt;
+\mathbf{I} \\
 0
 \end{bmatrix} = \Sigma_{11}$$&lt;/p&gt;
 &lt;p&gt;so that $\mathbf{y_{1}} \sim N(\mathbf{\mu_{1}},\Sigma_{11})$.&lt;/p&gt;
@@ -4560,13 +4993,13 @@ f(y) =  \frac{1}{(2\pi)^{n/2}\mid \Sigma \mid ^{1/2}}\exp^{(-1/2)(y-\mu)^{T}\Sig
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Partitioning this expression up into the individual terms related to $y_{1}$ and $y_{2}$, the exponent becomes&lt;/p&gt;
 &lt;p&gt;$$ (y-\mu)^{T}V(y-\mu) = \begin{bmatrix}
-y_{1} - \mu_{1} \\&lt;br&gt;
+y_{1} - \mu_{1} \\
 y_{2} - \mu_{2} \end{bmatrix}^{T}
 \begin{bmatrix}
-V_{11} &amp;amp; V_{12} \\&lt;br&gt;
+V_{11} &amp;amp; V_{12} \\
 V_{21} &amp;amp; V_{22} \end{bmatrix}
 \begin{bmatrix}
-y_{1} - \mu_{1} \\&lt;br&gt;
+y_{1} - \mu_{1} \\
 y_{2} - \mu_{2}
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;Expanding this quadratic form out, we see that we end up with&lt;/p&gt;
@@ -4575,14 +5008,14 @@ y_{2} - \mu_{2}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Let us, for simpliciy set $z_{1} = (y_{1} - \mu_{1})$ and $z_{2} = (y_{2} - \mu_{2})$.  Substituting back in our definitions of $V_{11}$,$V_{12}$,$V_{21}$, and $V_{22}$, and and using the Sherman-Morrison-Woodbury definition for $V_{11}$, we have the following&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;z_{1}^{T}(\Sigma_{11}^{-1} + \Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11})z_{1} \\&lt;br&gt;
-&amp;amp;- 2z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}^{-1})^{-1})z_{2} \\&lt;br&gt;
+&amp;amp;z_{1}^{T}(\Sigma_{11}^{-1} + \Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11})z_{1} \\
+&amp;amp;- 2z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}^{-1})^{-1})z_{2} \\
 &amp;amp;+ z_{2}^{T}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;which, by distribution of $z_{1}$ across the first term and splitting the second term into its two sums, we have&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;z_{1}^{T}\Sigma_{11}^{-1}z_{11} + z_{1}^{T}\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}V_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11}^{-1}z_{1} \\&lt;br&gt;
-&amp;amp;- z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} - z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} \\&lt;br&gt;
+&amp;amp;z_{1}^{T}\Sigma_{11}^{-1}z_{11} + z_{1}^{T}\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}V_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11}^{-1}z_{1} \\
+&amp;amp;- z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} - z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} \\
 &amp;amp;+ z_{2}^{T}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;We can pull out forms $z_{1}^{T}\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22}-\Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}$ to the left and $(\Sigma_{22}-\Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}z_{2}$ to the right and, after applying a transpose, have&lt;/p&gt;
@@ -4591,7 +5024,7 @@ y_{2} - \mu_{2}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Plugging the above back into our exponential term in our original density function, we see that we have a product of two exponential terms&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-&amp;amp;\frac{1}{C_{1}} \exp(\frac{-1}{2}(z_{1}^{T}\Sigma_{11}^{-1}z_{11})) \\&lt;br&gt;
+&amp;amp;\frac{1}{C_{1}} \exp(\frac{-1}{2}(z_{1}^{T}\Sigma_{11}^{-1}z_{11})) \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;and&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
@@ -4599,7 +5032,7 @@ y_{2} - \mu_{2}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-C_{1} &amp;amp;= (2\pi)^{p/2}\mid \Sigma_{11} \mid^{1/2} \\&lt;br&gt;
+C_{1} &amp;amp;= (2\pi)^{p/2}\mid \Sigma_{11} \mid^{1/2} \\
 C_{2} &amp;amp;= (2\pi)^{q/2}\mid \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12} \mid ^{1/2}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;The first term is the marginal density of $y_{1}$ and the second is the conditional density of $y_{2} \mid y_{1}$ with conditional mean $\mu_{2\mid 1} = \mu_{2} + \Sigma_{11}^{-1}\Sigma_{12}(y_{1} - \mu_{1})$ and conditional variance $\Sigma_{2\mid 1} = \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}$.&lt;/p&gt;
@@ -4614,10 +5047,10 @@ C_{2} &amp;amp;= (2\pi)^{q/2}\mid \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigm
       <guid>/post/rank-one-updates/</guid>
       <description>&lt;p&gt;In this post, I&amp;rsquo;m going to go over some examples of rank-one updates of matrices.  To compute rank-one updates, we rely on the Sherman-Morrison-Woodbury theorem.  From the previous post on [Blockwise Matrix Inversion]({% post_url 2018-05-08-blockwise-matrix-inversion %}), recall that, given a matrix and its inverse&lt;/p&gt;
 &lt;p&gt;$$R = \begin{bmatrix}
-A &amp;amp; B \\&lt;br&gt;
+A &amp;amp; B \\
 C &amp;amp; D
 \end{bmatrix}  \; \; \; \; R^{-1} = \begin{bmatrix}
-W &amp;amp; X \\&lt;br&gt;
+W &amp;amp; X \\
 Y &amp;amp; Z
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;we have that&lt;/p&gt;
@@ -4631,8 +5064,8 @@ W = (A-BD^{-1}C)^{-1} = C^{-1}D(D-CA^{-1}B)^{-1}CA^{-1}
 &lt;p&gt;Given an initial matrix $A$ and its inverse $A^{-1}$, and a new matrix $R=BD^{-1}C$, we see that we can define the inverse of our new updated matrix $A+R$ in terms of the inverse of our original matrix $A$ and components of $R$.  Importantly, we can perform rank-$k$ updates, where $rank(R) = k$.&lt;/p&gt;
 &lt;p&gt;For example, if we want to update our matrix $A$ with a new vector, $v$, we can rewrite the formula above as follows:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-(A+vv^{T})^{-1} &amp;amp;=A^{-1}-A^{-1}v(1+v^{T}A^{-1}v)^{-1}v^{T}A^{-1} \\&lt;br&gt;
-&amp;amp;=A^{-1}-\frac{A^{-1}vv^{T}A^{-1}}{1+v^{T}A^{-1}v} \\&lt;br&gt;
+(A+vv^{T})^{-1} &amp;amp;=A^{-1}-A^{-1}v(1+v^{T}A^{-1}v)^{-1}v^{T}A^{-1} \\
+&amp;amp;=A^{-1}-\frac{A^{-1}vv^{T}A^{-1}}{1+v^{T}A^{-1}v} \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where the updated inverse is defined so long as the quadratic form $v^{T}A^{-1}v \neq -1$.&lt;/p&gt;
 &lt;hr&gt;
@@ -4648,18 +5081,18 @@ X^{T}X\beta = X^{T}y
 &lt;p&gt;where $X$ is our design matrix, $y$ is our dependent variable, and $\beta$ is a solution to the Normal equation, due to the fact that the Normal equations are consistent.  $(X^{T}X)^{g}$ is the generalized inverse of $X^{T}X$, which is unique (i.e. $(X^{T}X)^{g} = (X^{T}X)^{-1}$) only if $X$ has full column-rank.  For our immediate purpose, we assume that $X$ has full column rank.&lt;/p&gt;
 &lt;p&gt;Assume that we observe a set of observations, $X \in R^{n \times p}$ and response variable, $y$, and compute our coefficient estimates $\hat{\beta}$ via the Normal equations above, using $(X^{T}X)^{-1}$.  Now given a new observation, $v \in R^{p}$, how can we update our coefficient estimates?  We can append $v$ to $X$ as&lt;/p&gt;
 &lt;p&gt;$$ X^{\text{*}} = \begin{bmatrix}
-X \\&lt;br&gt;
+X \\
 v
 \end{bmatrix} \in R^{(n+1) \times p}$$&lt;/p&gt;
 &lt;p&gt;and directly compute $(X^{\text{*T}}X^{\text{*}})^{-1}$, &lt;strong&gt;or&lt;/strong&gt; we can use the Sherman-Morrison-Woodbury theorem:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-(X^{\text{*T}}X^{\text{*}})^{-1} = (X^{T}X + vv^{T})^{-1} = (X^{T}X)^{-1} - \frac{(X^{T}X)^{-1}vv^{T}(X^{T}X)^{-1}}{1+v^{T}(X^{T}X)^{-1}v} \\&lt;br&gt;
+(X^{\text{*T}}X^{\text{*}})^{-1} = (X^{T}X + vv^{T})^{-1} = (X^{T}X)^{-1} - \frac{(X^{T}X)^{-1}vv^{T}(X^{T}X)^{-1}}{1+v^{T}(X^{T}X)^{-1}v} \\
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;from which we can easily compute our new coefficient estimates with $$.&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\beta^{\text{*}} = (X^{\text{*T}}X^{\text{*}})^{-1}X^{\text{*}T}y \\&lt;br&gt;
+\beta^{\text{*}} = (X^{\text{*T}}X^{\text{*}})^{-1}X^{\text{*}T}y \\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;Importantly, in the case of regression, for example, this means that we can update our linear model via simple matrix calculations, rather than having to refit the model from scratch to incorporate our new data.  In the next few posts, I&amp;rsquo;ll go over an example of an implementation of rank-updating methods that I&amp;rsquo;ve been using in lab to study brain dynamics.&lt;/p&gt;
 </description>
@@ -4673,71 +5106,71 @@ $$&lt;/p&gt;
       <description>&lt;p&gt;I&amp;rsquo;m taking a Statistics course on the theory of linear models, which covers Gauss-Markov models and various extensions of them.  Sometimes, when dealing with partitioned matrices, and commonly Multivariate Normal Distributions, we&amp;rsquo;ll often need to invert matrices in a blockwise manner.  This has happened often enough during this course (coincidentally was necessary knowledge for a midterm question), so I figured I should just document some of the inversion lemmas.&lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s define our partitioned matrix as&lt;/p&gt;
 &lt;p&gt;$$ R = \begin{bmatrix}
-A &amp;amp; B \\&lt;br&gt;
+A &amp;amp; B \\
 C &amp;amp; D
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;We specifically interested in finding&lt;/p&gt;
 &lt;p&gt;$$ R^{-1} = \begin{bmatrix}
-W &amp;amp; X \\&lt;br&gt;
+W &amp;amp; X \\
 Y &amp;amp; Z
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;such that&lt;/p&gt;
 &lt;p&gt;$$ R R^{-1} = R^{-1}R =
 \begin{bmatrix}
-I &amp;amp; 0 \\&lt;br&gt;
+I &amp;amp; 0 \\
 0 &amp;amp; I
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Part 1: $R R^{-1}$&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;For the right inverse ($R R^{-1}$), we can define&lt;/p&gt;
 &lt;p&gt;$$ \begin{aligned}
-AW + BY = I \\&lt;br&gt;
-AX + BZ = 0 \\&lt;br&gt;
-CW + DY = 0 \\&lt;br&gt;
-CX + DZ = I \\&lt;br&gt;
+AW + BY = I \\
+AX + BZ = 0 \\
+CW + DY = 0 \\
+CX + DZ = I \\
 \end{aligned}
 $$&lt;/p&gt;
 &lt;p&gt;and, assuming $A$ and $D$ are invertible,&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
-X = -A^{-1}BZ \\&lt;br&gt;
-Y = -D^{-1}CW \\&lt;br&gt;
+X = -A^{-1}BZ \\
+Y = -D^{-1}CW \\
 \end{aligned}$$&lt;/p&gt;
 &lt;p&gt;We can plug these identities back into the first system of equations as&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
-AW + B(-D^{-1}CW) &amp;amp;= (A - BD^{-1}C)W = I \\&lt;br&gt;
-C(-A^{-1}BZ) + DZ &amp;amp;= (D - CA^{-1}B)Z = I \\&lt;br&gt;
+AW + B(-D^{-1}CW) &amp;amp;= (A - BD^{-1}C)W = I \\
+C(-A^{-1}BZ) + DZ &amp;amp;= (D - CA^{-1}B)Z = I \\
 \end{aligned}$$&lt;/p&gt;
 &lt;p&gt;so that&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
-W = (A-BD^{-1}C)^{-1} \\&lt;br&gt;
-Z = (D-CA^{-1}B)^{-1} \\&lt;br&gt;
+W = (A-BD^{-1}C)^{-1} \\
+Z = (D-CA^{-1}B)^{-1} \\
 \end{aligned}$$&lt;/p&gt;
 &lt;p&gt;and finally&lt;/p&gt;
 &lt;p&gt;$$ R^{-1} = \begin{bmatrix}
-W &amp;amp; X \\&lt;br&gt;
+W &amp;amp; X \\
 Y &amp;amp; Z
 \end{bmatrix}
 = \begin{bmatrix}
-(A-BD^{-1}C)^{-1} &amp;amp; -A^{-1}B(D-CA^{-1}B)^{-1} \\&lt;br&gt;
--D^{-1}C(A-BD^{-1}C)^{-1} &amp;amp; (D-CA^{-1}B)^{-1} \\&lt;br&gt;
+(A-BD^{-1}C)^{-1} &amp;amp; -A^{-1}B(D-CA^{-1}B)^{-1} \\
+-D^{-1}C(A-BD^{-1}C)^{-1} &amp;amp; (D-CA^{-1}B)^{-1} \\
 \end{bmatrix}$$&lt;/p&gt;
 &lt;p&gt;It is important to note that the above result only holds if $A$, $D$, $(D-CA^{-1}B)$, and $(A-BD^{-1}C)$ are invertible.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Part 2: $R^{-1} R$&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Following the same logic as above, we have the following systems of equations for the left inverse ($R^{-1}R$)&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
-WA + XC = I \\&lt;br&gt;
-WB + XD = 0 \\&lt;br&gt;
-YA + ZC = 0 \\&lt;br&gt;
-YB + ZD = I \\&lt;br&gt;
+WA + XC = I \\
+WB + XD = 0 \\
+YA + ZC = 0 \\
+YB + ZD = I \\
 \end{aligned}$$&lt;/p&gt;
 &lt;p&gt;so that&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
-X = WBD^{-1} = A^{-1}BZ \\&lt;br&gt;
-Y = ZCA^{-1} = D^{-1}CW \\&lt;br&gt;
+X = WBD^{-1} = A^{-1}BZ \\
+Y = ZCA^{-1} = D^{-1}CW \\
 \end{aligned}$$&lt;/p&gt;
 &lt;p&gt;which indicates that&lt;/p&gt;
 &lt;p&gt;$$\begin{aligned}
-W = (A-BD^{-1}C)^{-1} = C^{-1}D(D-CA^{-1}B)^{-1}CA^{-1} \\&lt;br&gt;
-X = (A-BD^{-1}C)^{-1}BD^{-1} = A^{-1}B(D-CA^{-1}B)^{-1} \\&lt;br&gt;
+W = (A-BD^{-1}C)^{-1} = C^{-1}D(D-CA^{-1}B)^{-1}CA^{-1} \\
+X = (A-BD^{-1}C)^{-1}BD^{-1} = A^{-1}B(D-CA^{-1}B)^{-1} \\
 \end{aligned}$$&lt;/p&gt;
 &lt;p&gt;Importantly, blockwise matrix inversion allows us to define the inverse of a larger matrix, with respect to its subcomponents.  Likewise, from here, we can go on to derive the Sherman-Morrison formula and Woodbury theorem, which allows us to do all kinds of cool stuff, like rank-one matrix updates.  In the next few posts, I&amp;rsquo;ll go over a few examples of where blockwise matrix inversions are useful, and common scenarios where rank-one updates of matrices are applicable in the next few posts.&lt;/p&gt;
 </description>

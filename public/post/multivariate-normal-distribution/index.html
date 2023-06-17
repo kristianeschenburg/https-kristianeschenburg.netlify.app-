@@ -256,8 +256,8 @@ Given a random variable under the usual Gauss-Markov assumptions, with $y_{i} \s
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/multivariate-normal-distribution/">
 
@@ -319,7 +319,7 @@ Given a random variable under the usual Gauss-Markov assumptions, with $y_{i} \s
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "In this post, I\u0026rsquo;ll be covering the basics of Multivariate Normal Distributions, with special emphasis on deriving the conditional and marginal distributions.\nGiven a random variable under the usual Gauss-Markov assumptions, with $y_{i} \\sim N(\\mu, \\sigma^{2})$ with $e \\sim N(0,\\sigma^{2})$, and $N$ independent samples $y_{1}\u0026hellip;y_{n}$, we can define vector $\\mathbf{y} = [y_{1}, y_{2},\u0026hellip;y_{n}] \\sim N_{n}(\\mathbf{\\mu},\\sigma^{2}I)$ with $\\mathbf{e} \\sim N_{n}(\\mathbf{0},\\sigma^{2}I)$."
@@ -708,17 +708,17 @@ Given a random variable under the usual Gauss-Markov assumptions, with $y_{i} \s
 <p><strong>Marginal Distributions</strong></p>
 <p>Now assume that $\mathbf{y} = [\mathbf{y_{1}}, \mathbf{y_{2}} ] \sim N(\mathbf{\mu},\Sigma)$, where $\mathbf{\mu} = \begin{bmatrix} \mu_{1} \ \mu_{2} \end{bmatrix}$, and $\Sigma$ is an arbitrary covariance matrix, where we cannot assume independence.  If $\Sigma$ is non-singular, we can decompose $\Sigma$ as</p>
 <p>$$ \Sigma = \begin{bmatrix}
-\Sigma_{11} &amp; \Sigma_{21}^{T} \\<br>
+\Sigma_{11} &amp; \Sigma_{21}^{T} \\
 \Sigma_{21} &amp; \Sigma_{22}
 \end{bmatrix}$$</p>
 <p>and, using the inversion lemmas from [Blockwise Matrix Inversion]({% post_url 2018-05-08-blockwise-matrix-inversion %}), define its inverse $\Sigma^{-1} = V$ as</p>
 <p>$$
 V = \begin{bmatrix}
-V_{11} &amp; V_{21}^{T} \\<br>
-V_{21} &amp; V_{22} \\<br>
+V_{11} &amp; V_{21}^{T} \\
+V_{21} &amp; V_{22} \\
 \end{bmatrix}
 \begin{bmatrix}
-(\Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})^{-1} &amp; -\Sigma^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1} \\<br>
+(\Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})^{-1} &amp; -\Sigma^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1} \\
 -\Sigma_{22}^{-1}\Sigma_{21}(\Sigma_{11}-\Sigma_{12}\Sigma_{22}^{-1}\Sigma_{21})^{-1} &amp; (\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}
 \end{bmatrix}$$</p>
 <p>From the properties of transformations of Normal random variables, we can define the marginal of $$y_{1}$$ as</p>
@@ -729,11 +729,11 @@ By \sim N(B\mu,B\Sigma B^{T})
 <p>$$ \begin{bmatrix} \mathbf{I} &amp; 0 \end{bmatrix} \begin{bmatrix} \mathbf{\mu_{1}} \ \mathbf{\mu_{2}} \end{bmatrix} = \mathbf{\mu_{1}}$$
 $$\begin{bmatrix} \mathbf{I} &amp; 0
 \end{bmatrix} \begin{bmatrix}
-\Sigma_{11} &amp; \Sigma_{12} \\<br>
+\Sigma_{11} &amp; \Sigma_{12} \\
 \Sigma_{21} &amp; \Sigma_{22}
 \end{bmatrix}
 \begin{bmatrix}
-\mathbf{I} \\<br>
+\mathbf{I} \\
 0
 \end{bmatrix} = \Sigma_{11}$$</p>
 <p>so that $\mathbf{y_{1}} \sim N(\mathbf{\mu_{1}},\Sigma_{11})$.</p>
@@ -748,13 +748,13 @@ f(y) =  \frac{1}{(2\pi)^{n/2}\mid \Sigma \mid ^{1/2}}\exp^{(-1/2)(y-\mu)^{T}\Sig
 \end{align}$$</p>
 <p>Partitioning this expression up into the individual terms related to $y_{1}$ and $y_{2}$, the exponent becomes</p>
 <p>$$ (y-\mu)^{T}V(y-\mu) = \begin{bmatrix}
-y_{1} - \mu_{1} \\<br>
+y_{1} - \mu_{1} \\
 y_{2} - \mu_{2} \end{bmatrix}^{T}
 \begin{bmatrix}
-V_{11} &amp; V_{12} \\<br>
+V_{11} &amp; V_{12} \\
 V_{21} &amp; V_{22} \end{bmatrix}
 \begin{bmatrix}
-y_{1} - \mu_{1} \\<br>
+y_{1} - \mu_{1} \\
 y_{2} - \mu_{2}
 \end{bmatrix}$$</p>
 <p>Expanding this quadratic form out, we see that we end up with</p>
@@ -763,14 +763,14 @@ y_{2} - \mu_{2}
 \end{align}$$</p>
 <p>Let us, for simpliciy set $z_{1} = (y_{1} - \mu_{1})$ and $z_{2} = (y_{2} - \mu_{2})$.  Substituting back in our definitions of $V_{11}$,$V_{12}$,$V_{21}$, and $V_{22}$, and and using the Sherman-Morrison-Woodbury definition for $V_{11}$, we have the following</p>
 <p>$$\begin{align}
-&amp;z_{1}^{T}(\Sigma_{11}^{-1} + \Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11})z_{1} \\<br>
-&amp;- 2z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}^{-1})^{-1})z_{2} \\<br>
+&amp;z_{1}^{T}(\Sigma_{11}^{-1} + \Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11})z_{1} \\
+&amp;- 2z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}^{-1})^{-1})z_{2} \\
 &amp;+ z_{2}^{T}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2}
 \end{align}$$</p>
 <p>which, by distribution of $z_{1}$ across the first term and splitting the second term into its two sums, we have</p>
 <p>$$\begin{align}
-&amp;z_{1}^{T}\Sigma_{11}^{-1}z_{11} + z_{1}^{T}\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}V_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11}^{-1}z_{1} \\<br>
-&amp;- z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} - z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} \\<br>
+&amp;z_{1}^{T}\Sigma_{11}^{-1}z_{11} + z_{1}^{T}\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}V_{11}^{-1}\Sigma_{12})^{-1}\Sigma_{21}\Sigma_{11}^{-1}z_{1} \\
+&amp;- z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} - z_{1}^{T}(\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2} \\
 &amp;+ z_{2}^{T}(\Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1})z_{2}
 \end{align}$$</p>
 <p>We can pull out forms $z_{1}^{T}\Sigma_{11}^{-1}\Sigma_{12}(\Sigma_{22}-\Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}$ to the left and $(\Sigma_{22}-\Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12})^{-1}z_{2}$ to the right and, after applying a transpose, have</p>
@@ -779,7 +779,7 @@ y_{2} - \mu_{2}
 \end{align}$$</p>
 <p>Plugging the above back into our exponential term in our original density function, we see that we have a product of two exponential terms</p>
 <p>$$\begin{align}
-&amp;\frac{1}{C_{1}} \exp(\frac{-1}{2}(z_{1}^{T}\Sigma_{11}^{-1}z_{11})) \\<br>
+&amp;\frac{1}{C_{1}} \exp(\frac{-1}{2}(z_{1}^{T}\Sigma_{11}^{-1}z_{11})) \\
 \end{align}$$</p>
 <p>and</p>
 <p>$$\begin{align}
@@ -787,7 +787,7 @@ y_{2} - \mu_{2}
 \end{align}$$</p>
 <p>where</p>
 <p>$$\begin{align}
-C_{1} &amp;= (2\pi)^{p/2}\mid \Sigma_{11} \mid^{1/2} \\<br>
+C_{1} &amp;= (2\pi)^{p/2}\mid \Sigma_{11} \mid^{1/2} \\
 C_{2} &amp;= (2\pi)^{q/2}\mid \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12} \mid ^{1/2}
 \end{align}$$</p>
 <p>The first term is the marginal density of $y_{1}$ and the second is the conditional density of $y_{2} \mid y_{1}$ with conditional mean $\mu_{2\mid 1} = \mu_{2} + \Sigma_{11}^{-1}\Sigma_{12}(y_{1} - \mu_{1})$ and conditional variance $\Sigma_{2\mid 1} = \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{12}$.</p>
@@ -1092,7 +1092,7 @@ C_{2} &amp;= (2\pi)^{q/2}\mid \Sigma_{22} - \Sigma_{21}\Sigma_{11}^{-1}\Sigma_{1
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

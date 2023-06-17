@@ -45,7 +45,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-various-maps-of-the-primate-visual-cortex--tootell-et-al-2003httpswwwjneurosciorgcontent23103981&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; data-caption=&#34;Various maps of the primate visual cortex.  Tootell et al, 2003.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; data-caption=&#34;Various maps of the primate visual cortex.  
+Tootell et al, 2003.&#34;&gt;
 
 
   &lt;img src=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; alt=&#34;&#34;  &gt;
@@ -55,7 +56,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Various maps of the primate visual cortex.  &lt;a href=&#34;https://www.jneurosci.org/content/23/10/3981&#34;&gt;Tootell et al, 2003&lt;/a&gt;.
+    Various maps of the primate visual cortex.  
+&lt;a href=&#34;https://www.jneurosci.org/content/23/10/3981&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Tootell et al, 2003&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -68,11 +70,11 @@ G = -\sum_{k=1}^{k}\sum_{l \in \mathcal{L}} \sum_{h \in \mathcal{L} \setminus \m
 &lt;p&gt;where $w_{l}^{k}$ is the probability weight assigned to label $h \in \mathcal{L}\setminus \mathcal{N_{l}}$ i.e. the set of labels not adjacent to label $l$.  In order to follow the idea of a cross-entropy, we enforce the following constraints on weights $\mathbf{w}$:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-w_{l}^{k} &amp;gt;&amp;amp;= 0 \\&lt;br&gt;
+w_{l}^{k} &amp;gt;&amp;amp;= 0 \\
 \sum_{l \in \mathcal{L}} w_{l}^{k} &amp;amp;= 1
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to &lt;strong&gt;not&lt;/strong&gt; be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}_{l} = j) = 0.05$, then $log(1-p(x^{k}_{l} = j))$ will be small.  However, if $p(x^{k}_{l} = j) = 0.95$, then $log(1-p(x^{k}_{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &amp;ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}_{l} \in \mathcal{N_{t}}$, we simply set $w_{l}^{k} = 0$ &amp;ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.&lt;/p&gt;
+&lt;p&gt;such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to &lt;strong&gt;not&lt;/strong&gt; be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}&lt;em&gt;{l} = j) = 0.05$, then $log(1-p(x^{k}&lt;/em&gt;{l} = j))$ will be small.  However, if $p(x^{k}&lt;em&gt;{l} = j) = 0.95$, then $log(1-p(x^{k}&lt;/em&gt;{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &amp;ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}&lt;em&gt;{l} \in \mathcal{N&lt;/em&gt;{t}}$, we simply set $w_{l}^{k} = 0$ &amp;ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.&lt;/p&gt;
 &lt;p&gt;Below, I&amp;rsquo;ve implemented this loss function using 
 &lt;a href=&#34;https://pytorch.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Pytorch&lt;/a&gt; and 
 &lt;a href=&#34;https://www.dgl.ai/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Graph Library&lt;/a&gt;.  Assume that we are given the adjacency matrix of our mesh, the logits of our model, and the true label of our training data:&lt;/p&gt;

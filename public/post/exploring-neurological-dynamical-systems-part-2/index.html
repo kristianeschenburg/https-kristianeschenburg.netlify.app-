@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/exploring-neurological-dynamical-systems-part-2/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "In my previous post on dynamic mode decomposition, I discussed the foundations of DMD as a means for linearizing a dynamical system123. In this post, I want to look at a way in which we can use rank-updates to incorporate new information into the spectral decomposition of our linear operator, $A$, in the event that we are generating online measurements from our dynamical system4 \u0026ndash; see the citation below if you want a more-detailed overview of this topic along with open source code for testing this method."
@@ -706,10 +706,10 @@
 <p>Recall that we are given an initial data matrix</p>
 <p>$$\begin{align}
 X = \begin{bmatrix}
-x_{n_{1},m_{1}} &amp; x_{n_{1},m_{2}} &amp; x_{n_{1},m_{3}} &amp; &hellip; \\<br>
-x_{n_{2},m_{1}} &amp; x_{n_{1},m_{2}} &amp; x_{n_{2},m_{3}} &amp; &hellip; \\<br>
-x_{n_{3},m_{1}} &amp; x_{n_{1},m_{2}} &amp; x_{n_{3},m_{3}} &amp; &hellip; \\<br>
-&hellip; &amp; &hellip; &amp; &hellip; &amp; &hellip; \\<br>
+x_{n_{1},m_{1}} &amp; x_{n_{1},m_{2}} &amp; x_{n_{1},m_{3}} &amp; &hellip; \\
+x_{n_{2},m_{1}} &amp; x_{n_{1},m_{2}} &amp; x_{n_{2},m_{3}} &amp; &hellip; \\
+x_{n_{3},m_{1}} &amp; x_{n_{1},m_{2}} &amp; x_{n_{3},m_{3}} &amp; &hellip; \\
+&hellip; &amp; &hellip; &amp; &hellip; &amp; &hellip; \\
 \end{bmatrix}
 \in R^{n \times m}
 \end{align}$$</p>
@@ -717,14 +717,14 @@ x_{n_{3},m_{1}} &amp; x_{n_{1},m_{2}} &amp; x_{n_{3},m_{3}} &amp; &hellip; \\<br
 <p>$$\begin{align}
 X^{\ast} &amp;=
 \begin{bmatrix}
-\vert &amp; \vert &amp; \dots &amp; \vert \\<br>
-\vec{x}_1 &amp; \vec{x}_2  &amp; \dots &amp; \vec{x}_{m-1}  \\<br>
-\vert &amp; \vert &amp; \dots &amp; \vert \\<br>
-\end{bmatrix} \in R^{n \times (m-1)} \\<br>
+\vert &amp; \vert &amp; \dots &amp; \vert \\
+\vec{x}_1 &amp; \vec{x}_2  &amp; \dots &amp; \vec{x}_{m-1}  \\
+\vert &amp; \vert &amp; \dots &amp; \vert \\
+\end{bmatrix} \in R^{n \times (m-1)} \\
 Y &amp;= \begin{bmatrix}
-\vert &amp; \vert &amp; \dots &amp; \vert \\<br>
-\vec{x}_2 &amp; \vec{x}_3  &amp; \dots &amp; \vec{x}_{m}  \\<br>
-\vert &amp; \vert &amp; \dots &amp; \vert \\<br>
+\vert &amp; \vert &amp; \dots &amp; \vert \\
+\vec{x}_2 &amp; \vec{x}_3  &amp; \dots &amp; \vec{x}_{m}  \\
+\vert &amp; \vert &amp; \dots &amp; \vert \\
 \end{bmatrix} \in R^{n \times (m-1)}
 \end{align}$$</p>
 <p>and we are interested in solving for the linear operator $A$, such that</p>
@@ -733,49 +733,49 @@ Y = AX^{\ast}
 \end{align}$$</p>
 <p>For simplicity, since we are no longer using the full matrix, I&rsquo;ll just refer to $X^{\ast}$ as $X$.  In the previous post, we made the constraint that $n &gt; m$, and that rank($X$) $\leq m &lt; n$.  Here, however, we&rsquo;ll reverse this assumption, and such that $m &gt; n$, and that rank($X$) $\leq m &lt; n$, such that $XX^{T}$ is invertible, so by multiplying both sides by $X^{T}$ we have</p>
 <p>$$\begin{align}
-AXX^{T} &amp;= YX^{T} \\<br>
-A &amp;= YX^{T}(XX^{T})^{-1} \\<br>
+AXX^{T} &amp;= YX^{T} \\
+A &amp;= YX^{T}(XX^{T})^{-1} \\
 A &amp;= QP_{x}
 \end{align}$$</p>
 <p>where $Q = YX^{T}$ and $P_{x} = (XX^{T})^{-1}$.  Now, let&rsquo;s say you observe some new data $x_{m+1}, y_{m+1}$, and you want to incorporate this new data into your $A$ matrix.  As in the previous post on 
 <a href="/post/rank-one-updates/">rank-one updates</a>, we saw that directly computing the inverse could potentially be costly, so we want to refrain from doing that if possible.  Instead, we&rsquo;ll use the Shermann-Morrison-Woodbury theorem again to incorporate our new $x_{m+1}$ sample into our inverse matrix, just as before:</p>
 <p>$$\begin{align}
-(X_{m+1}X^{T}_{m+1})^{-1} = P_{x} + \frac{P_{x}x_{m+1}x_{m+1}^{T}P_{x}}{1 + x_{m+1}^{T}P_{x}x_{m+1}}
+(X_{m+1}X^{T}<em>{m+1})^{-1} = P</em>{x} + \frac{P_{x}x_{m+1}x_{m+1}^{T}P_{x}}{1 + x_{m+1}^{T}P_{x}x_{m+1}}
 \end{align}$$</p>
 <p>Likewise, since we&rsquo;re appending new data to our $Y$ and $X$ matrices, we also have</p>
 <p>$$\begin{align}
 Y_{m+1} = \begin{bmatrix}
-Y &amp; y_{m+1} \end{bmatrix} \\<br>
-X_{m+1} = \begin{bmatrix} \\<br>
-X &amp; x_{m+1} \end{bmatrix} \\<br>
+Y &amp; y_{m+1} \end{bmatrix} \\
+X_{m+1} = \begin{bmatrix} \\
+X &amp; x_{m+1} \end{bmatrix} \\
 \end{align}$$</p>
 <p>such that</p>
 <p>$$\begin{align}
-Y_{m+1} X_{m+1}^{T} &amp;= YX^{T} + y_{m+1}x_{m+1}^{T} \\<br>
+Y_{m+1} X_{m+1}^{T} &amp;= YX^{T} + y_{m+1}x_{m+1}^{T} \\
 &amp;= Q + y_{m+1}x_{m+1}^{T}
 \end{align}$$</p>
 <p>which is simply the sum of our original matrix $Q$, plus a rank-one matrix.  The authors go on to describe some pretty cool &ldquo;local&rdquo; DMD schemes, by incorporating weights, as well as binary thresholds, that are time-dependent into the computation of the linear operator, $A$.</p>
-<section class="footnotes" role="doc-endnotes">
+<div class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
-<li id="fn:1" role="doc-endnote">
+<li id="fn:1">
 <p>P.J. Schmid. 
-<a href="https://hal-polytechnique.archives-ouvertes.fr/file/index/docid/1020654/filename/DMS0022112010001217a.pdf" target="_blank" rel="noopener">Dynamic mode decomposition of numerical and experimental data</a>. Journal of Fluid Mechanics 656.1. 2010. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="https://hal-polytechnique.archives-ouvertes.fr/file/index/docid/1020654/filename/DMS0022112010001217a.pdf" target="_blank" rel="noopener">Dynamic mode decomposition of numerical and experimental data</a>. Journal of Fluid Mechanics 656.1. 2010.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:2" role="doc-endnote">
+<li id="fn:2">
 <p>Tu et al. 
-<a href="http://cwrowley.princeton.edu/papers/Tu-DMD.pdf" target="_blank" rel="noopener">On Dynamic Mode Decomposition: Theory And Applications</a> <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="http://cwrowley.princeton.edu/papers/Tu-DMD.pdf" target="_blank" rel="noopener">On Dynamic Mode Decomposition: Theory And Applications</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:3" role="doc-endnote">
+<li id="fn:3">
 <p>Kunert-Graf et al. 
-<a href="https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full" target="_blank" rel="noopener">Extracting Reproducible Time-Resolved Resting State Networks Using Dynamic Mode Decomposition</a>. Front. Comput. Neurosci. 2019. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full" target="_blank" rel="noopener">Extracting Reproducible Time-Resolved Resting State Networks Using Dynamic Mode Decomposition</a>. Front. Comput. Neurosci. 2019.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:4" role="doc-endnote">
+<li id="fn:4">
 <p>Zhang et al. 
-<a href="https://arxiv.org/abs/1707.02876" target="_blank" rel="noopener">Online dynamic mode decomposition for time-varying systems</a>. 2017. <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="https://arxiv.org/abs/1707.02876" target="_blank" rel="noopener">Online dynamic mode decomposition for time-varying systems</a>. 2017.&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
-</section>
+</div>
 
     </div>
 
@@ -1076,7 +1076,7 @@ Y_{m+1} X_{m+1}^{T} &amp;= YX^{T} + y_{m+1}x_{m+1}^{T} \\<br>
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

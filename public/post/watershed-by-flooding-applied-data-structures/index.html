@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/watershed-by-flooding-applied-data-structures/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "I\u0026rsquo;m applying some methods developed in this paper for testing purposes in my own thesis research. Specifically, I have some float-valued data, $F$, that varies along the cortical surface of the brain. Visually, I can see that there are areas where these scalar maps change abruplty."
@@ -707,7 +707,7 @@
 <p>The authors use some conventional brain imaging software to compute the gradient of their data.  The domain of this data is a triangulated mesh, described by the graph $G = (V, E)$, where $V$ are vertices in Euclidean space and $E$ the edges between these vertices.  In short, for a vertex, $v_{i}$, we first need to compute the gradient vector of the scalar field at $v_{i}$.  We &ldquo;unfold&rdquo; the 3D positions of adjacent vertices onto the tangent plane of $v_{i}$ &ndash; which we can do by orthogonally projecting the adjacent vertices onto the affine subspace at $v_{i}$ and then weighting appropriately.  We then regress the graph signal (our scalar field) onto these unfolded positions.  The $L_{2}$ norm of this vector is the gradient at $v_{i}$.</p>
 <p>For each vertex, we have a normal vector to the surface $N$, its spatial 3D coordinates $v_{i} = (x, y, z)$, and a list of its adjacent vertices.  We can compute the orthogonal projector onto affine subspace spanned by $N$, $P_{N}$, and it&rsquo;s orthogonal complement, $Q_{N}$, as:</p>
 <p>$$\begin{align}
-P_{N} &amp;= N(N^{T}N)^{-1}N^{T} \\<br>
+P_{N} &amp;= N(N^{T}N)^{-1}N^{T} \\
 Q_{N} &amp;= I - P_{N}
 \end{align}$$</p>
 <p>For any vertex, $v_{j}$, we can compute the orthogonal projection onto the affine subspace spanned by $Q_{N}$ as:</p>
@@ -718,17 +718,17 @@ q(v_{j}) = Q_{N}(v_{j} - v_{i}) + v_{i}
 <p>$$
 S_{i} = f(i) -
 \begin{bmatrix}
-f(v_{1}) \\<br>
-f(v_{2}) \\<br>
-\vdots \\<br>
+f(v_{1}) \\
+f(v_{2}) \\
+\vdots \\
 f(v_{j})
 \end{bmatrix}
 \in \mathbb{R}^{j} \;\;\;
 R_{i} =
 \begin{bmatrix}
-q(v_{1}) \\<br>
-q(v_{2}) \\<br>
-\vdots \\<br>
+q(v_{1}) \\
+q(v_{2}) \\
+\vdots \\
 q(v_{j})
 \end{bmatrix} \in \mathbb{R}^{j \times 3}
 $$</p>
@@ -739,7 +739,7 @@ S_{i} = R_{i}\beta
 <p>where $\beta \in \mathbb{R}^{3}$, which indicates how much each coordinate axis contributes to variation in the scalar field at $v_{i}$.  The gradient value at vertex $v_{i} = \left || \beta \right||_{2}$.</p>
 <h3 id="watershed-by-flooding-algorithm">Watershed By Flooding Algorithm</h3>
 <p>The new scalar field of $L_{2}$ norms is our gradient field, which describes how &ldquo;quickly&rdquo; our original data changes at each vertex.  We can now apply the 
-<a href="https://en.wikipedia.org/wiki/Watershed_%28image_processing%29" target="_blank" rel="noopener">Watershed Algorithm</a> to segment our mesh data.  In brief, the watershed algorithm treats the gradient field as a *topographic map*: low-elevation areas (areas with a small gradient) are &ldquo;water basins&rdquo;.  If we imagine water flooding this map from the bottom up, basins at low elevation will flood first, while areas at higher elevations will fill last.  When water basins meet, the water has reached a &ldquo;boundary&rdquo; (or ridgeline, if we&rsquo;re using the topographic map idea).</p>
+<a href="https://en.wikipedia.org/wiki/Watershed_%28image_processing%29" target="_blank" rel="noopener">Watershed Algorithm</a> to segment our mesh data.  In brief, the watershed algorithm treats the gradient field as a <em>topographic map</em>: low-elevation areas (areas with a small gradient) are &ldquo;water basins&rdquo;.  If we imagine water flooding this map from the bottom up, basins at low elevation will flood first, while areas at higher elevations will fill last.  When water basins meet, the water has reached a &ldquo;boundary&rdquo; (or ridgeline, if we&rsquo;re using the topographic map idea).</p>
 <p>I&rsquo;ve implemented an algorithm variant called 
 <a href="https://www.sciencedirect.com/science/article/pii/S0098300418307957" target="_blank" rel="noopener">&ldquo;Priority Flooding&rdquo;</a>, using Python&rsquo;s 
 <a href="https://docs.python.org/2/library/heapq.html" target="_blank" rel="noopener">heapq</a> 
@@ -1194,7 +1194,7 @@ class PriorityFlood(object):
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

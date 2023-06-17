@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/blockwise-matrix-inversion/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "I\u0026rsquo;m taking a Statistics course on the theory of linear models, which covers Gauss-Markov models and various extensions of them. Sometimes, when dealing with partitioned matrices, and commonly Multivariate Normal Distributions, we\u0026rsquo;ll often need to invert matrices in a blockwise manner."
@@ -704,71 +704,71 @@
       <p>I&rsquo;m taking a Statistics course on the theory of linear models, which covers Gauss-Markov models and various extensions of them.  Sometimes, when dealing with partitioned matrices, and commonly Multivariate Normal Distributions, we&rsquo;ll often need to invert matrices in a blockwise manner.  This has happened often enough during this course (coincidentally was necessary knowledge for a midterm question), so I figured I should just document some of the inversion lemmas.</p>
 <p>Let&rsquo;s define our partitioned matrix as</p>
 <p>$$ R = \begin{bmatrix}
-A &amp; B \\<br>
+A &amp; B \\
 C &amp; D
 \end{bmatrix}$$</p>
 <p>We specifically interested in finding</p>
 <p>$$ R^{-1} = \begin{bmatrix}
-W &amp; X \\<br>
+W &amp; X \\
 Y &amp; Z
 \end{bmatrix}$$</p>
 <p>such that</p>
 <p>$$ R R^{-1} = R^{-1}R =
 \begin{bmatrix}
-I &amp; 0 \\<br>
+I &amp; 0 \\
 0 &amp; I
 \end{bmatrix}$$</p>
 <p><strong>Part 1: $R R^{-1}$</strong></p>
 <p>For the right inverse ($R R^{-1}$), we can define</p>
 <p>$$ \begin{aligned}
-AW + BY = I \\<br>
-AX + BZ = 0 \\<br>
-CW + DY = 0 \\<br>
-CX + DZ = I \\<br>
+AW + BY = I \\
+AX + BZ = 0 \\
+CW + DY = 0 \\
+CX + DZ = I \\
 \end{aligned}
 $$</p>
 <p>and, assuming $A$ and $D$ are invertible,</p>
 <p>$$\begin{aligned}
-X = -A^{-1}BZ \\<br>
-Y = -D^{-1}CW \\<br>
+X = -A^{-1}BZ \\
+Y = -D^{-1}CW \\
 \end{aligned}$$</p>
 <p>We can plug these identities back into the first system of equations as</p>
 <p>$$\begin{aligned}
-AW + B(-D^{-1}CW) &amp;= (A - BD^{-1}C)W = I \\<br>
-C(-A^{-1}BZ) + DZ &amp;= (D - CA^{-1}B)Z = I \\<br>
+AW + B(-D^{-1}CW) &amp;= (A - BD^{-1}C)W = I \\
+C(-A^{-1}BZ) + DZ &amp;= (D - CA^{-1}B)Z = I \\
 \end{aligned}$$</p>
 <p>so that</p>
 <p>$$\begin{aligned}
-W = (A-BD^{-1}C)^{-1} \\<br>
-Z = (D-CA^{-1}B)^{-1} \\<br>
+W = (A-BD^{-1}C)^{-1} \\
+Z = (D-CA^{-1}B)^{-1} \\
 \end{aligned}$$</p>
 <p>and finally</p>
 <p>$$ R^{-1} = \begin{bmatrix}
-W &amp; X \\<br>
+W &amp; X \\
 Y &amp; Z
 \end{bmatrix}
 = \begin{bmatrix}
-(A-BD^{-1}C)^{-1} &amp; -A^{-1}B(D-CA^{-1}B)^{-1} \\<br>
--D^{-1}C(A-BD^{-1}C)^{-1} &amp; (D-CA^{-1}B)^{-1} \\<br>
+(A-BD^{-1}C)^{-1} &amp; -A^{-1}B(D-CA^{-1}B)^{-1} \\
+-D^{-1}C(A-BD^{-1}C)^{-1} &amp; (D-CA^{-1}B)^{-1} \\
 \end{bmatrix}$$</p>
 <p>It is important to note that the above result only holds if $A$, $D$, $(D-CA^{-1}B)$, and $(A-BD^{-1}C)$ are invertible.</p>
 <p><strong>Part 2: $R^{-1} R$</strong></p>
 <p>Following the same logic as above, we have the following systems of equations for the left inverse ($R^{-1}R$)</p>
 <p>$$\begin{aligned}
-WA + XC = I \\<br>
-WB + XD = 0 \\<br>
-YA + ZC = 0 \\<br>
-YB + ZD = I \\<br>
+WA + XC = I \\
+WB + XD = 0 \\
+YA + ZC = 0 \\
+YB + ZD = I \\
 \end{aligned}$$</p>
 <p>so that</p>
 <p>$$\begin{aligned}
-X = WBD^{-1} = A^{-1}BZ \\<br>
-Y = ZCA^{-1} = D^{-1}CW \\<br>
+X = WBD^{-1} = A^{-1}BZ \\
+Y = ZCA^{-1} = D^{-1}CW \\
 \end{aligned}$$</p>
 <p>which indicates that</p>
 <p>$$\begin{aligned}
-W = (A-BD^{-1}C)^{-1} = C^{-1}D(D-CA^{-1}B)^{-1}CA^{-1} \\<br>
-X = (A-BD^{-1}C)^{-1}BD^{-1} = A^{-1}B(D-CA^{-1}B)^{-1} \\<br>
+W = (A-BD^{-1}C)^{-1} = C^{-1}D(D-CA^{-1}B)^{-1}CA^{-1} \\
+X = (A-BD^{-1}C)^{-1}BD^{-1} = A^{-1}B(D-CA^{-1}B)^{-1} \\
 \end{aligned}$$</p>
 <p>Importantly, blockwise matrix inversion allows us to define the inverse of a larger matrix, with respect to its subcomponents.  Likewise, from here, we can go on to derive the Sherman-Morrison formula and Woodbury theorem, which allows us to do all kinds of cool stuff, like rank-one matrix updates.  In the next few posts, I&rsquo;ll go over a few examples of where blockwise matrix inversions are useful, and common scenarios where rank-one updates of matrices are applicable in the next few posts.</p>
 
@@ -1071,7 +1071,7 @@ X = (A-BD^{-1}C)^{-1}BD^{-1} = A^{-1}B(D-CA^{-1}B)^{-1} \\<br>
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

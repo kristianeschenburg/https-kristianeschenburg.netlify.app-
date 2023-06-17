@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/information/">
 
@@ -321,7 +321,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "I\u0026rsquo;m interested in looking at some spatial mappings between pairs of cortical regions, and believe that these mappings are mediated, to some degree, by the temporal coupling between cortical areas. I don\u0026rsquo;t necessarily know the functional form of these mappings, but neurobiologically predict that these mappings are not random and have some inherent structure."
@@ -713,13 +713,13 @@ H(X) = - \sum_{x} p(x) \cdot log(p(x))
 \end{align}$$</p>
 <p>Entropy measures the degree of uncertainty in a probability distribution.  It is independent of the values $X$ takes, and is entirely dependent on the density of $X$.  We can think of entropy as measuring how &ldquo;peaked&rdquo; a distribution is. Assume we are given a binary random variable $Y$</p>
 <p>$$\begin{align}
-Y \sim Bernoulli(p) \\<br>
+Y \sim Bernoulli(p) \\
 \end{align}$$</p>
 <p>such that</p>
 <p>$$\begin{align}
 Y =
 \begin{cases}
-1 &amp; \text{with probability $p$} \\<br>
+1 &amp; \text{with probability $p$} \\
 0 &amp; \text{with probability $1-p$}
 \end{cases}
 \end{align}$$</p>
@@ -745,10 +745,10 @@ Y =
 <figure >
 
 
-  <a data-fancybox="" href="/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_2.png" >
+  <a data-fancybox="" href="/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_3.png" >
 
 
-  <img data-src="/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="424" height="280">
+  <img data-src="/post/information/entropy_hue80009bb191a784785003f9715471fdc_16228_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="424" height="280">
 </a>
 
 
@@ -758,8 +758,8 @@ Y =
 <p>Immediately evident is that the entropy curve peaks when $p=0.5$.  We are entirely uncertain what value $y$ will take if we have an equal chance of sampling either 0 or 1.  However, when $p = 0$ or $p=1$, we know exactly which value $y$ will take &ndash; we aren&rsquo;t uncertain at all.</p>
 <p>Entropy is naturally related to the conditional entropy.  Given two variables $X$ and $Y$, conditional entropy is defined as</p>
 <p>$$\begin{align}
-H(Y|X) &amp;= -\sum_{x}\sum_{y} = p(x,y)  \cdot log(\frac{p(x,y)}{p(x)}) \\<br>
-&amp;= -\sum_{x}\sum_{y} p(y|x) \cdot p(x) \cdot log(p(y|x)) \\<br>
+H(Y|X) &amp;= -\sum_{x}\sum_{y} = p(x,y)  \cdot log(\frac{p(x,y)}{p(x)}) \\
+&amp;= -\sum_{x}\sum_{y} p(y|x) \cdot p(x) \cdot log(p(y|x)) \\
 &amp;= -\sum_{x} p(x) \sum_{y} p(y|X=x) \cdot log(p(y|X=x))
 \end{align}$$</p>
 <p>where $H(Y|X=x) = -\sum_{y} p(y|X=x) \cdot log(p(y|X=x))$, the conditional of entropy of $Y$ given that $X=x$.  Here, we&rsquo;ve used the fact that $p(x,y) = p(y|x) \cdot p(x) = p(x|y) \cdot p(y)$.To compute $H(Y|X)$, we take the weighted average of these conditional entropies, where weights are defined by the marginal probabilities of $X$.</p>
@@ -767,20 +767,20 @@ H(Y|X) &amp;= -\sum_{x}\sum_{y} = p(x,y)  \cdot log(\frac{p(x,y)}{p(x)}) \\<br>
 <p>Related to entropy is the idea of mutual information.  Mutual information is a measure of the mutual dependence between two variables.  We can ask the following question:  does knowing something about variable $X$ tell us anything about variable $Y$?</p>
 <p>The mutual information between $X$ and $Y$ is defined as:</p>
 <p>$$\begin{align}
-I(X,Y) &amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\<br>
-&amp;= \sum_{x}\sum_{y}p(x,y) \cdot \log(p(x,y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(y)) \\<br>
-&amp;= -H(X,Y) - \sum_{x}p(x) \cdot log(p(x)) - \sum_{y}p(y) \cdot log(p(y)) \\<br>
+I(X,Y) &amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\
+&amp;= \sum_{x}\sum_{y}p(x,y) \cdot \log(p(x,y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(y)) \\
+&amp;= -H(X,Y) - \sum_{x}p(x) \cdot log(p(x)) - \sum_{y}p(y) \cdot log(p(y)) \\
 &amp;= H(X) + H(Y) - H(X,Y)
 \end{align}$$</p>
 <p>$I(X,Y)$ is symmetric in $X$ and $Y$:</p>
 <p>$$\begin{align}
-I(X,Y) &amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\<br>
-&amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x|y)}{p(y)}\Big) \\<br>
-&amp;= \sum_{x}\sum_{y} p(x,y) \cdot log(p(x|y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) \\<br>
-&amp;= -H(X|Y) - \sum_{x}\sum_{y} p(x|y) \cdot p(y) \cdot log(p(x)) \\<br>
-&amp;= -H(X|Y) - \sum_{x}log(p(x) \sum_{y}p(x|y) \cdot p(y) \\<br>
-&amp;= -H(X|Y) - \sum_{x} p(x) \cdot log(p(x)) \\<br>
-&amp;= H(X) - H(X|Y) \\<br>
+I(X,Y) &amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x,y)}{p(x) \cdot p(y)}\Big) \\
+&amp;= \sum_{x}\sum_{y} p(x,y) \cdot log\Big(\frac{p(x|y)}{p(y)}\Big) \\
+&amp;= \sum_{x}\sum_{y} p(x,y) \cdot log(p(x|y)) - \sum_{x}\sum_{y}p(x,y) \cdot log(p(x)) \\
+&amp;= -H(X|Y) - \sum_{x}\sum_{y} p(x|y) \cdot p(y) \cdot log(p(x)) \\
+&amp;= -H(X|Y) - \sum_{x}log(p(x) \sum_{y}p(x|y) \cdot p(y) \\
+&amp;= -H(X|Y) - \sum_{x} p(x) \cdot log(p(x)) \\
+&amp;= H(X) - H(X|Y) \\
 &amp;= H(Y) - H(Y|X)
 \end{align}$$</p>
 <p>We interpret the above to mean the following: if we are given any information about X (Y), can we reduce the uncertainty around what Y (X) should be?  We understand how much variability there is in each variable independently &ndash; this is measured by the marginal entropy $H(Y)$.  If knowing $X$ reduces this uncertainty, then the conditional entropy $H(Y|X)$ should be small.  If knowing $X$ does not reduce this uncertainty, then $H(Y|X)$ can be at most as large as $H(Y)$, and we have learned nothing about our dependent variable $Y$.</p>
@@ -794,8 +794,8 @@ Z = f(A \otimes B)
 <p>$$\begin{align}
 A \otimes B =
 \begin{bmatrix}
-(a_{1},b_{1}) &amp; \dots &amp; (a_{1},b_{k}) \\<br>
-\vdots &amp; \ddots &amp; \vdots \\<br>
+(a_{1},b_{1}) &amp; \dots &amp; (a_{1},b_{k}) \\
+\vdots &amp; \ddots &amp; \vdots \\
 (a_{p}, b_{1}) &amp; \dots &amp; (a_{p}, b_{k})
 \end{bmatrix}
 \end{align}$$</p>
@@ -821,10 +821,10 @@ A \otimes B =
 <figure >
 
 
-  <a data-fancybox="" href="/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_2.png" >
+  <a data-fancybox="" href="/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_3.png" >
 
 
-  <img data-src="/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="424" height="424">
+  <img data-src="/post/information/domain_hudf6752327912411f9654bba4b0b0185d_22907_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="424" height="424">
 </a>
 
 
@@ -833,9 +833,9 @@ A \otimes B =
 
 <p>We define the mutual information between $Z$ and $C$ as</p>
 <p>$$\begin{align}
-I(Z,C) &amp;= \sum_{z}\sum_{c} p(z,c) \cdot log\Big(\frac{p(z,c)}{p(z)p(c)} \Big) \\<br>
-&amp;= H(Z) - H(Z|C) \\<br>
-&amp;= H(Z) - H(X|(A,B)) \\<br>
+I(Z,C) &amp;= \sum_{z}\sum_{c} p(z,c) \cdot log\Big(\frac{p(z,c)}{p(z)p(c)} \Big) \\
+&amp;= H(Z) - H(Z|C) \\
+&amp;= H(Z) - H(X|(A,B)) \\
 &amp;= H(Z) - \sum_{a,b} p(a,b) \sum_{z} p(z|(A,B)=(a,b)) \cdot log(p(z|(A,B)=(a,b)))
 \end{align}$$</p>
 <p>where the pair $(a,b)$ represents a bin or subsection of the tensor-product space.  The code for this approach can be found below:</p>
@@ -943,11 +943,11 @@ def mutual_information_grid(X,Y,Z):
 
 <div class="article-tags">
   
+  <a class="badge badge-light" href="/tag/probability/">probability</a>
+  
   <a class="badge badge-light" href="/tag/entropy/">entropy</a>
   
   <a class="badge badge-light" href="/tag/mutual-information/">mutual information</a>
-  
-  <a class="badge badge-light" href="/tag/probability/">probability</a>
   
 </div>
 
@@ -1242,7 +1242,7 @@ def mutual_information_grid(X,Y,Z):
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

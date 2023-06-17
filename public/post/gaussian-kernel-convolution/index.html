@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/gaussian-kernel-convolution/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "I\u0026rsquo;m using graph convolutional networks as a tool to segment the cortical surface of the brain. This research resides in the domain of node classification using inductive learning. By node classification, I mean that we wish to assign a discrete label to cortical surface locations (nodes / vertices in a graph) on the basis of some feature data and brain network topology."
@@ -764,7 +764,8 @@
 <figure id="figure-demonstration-of-graph-convolution-network-from-thomas-kipfhttpstkipfgithubiograph-convolutional-networks">
 
 
-  <a data-fancybox="" href="https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png" data-caption="Demonstration of graph convolution network from Thomas Kipf.">
+  <a data-fancybox="" href="https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png" data-caption="Demonstration of graph convolution network from 
+Thomas Kipf.">
 
 
   <img src="https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png" alt=""  >
@@ -774,7 +775,8 @@
   
   
   <figcaption>
-    Demonstration of graph convolution network from <a href="https://tkipf.github.io/graph-convolutional-networks/">Thomas Kipf</a>.
+    Demonstration of graph convolution network from 
+<a href="https://tkipf.github.io/graph-convolutional-networks/" target="_blank" rel="noopener">Thomas Kipf</a>.
   </figcaption>
 
 
@@ -784,10 +786,10 @@
 <a href="http://arxiv.org/abs/1803.10336" target="_blank" rel="noopener">here</a>, where the authors utilitize Gaussian kernels as filters over the neighborhood of nodes.  However, the authors did not open-source their code &ndash; as such, I needed to implement this method myself.  Assume our input data to layer $l$ is $Y^{(l)} \in \mathbb{R}^{N \times q}$ for $N$ nodes in the graph.  We can define the Gaussian kernel-weighted convolution as follows:</p>
 <p>$$
 \begin{align}
-z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}_{i}} \sum_{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
+z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}<em>{i}} \sum</em>{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}<em>{i}, \hat{\mu}</em>{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
 \end{align}
 $$</p>
-<p>Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:</p>
+<p>Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}<em>{i}, \hat{\mu}</em>{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:</p>
 <p>$$
 \begin{align}
 \phi(\hat{\mu_{i}}, \hat{\mu_{j}}; \sigma_{k}^{(l)}, \mu_{k}^{(l)}  ) = \exp^{-\sigma_{k}^{(l)} \left\Vert (\hat{\mu_{i}} - \hat{\mu_{j}}) - \mu_{k}^{(l)} \right\Vert^{2}}
@@ -812,7 +814,8 @@ $$</p>
 <figure id="figure-figure-from-wu-et-alhttpswwwncbinlmnihgovpmcarticlespmc7052684--v_i-is-our-voxel-of-interest-and-v_ki-for-demonstration-purposes-is-an-adjacent-node--both-v_i-and-v_ki-are-characterized-by-embedding-vectors-e_i-e_ki-in-mathbbrq-from-which-we-compute-the-kernel-weight-phi_ik-characterizing-how-similar-the-two-vertices-embedding-vectors-are">
 
 
-  <a data-fancybox="" href="./gaussian_radius.png" data-caption="Figure from Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&rsquo; embedding vectors are.">
+  <a data-fancybox="" href="./gaussian_radius.png" data-caption="Figure from 
+Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&rsquo; embedding vectors are.">
 
 
   <img src="./gaussian_radius.png" alt=""  >
@@ -822,7 +825,8 @@ $$</p>
   
   
   <figcaption>
-    Figure from <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/">Wu et al.</a>.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&rsquo; embedding vectors are.
+    Figure from 
+<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/" target="_blank" rel="noopener">Wu et al.</a>.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&rsquo; embedding vectors are.
   </figcaption>
 
 
@@ -947,9 +951,9 @@ tensor([[0.1873, 0.7217],
 
 <div class="article-tags">
   
-  <a class="badge badge-light" href="/tag/ai/">AI</a>
-  
   <a class="badge badge-light" href="/tag/pytorch/">pytorch</a>
+  
+  <a class="badge badge-light" href="/tag/ai/">AI</a>
   
   <a class="badge badge-light" href="/tag/graph-convolution-networks/">graph convolution networks</a>
   
@@ -1246,7 +1250,7 @@ tensor([[0.1873, 0.7217],
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

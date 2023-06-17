@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/jumping-knowledge/">
 
@@ -321,7 +321,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "Background As I mentioned in my previous post on constrained graph attention networks, graph neural networks suffer from overfitting and oversmoothing as network depth increases. These issues can ultimately be linked to the local topologies of the graph."
@@ -786,12 +786,12 @@
 <p>In a recent paper, the authors propose one approach to address this question, which they call &ldquo;jumping knowledge representation learning&rdquo;<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.  Instead of utilizing the output of the last convolution layer to inform the prediction, jumping-knowledge networks aggregate the embeddings from all hidden layers to inform the final prediction.  The authors develop an approach to study the &ldquo;influence distribution&rdquo; of nodes: for a given node $x$, the influence distribution $I_{x}$ characterizes how much the final embedding of node $x$ is influenced by the input features of every other node:</p>
 <p>$$
 \begin{align}
-I(x,y) &amp;= \sum_{i=1}^{m} |\frac{\delta h_{x}^{k}}{\delta h_{y}^{0}}|_{i} \\<br>
-I_{x}(y) &amp;= I(x,y) \Big/\sum_{z} I(x,z)
+I(x,y) &amp;= \sum_{i=1}^{m} |\frac{\delta h_{x}^{k}}{\delta h_{y}^{0}}|<em>{i} \\
+I</em>{x}(y) &amp;= I(x,y) \Big/\sum_{z} I(x,z)
 \end{align}
 $$</p>
 <p>They show that influence distribution $I_{x}$ for a $k$-layer graph convolution network is equal, in expectation, to the $k$-step random walk distribution.  They point out that the random walk distribution of expander-like nodes converge quickly &ndash; the final embeddings of these nodes are represenative of the whole graph and carry global information &ndash; while the random-walk distribution of nodes with tree-like topology converge slowly &ndash; these nodes carry more-local information<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>.  These two conclusions are related to the spectral gap of the graph &ndash; the smallest non-zero eigenvalue of the graph Laplacian.  A large spectral gap indicates high-connectivity, while a low spectral gap indicates low connectivity.  From a graph theory perspective, this local connectivity is related to the idea of centrality.  Nodes with high centrality will easily saturate their random walk distribution, but will also aggregate information from large neighborhoods quickly.  For graph neural networks with fixed aggregation kernels, this has important implications for representation learning, because the feature distributions of nodes with different topologies will not correspond to the same degree of locality, which may not lead to the best learned representations for all nodes.  A radius that is too large may result in over-smoothing of node features, while a radius that is too small may not be robust enough to learn optimal node embeddings.</p>
-<p>The jumping knowledge network architecture is conceptually similar to other graph neural networks, and we can, in fact, simply incorporate the jumping knowledge mechanism as an additional layer.  The goal is to adaptively learn the effective neighborhood size on a node-by-node basis, rather than enforcing the same aggregation radius for every node (remember, we want to account for local topological and feature variations).  The authors suggest three possible aggregation functions: concatentation, max-pooling, and an LSTM-attention mechanism <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>.  Each aggregator learns an optimal combination of the hidden embeddings, which is then pushed through a linear layer to generate the final network output.  Concatenation determines the optimal linear combination of hidden embeddings for the entire dataset simultaneously, so it is not a node-specific aggregator.  Max-pooling selects the most important hidden layer for each feature element on a node-by-node basis &ndash; however, empirically, I found that max-pooling was highly unstable in terms of model learning.  The LSTM-attention aggregator treats the hidden embeddings as a sequence of elements, and assigns a unique attention score to each hidden embedding <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
+<p>The jumping knowledge network architecture is conceptually similar to other graph neural networks, and we can, in fact, simply incorporate the jumping knowledge mechanism as an additional layer.  The goal is to adaptively learn the effective neighborhood size on a node-by-node basis, rather than enforcing the same aggregation radius for every node (remember, we want to account for local topological and feature variations).  The authors suggest three possible aggregation functions: concatentation, max-pooling, and an LSTM-attention mechanism <sup id="fnref1:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> <sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>.  Each aggregator learns an optimal combination of the hidden embeddings, which is then pushed through a linear layer to generate the final network output.  Concatenation determines the optimal linear combination of hidden embeddings for the entire dataset simultaneously, so it is not a node-specific aggregator.  Max-pooling selects the most important hidden layer for each feature element on a node-by-node basis &ndash; however, empirically, I found that max-pooling was highly unstable in terms of model learning.  The LSTM-attention aggregator treats the hidden embeddings as a sequence of elements, and assigns a unique attention score to each hidden embedding <sup id="fnref:4"><a href="#fn:4" class="footnote-ref" role="doc-noteref">4</a></sup>.</p>
 
 
 
@@ -864,30 +864,30 @@ $$</p>
 
 <p>$$
 \begin{align}
-f_{t} &amp;= \sigma(W_{f}X_{t} + U_{f}h_{t-1} + b_{f}) \\<br>
-i_{t} &amp;= \sigma(W_{i}X_{t} + U_{i}h_{t-1} + b_{i}) \\<br>
-o_{t} &amp;= \sigma(W_{o}X_{t} + U_{o}h_{t-1} + b_{o}) \\<br>
+f_{t} &amp;= \sigma(W_{f}X_{t} + U_{f}h_{t-1} + b_{f}) \\
+i_{t} &amp;= \sigma(W_{i}X_{t} + U_{i}h_{t-1} + b_{i}) \\
+o_{t} &amp;= \sigma(W_{o}X_{t} + U_{o}h_{t-1} + b_{o}) \\
 \end{align}
 $$</p>
 <p>where $W$, $U$, and $b$ are learnable parameters of the gates.  Here, $X_{t}$ is the $t$-th sequence element, $h_{t-1}$ represents the learned LSTM cell embedding for element $t-1$, and $C_{t-1}$ represents the current memory state, given the previous $1, 2 \dots t-1$ elements.  The input and forget gates determine which aspects of a sequence element are informative / uninformative, and decide what information to keep / forget, while the output gate combines the previous memory state with our new knowledge.  We can roughly think of this process as updating our prior beliefs, in the Bayesian sense, with new incoming data.</p>
 <p>$$
 \begin{align}
-\tilde{c_{t}} &amp;= \sigma(W_{c}X_{t} + U_{c}h_{t-1} + b_{c}) \\<br>
-c_{t} &amp;= f_{t}\circ c_{t-1} + i_{t} \tilde{c}_{t} \\<br>
-h_{t} &amp;= o_{t} \circ tanh(c_{t})
+\tilde{c_{t}} &amp;= \sigma(W_{c}X_{t} + U_{c}h_{t-1} + b_{c}) \\
+c_{t} &amp;= f_{t}\circ c_{t-1} + i_{t} \tilde{c}<em>{t} \\
+h</em>{t} &amp;= o_{t} \circ tanh(c_{t})
 \end{align}
 $$</p>
-<p>The embeddings for each element learned by the LSTM cell are represented by $h_{t}$.  In the original paper<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>, the authors propose to apply a bi-directional LSTM to simultaneously learn forwards and backwards embeddings, which are concatenated and pushed through a single-layer perceptron to compute layer-specific attention weights for each node:</p>
+<p>The embeddings for each element learned by the LSTM cell are represented by $h_{t}$.  In the original paper<sup id="fnref2:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>, the authors propose to apply a bi-directional LSTM to simultaneously learn forwards and backwards embeddings, which are concatenated and pushed through a single-layer perceptron to compute layer-specific attention weights for each node:</p>
 <p>$$
 \begin{align}
-\alpha_{i}^{t} &amp;= \sigma(\vec{w}_{t}^{T}(h^{F}_{i, t} || h^{B}_{i, t})) \\<br>
-\alpha_{i}^{t} &amp;= \frac{\exp{(\alpha_{i}^{t})}}{\sum_{t=1}^{L} \exp{(\alpha_{i}^{t})}}
+\alpha_{i}^{t} &amp;= \sigma(\vec{w}<em>{t}^{T}(h^{F}</em>{i, t} || h^{B}<em>{i, t})) \\
+\alpha</em>{i}^{t} &amp;= \frac{\exp{(\alpha_{i}^{t})}}{\sum_{t=1}^{L} \exp{(\alpha_{i}^{t})}}
 \end{align}
 $$</p>
 <p>The softmax-normalized attention weights represent a probability distribution over attention weights</p>
 <p>$$\begin{align}
-\sum_{t=1}^{L} \alpha_{i}^{t} &amp;= 1 \\<br>
-\\<br>
+\sum_{t=1}^{L} \alpha_{i}^{t} &amp;= 1 \\
+\\
 \alpha_{i}^{t} &amp;&gt;= 0
 \end{align}
 $$</p>
@@ -919,7 +919,8 @@ $$</p>
 <figure id="figure-comparison-of-the-group-average-predicted-cortical-segmentation-produced-by-the-jkgat-model-to-the-ground-truth-cortical-segmentation--the-ground-truth-was-previously-generated-herehttpswwwncbinlmnihgovpmcarticlespmc4990127--the-consensus-cortical-map-corresponds-very-well-to-the-true-map">
 
 
-  <a data-fancybox="" href="./prediction_G.png" data-caption="Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated here.  The consensus cortical map corresponds very well to the true map.">
+  <a data-fancybox="" href="./prediction_G.png" data-caption="Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated 
+here.  The consensus cortical map corresponds very well to the true map.">
 
 
   <img src="./prediction_G.png" alt=""  >
@@ -929,7 +930,8 @@ $$</p>
   
   
   <figcaption>
-    Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4990127/">here</a>.  The consensus cortical map corresponds very well to the true map.
+    Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated 
+<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4990127/" target="_blank" rel="noopener">here</a>.  The consensus cortical map corresponds very well to the true map.
   </figcaption>
 
 
@@ -1041,31 +1043,31 @@ $$</p>
 
 </figure>
 
-<section class="footnotes" role="doc-endnotes">
+<div class="footnotes" role="doc-endnotes">
 <hr>
 <ol>
-<li id="fn:1" role="doc-endnote">
+<li id="fn:1">
 <p>Xu et al. 
-<a href="https://arxiv.org/pdf/1806.03536.pdf" target="_blank" rel="noopener">Representation Learning on Graphs with Jumping Knowledge Networks</a>. 2018. <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="https://arxiv.org/pdf/1806.03536.pdf" target="_blank" rel="noopener">Representation Learning on Graphs with Jumping Knowledge Networks</a>. 2018.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref2:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:2" role="doc-endnote">
+<li id="fn:2">
 <p>Dinitz et a. 
-<a href="https://arxiv.org/pdf/1611.01755.pdf" target="_blank" rel="noopener">Large Low-Diameter Graphs are Good Expanders</a>. 2017. <a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="https://arxiv.org/pdf/1611.01755.pdf" target="_blank" rel="noopener">Large Low-Diameter Graphs are Good Expanders</a>. 2017.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:3" role="doc-endnote">
+<li id="fn:3">
 <p>Lutzeyer et al. 
-<a href="https://arxiv.org/pdf/1712.03769.pdf" target="_blank" rel="noopener">Comparing Graph Spectra of Adjacency and Laplacian Matrices</a>. 2017. <a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="https://arxiv.org/pdf/1712.03769.pdf" target="_blank" rel="noopener">Comparing Graph Spectra of Adjacency and Laplacian Matrices</a>. 2017.&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:4" role="doc-endnote">
+<li id="fn:4">
 <p>Gers, Felix.  
-<a href="http://www.felixgers.de/papers/phd.pdf" target="_blank" rel="noopener">Long Short-Term Memory in Recurrent Neural Networks</a>. 2001. <a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="http://www.felixgers.de/papers/phd.pdf" target="_blank" rel="noopener">Long Short-Term Memory in Recurrent Neural Networks</a>. 2001.&#160;<a href="#fnref:4" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
-<li id="fn:5" role="doc-endnote">
+<li id="fn:5">
 <p>Fan et al. 
-<a href="https://www.mdpi.com/2073-4441/12/1/175/htm" target="_blank" rel="noopener">Comparison of Long Short Term Memory Networks and the Hydrological Model in Runoff Simulation</a>.  2020. <a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<a href="https://www.mdpi.com/2073-4441/12/1/175/htm" target="_blank" rel="noopener">Comparison of Long Short Term Memory Networks and the Hydrological Model in Runoff Simulation</a>.  2020.&#160;<a href="#fnref:5" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
-</section>
+</div>
 
     </div>
 
@@ -1077,15 +1079,15 @@ $$</p>
 
 <div class="article-tags">
   
-  <a class="badge badge-light" href="/tag/graph-neural-networks/">graph neural networks</a>
+  <a class="badge badge-light" href="/tag/pytorch/">pytorch</a>
   
   <a class="badge badge-light" href="/tag/ai/">AI</a>
   
-  <a class="badge badge-light" href="/tag/lstm/">lstm</a>
-  
-  <a class="badge badge-light" href="/tag/pytorch/">pytorch</a>
+  <a class="badge badge-light" href="/tag/graph-neural-networks/">graph neural networks</a>
   
   <a class="badge badge-light" href="/tag/representation-learning/">representation learning</a>
+  
+  <a class="badge badge-light" href="/tag/lstm/">lstm</a>
   
 </div>
 
@@ -1393,7 +1395,7 @@ $$</p>
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

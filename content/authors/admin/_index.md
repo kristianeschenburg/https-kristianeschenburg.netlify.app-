@@ -21,10 +21,9 @@ organizations:
 bio: ""
 
 interests:
-- (Graph-based) Deep Learning
+- Deep Learning
 - Data Visualization
-- Image Processing
-- Science Communication
+- Computer Vision
 
 education:
   courses:
@@ -69,8 +68,8 @@ social:
 # - Visitors
 ---
 # 
-I'm a Data Scientist and former Biomedical Engineer living in the Pacific Northwest.  I completed my PhD in Seattle at the University of Washington where I developed computational methods to explore relationships between brain structure and brain function using magnetic resonance imaging.  My primary research focus was on designing computer vision models to map the human brain using various MRI modalities, and relating these learned cortical maps to various biological and neurological processes.  I have extensive experience in medical imaging, image processing, machine learning, high-dimensional data analysis, and data visualization.
+I'm a Data Scientist currently living in Seattle.  I completed my PhD in Biomedical Engineering at University of Washington, where I developed computational methods to explore relationships between brain structure and brain function using magnetic resonance imaging.  My primary research focus was on designing computer vision models to map the human cortex using various MRI modalities, and relating derived maps of the cortex to various biological and neurological processes.  I have extensive experience in medical imaging, image processing, machine learning, graph-based data, high-dimensional data analysis, data visualization, and scientific communication.  
 
-I'm a firm believer in the idea that code is as much a part of hypothesis-driven design and the scientific process as any other tool or instrument, and that one of the best ways to drive computational sciences forward is through open-source software development, open-access publication, and technical writing.
+Since completing my PhD, I've worked as Data Scientist in the Biotechnology sector, with a major focus on building AI tools to facilitate the drug discovery process.  This work has included developing image and graph-based machine learning models for in-house and client-facing projects, designing end-to-end analysis and deployment pipelines, and building data visualization tools for scientists in various functional groups.
 
-When I'm not thinking about science, I like to ski up (and down) hill, mountaineer, trail run, and tend to my plants.  I'm driven by curiosity and fueled by coffee.
+When I'm not thinking about data, I like to backcountry ski, climb, trail run, and take care of my plants.  I'm driven by curiosity and fueled by coffee.

@@ -61,12 +61,12 @@
 &lt;p&gt;In a recent paper, the authors propose one approach to address this question, which they call &amp;ldquo;jumping knowledge representation learning&amp;rdquo;&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.  Instead of utilizing the output of the last convolution layer to inform the prediction, jumping-knowledge networks aggregate the embeddings from all hidden layers to inform the final prediction.  The authors develop an approach to study the &amp;ldquo;influence distribution&amp;rdquo; of nodes: for a given node $x$, the influence distribution $I_{x}$ characterizes how much the final embedding of node $x$ is influenced by the input features of every other node:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-I(x,y) &amp;amp;= \sum_{i=1}^{m} |\frac{\delta h_{x}^{k}}{\delta h_{y}^{0}}|_{i} \\&lt;br&gt;
-I_{x}(y) &amp;amp;= I(x,y) \Big/\sum_{z} I(x,z)
+I(x,y) &amp;amp;= \sum_{i=1}^{m} |\frac{\delta h_{x}^{k}}{\delta h_{y}^{0}}|&lt;em&gt;{i} \\
+I&lt;/em&gt;{x}(y) &amp;amp;= I(x,y) \Big/\sum_{z} I(x,z)
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;They show that influence distribution $I_{x}$ for a $k$-layer graph convolution network is equal, in expectation, to the $k$-step random walk distribution.  They point out that the random walk distribution of expander-like nodes converge quickly &amp;ndash; the final embeddings of these nodes are represenative of the whole graph and carry global information &amp;ndash; while the random-walk distribution of nodes with tree-like topology converge slowly &amp;ndash; these nodes carry more-local information&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;.  These two conclusions are related to the spectral gap of the graph &amp;ndash; the smallest non-zero eigenvalue of the graph Laplacian.  A large spectral gap indicates high-connectivity, while a low spectral gap indicates low connectivity.  From a graph theory perspective, this local connectivity is related to the idea of centrality.  Nodes with high centrality will easily saturate their random walk distribution, but will also aggregate information from large neighborhoods quickly.  For graph neural networks with fixed aggregation kernels, this has important implications for representation learning, because the feature distributions of nodes with different topologies will not correspond to the same degree of locality, which may not lead to the best learned representations for all nodes.  A radius that is too large may result in over-smoothing of node features, while a radius that is too small may not be robust enough to learn optimal node embeddings.&lt;/p&gt;
-&lt;p&gt;The jumping knowledge network architecture is conceptually similar to other graph neural networks, and we can, in fact, simply incorporate the jumping knowledge mechanism as an additional layer.  The goal is to adaptively learn the effective neighborhood size on a node-by-node basis, rather than enforcing the same aggregation radius for every node (remember, we want to account for local topological and feature variations).  The authors suggest three possible aggregation functions: concatentation, max-pooling, and an LSTM-attention mechanism &lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.  Each aggregator learns an optimal combination of the hidden embeddings, which is then pushed through a linear layer to generate the final network output.  Concatenation determines the optimal linear combination of hidden embeddings for the entire dataset simultaneously, so it is not a node-specific aggregator.  Max-pooling selects the most important hidden layer for each feature element on a node-by-node basis &amp;ndash; however, empirically, I found that max-pooling was highly unstable in terms of model learning.  The LSTM-attention aggregator treats the hidden embeddings as a sequence of elements, and assigns a unique attention score to each hidden embedding &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;p&gt;The jumping knowledge network architecture is conceptually similar to other graph neural networks, and we can, in fact, simply incorporate the jumping knowledge mechanism as an additional layer.  The goal is to adaptively learn the effective neighborhood size on a node-by-node basis, rather than enforcing the same aggregation radius for every node (remember, we want to account for local topological and feature variations).  The authors suggest three possible aggregation functions: concatentation, max-pooling, and an LSTM-attention mechanism &lt;sup id=&#34;fnref1:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;sup id=&#34;fnref:3&#34;&gt;&lt;a href=&#34;#fn:3&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;3&lt;/a&gt;&lt;/sup&gt;.  Each aggregator learns an optimal combination of the hidden embeddings, which is then pushed through a linear layer to generate the final network output.  Concatenation determines the optimal linear combination of hidden embeddings for the entire dataset simultaneously, so it is not a node-specific aggregator.  Max-pooling selects the most important hidden layer for each feature element on a node-by-node basis &amp;ndash; however, empirically, I found that max-pooling was highly unstable in terms of model learning.  The LSTM-attention aggregator treats the hidden embeddings as a sequence of elements, and assigns a unique attention score to each hidden embedding &lt;sup id=&#34;fnref:4&#34;&gt;&lt;a href=&#34;#fn:4&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;4&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
 
 
 
@@ -139,30 +139,30 @@ $$&lt;/p&gt;
 
 &lt;p&gt;$$
 \begin{align}
-f_{t} &amp;amp;= \sigma(W_{f}X_{t} + U_{f}h_{t-1} + b_{f}) \\&lt;br&gt;
-i_{t} &amp;amp;= \sigma(W_{i}X_{t} + U_{i}h_{t-1} + b_{i}) \\&lt;br&gt;
-o_{t} &amp;amp;= \sigma(W_{o}X_{t} + U_{o}h_{t-1} + b_{o}) \\&lt;br&gt;
+f_{t} &amp;amp;= \sigma(W_{f}X_{t} + U_{f}h_{t-1} + b_{f}) \\
+i_{t} &amp;amp;= \sigma(W_{i}X_{t} + U_{i}h_{t-1} + b_{i}) \\
+o_{t} &amp;amp;= \sigma(W_{o}X_{t} + U_{o}h_{t-1} + b_{o}) \\
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;where $W$, $U$, and $b$ are learnable parameters of the gates.  Here, $X_{t}$ is the $t$-th sequence element, $h_{t-1}$ represents the learned LSTM cell embedding for element $t-1$, and $C_{t-1}$ represents the current memory state, given the previous $1, 2 \dots t-1$ elements.  The input and forget gates determine which aspects of a sequence element are informative / uninformative, and decide what information to keep / forget, while the output gate combines the previous memory state with our new knowledge.  We can roughly think of this process as updating our prior beliefs, in the Bayesian sense, with new incoming data.&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-\tilde{c_{t}} &amp;amp;= \sigma(W_{c}X_{t} + U_{c}h_{t-1} + b_{c}) \\&lt;br&gt;
-c_{t} &amp;amp;= f_{t}\circ c_{t-1} + i_{t} \tilde{c}_{t} \\&lt;br&gt;
-h_{t} &amp;amp;= o_{t} \circ tanh(c_{t})
+\tilde{c_{t}} &amp;amp;= \sigma(W_{c}X_{t} + U_{c}h_{t-1} + b_{c}) \\
+c_{t} &amp;amp;= f_{t}\circ c_{t-1} + i_{t} \tilde{c}&lt;em&gt;{t} \\
+h&lt;/em&gt;{t} &amp;amp;= o_{t} \circ tanh(c_{t})
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;The embeddings for each element learned by the LSTM cell are represented by $h_{t}$.  In the original paper&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;, the authors propose to apply a bi-directional LSTM to simultaneously learn forwards and backwards embeddings, which are concatenated and pushed through a single-layer perceptron to compute layer-specific attention weights for each node:&lt;/p&gt;
+&lt;p&gt;The embeddings for each element learned by the LSTM cell are represented by $h_{t}$.  In the original paper&lt;sup id=&#34;fnref2:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;, the authors propose to apply a bi-directional LSTM to simultaneously learn forwards and backwards embeddings, which are concatenated and pushed through a single-layer perceptron to compute layer-specific attention weights for each node:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-\alpha_{i}^{t} &amp;amp;= \sigma(\vec{w}_{t}^{T}(h^{F}_{i, t} || h^{B}_{i, t})) \\&lt;br&gt;
-\alpha_{i}^{t} &amp;amp;= \frac{\exp{(\alpha_{i}^{t})}}{\sum_{t=1}^{L} \exp{(\alpha_{i}^{t})}}
+\alpha_{i}^{t} &amp;amp;= \sigma(\vec{w}&lt;em&gt;{t}^{T}(h^{F}&lt;/em&gt;{i, t} || h^{B}&lt;em&gt;{i, t})) \\
+\alpha&lt;/em&gt;{i}^{t} &amp;amp;= \frac{\exp{(\alpha_{i}^{t})}}{\sum_{t=1}^{L} \exp{(\alpha_{i}^{t})}}
 \end{align}
 $$&lt;/p&gt;
 &lt;p&gt;The softmax-normalized attention weights represent a probability distribution over attention weights&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\sum_{t=1}^{L} \alpha_{i}^{t} &amp;amp;= 1 \\&lt;br&gt;
-\\&lt;br&gt;
+\sum_{t=1}^{L} \alpha_{i}^{t} &amp;amp;= 1 \\
+\\
 \alpha_{i}^{t} &amp;amp;&amp;gt;= 0
 \end{align}
 $$&lt;/p&gt;
@@ -194,7 +194,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-comparison-of-the-group-average-predicted-cortical-segmentation-produced-by-the-jkgat-model-to-the-ground-truth-cortical-segmentation--the-ground-truth-was-previously-generated-herehttpswwwncbinlmnihgovpmcarticlespmc4990127--the-consensus-cortical-map-corresponds-very-well-to-the-true-map&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./prediction_G.png&#34; data-caption=&#34;Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated here.  The consensus cortical map corresponds very well to the true map.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./prediction_G.png&#34; data-caption=&#34;Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated 
+here.  The consensus cortical map corresponds very well to the true map.&#34;&gt;
 
 
   &lt;img src=&#34;./prediction_G.png&#34; alt=&#34;&#34;  &gt;
@@ -204,7 +205,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated &lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4990127/&#34;&gt;here&lt;/a&gt;.  The consensus cortical map corresponds very well to the true map.
+    Comparison of the group-average predicted cortical segmentation produced by the JKGAT model, to the ground truth cortical segmentation.  The ground truth was previously generated 
+&lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4990127/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;.  The consensus cortical map corresponds very well to the true map.
   &lt;/figcaption&gt;
 
 
@@ -316,31 +318,31 @@ $$&lt;/p&gt;
 
 &lt;/figure&gt;
 
-&lt;section class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
 &lt;hr&gt;
 &lt;ol&gt;
-&lt;li id=&#34;fn:1&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
 &lt;p&gt;Xu et al. 
-&lt;a href=&#34;https://arxiv.org/pdf/1806.03536.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Representation Learning on Graphs with Jumping Knowledge Networks&lt;/a&gt;. 2018. &lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://arxiv.org/pdf/1806.03536.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Representation Learning on Graphs with Jumping Knowledge Networks&lt;/a&gt;. 2018.&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref1:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&amp;#160;&lt;a href=&#34;#fnref2:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:2&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
 &lt;p&gt;Dinitz et a. 
-&lt;a href=&#34;https://arxiv.org/pdf/1611.01755.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Low-Diameter Graphs are Good Expanders&lt;/a&gt;. 2017. &lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://arxiv.org/pdf/1611.01755.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Large Low-Diameter Graphs are Good Expanders&lt;/a&gt;. 2017.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:3&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:3&#34;&gt;
 &lt;p&gt;Lutzeyer et al. 
-&lt;a href=&#34;https://arxiv.org/pdf/1712.03769.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparing Graph Spectra of Adjacency and Laplacian Matrices&lt;/a&gt;. 2017. &lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://arxiv.org/pdf/1712.03769.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparing Graph Spectra of Adjacency and Laplacian Matrices&lt;/a&gt;. 2017.&amp;#160;&lt;a href=&#34;#fnref:3&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:4&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:4&#34;&gt;
 &lt;p&gt;Gers, Felix.  
-&lt;a href=&#34;http://www.felixgers.de/papers/phd.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Long Short-Term Memory in Recurrent Neural Networks&lt;/a&gt;. 2001. &lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;http://www.felixgers.de/papers/phd.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Long Short-Term Memory in Recurrent Neural Networks&lt;/a&gt;. 2001.&amp;#160;&lt;a href=&#34;#fnref:4&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
-&lt;li id=&#34;fn:5&#34; role=&#34;doc-endnote&#34;&gt;
+&lt;li id=&#34;fn:5&#34;&gt;
 &lt;p&gt;Fan et al. 
-&lt;a href=&#34;https://www.mdpi.com/2073-4441/12/1/175/htm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparison of Long Short Term Memory Networks and the Hydrological Model in Runoff Simulation&lt;/a&gt;.  2020. &lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;a href=&#34;https://www.mdpi.com/2073-4441/12/1/175/htm&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Comparison of Long Short Term Memory Networks and the Hydrological Model in Runoff Simulation&lt;/a&gt;.  2020.&amp;#160;&lt;a href=&#34;#fnref:5&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-&lt;/section&gt;
+&lt;/div&gt;
 </description>
     </item>
     
@@ -372,7 +374,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-figure-from-velickovic-et-alhttpsarxivorgpdf171010903pdf--for-a-source-node-i-and-destination-node-j-vectors-vech_i-and-vech_j-are-the-input-feature-vectors-of-nodes-i-and-j-in-layer-l--mathbfw-is-a-learned-affine-projection-matrix--mathbfveca-is-the-learned-attention-function--the-source-and-destination-node-input-features-are-pushed-through-the-attention-layer-as-alpha_ij--sigmabigvecatmathbfwbigvech_i--vech_jbigbig-where-sigma-is-an-activation-function-and-alpha_ij-the-unnormalized-attention-that-node-i-pays-to-node-j-in-layer-l--attention-weights-are-then-passed-through-a-softmax-layer-mapping-the-attentions-between-01&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./attention_mechanism.png&#34; data-caption=&#34;Figure from Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./attention_mechanism.png&#34; data-caption=&#34;Figure from 
+Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].&#34;&gt;
 
 
   &lt;img src=&#34;./attention_mechanism.png&#34; alt=&#34;&#34;  &gt;
@@ -382,7 +385,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Figure from &lt;a href=&#34;https://arxiv.org/pdf/1710.10903.pdf&#34;&gt;Velickovic et al&lt;/a&gt;.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
+    Figure from 
+&lt;a href=&#34;https://arxiv.org/pdf/1710.10903.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Velickovic et al&lt;/a&gt;.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
   &lt;/figcaption&gt;
 
 
@@ -584,7 +588,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-various-maps-of-the-primate-visual-cortex--tootell-et-al-2003httpswwwjneurosciorgcontent23103981&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; data-caption=&#34;Various maps of the primate visual cortex.  Tootell et al, 2003.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; data-caption=&#34;Various maps of the primate visual cortex.  
+Tootell et al, 2003.&#34;&gt;
 
 
   &lt;img src=&#34;https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;amp;height=600&amp;amp;carousel=1&#34; alt=&#34;&#34;  &gt;
@@ -594,7 +599,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Various maps of the primate visual cortex.  &lt;a href=&#34;https://www.jneurosci.org/content/23/10/3981&#34;&gt;Tootell et al, 2003&lt;/a&gt;.
+    Various maps of the primate visual cortex.  
+&lt;a href=&#34;https://www.jneurosci.org/content/23/10/3981&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Tootell et al, 2003&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -607,11 +613,11 @@ G = -\sum_{k=1}^{k}\sum_{l \in \mathcal{L}} \sum_{h \in \mathcal{L} \setminus \m
 &lt;p&gt;where $w_{l}^{k}$ is the probability weight assigned to label $h \in \mathcal{L}\setminus \mathcal{N_{l}}$ i.e. the set of labels not adjacent to label $l$.  In order to follow the idea of a cross-entropy, we enforce the following constraints on weights $\mathbf{w}$:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-w_{l}^{k} &amp;gt;&amp;amp;= 0 \\&lt;br&gt;
+w_{l}^{k} &amp;gt;&amp;amp;= 0 \\
 \sum_{l \in \mathcal{L}} w_{l}^{k} &amp;amp;= 1
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to &lt;strong&gt;not&lt;/strong&gt; be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}_{l} = j) = 0.05$, then $log(1-p(x^{k}_{l} = j))$ will be small.  However, if $p(x^{k}_{l} = j) = 0.95$, then $log(1-p(x^{k}_{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &amp;ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}_{l} \in \mathcal{N_{t}}$, we simply set $w_{l}^{k} = 0$ &amp;ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.&lt;/p&gt;
+&lt;p&gt;such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to &lt;strong&gt;not&lt;/strong&gt; be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}&lt;em&gt;{l} = j) = 0.05$, then $log(1-p(x^{k}&lt;/em&gt;{l} = j))$ will be small.  However, if $p(x^{k}&lt;em&gt;{l} = j) = 0.95$, then $log(1-p(x^{k}&lt;/em&gt;{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &amp;ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}&lt;em&gt;{l} \in \mathcal{N&lt;/em&gt;{t}}$, we simply set $w_{l}^{k} = 0$ &amp;ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.&lt;/p&gt;
 &lt;p&gt;Below, I&amp;rsquo;ve implemented this loss function using 
 &lt;a href=&#34;https://pytorch.org/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Pytorch&lt;/a&gt; and 
 &lt;a href=&#34;https://www.dgl.ai/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Deep Graph Library&lt;/a&gt;.  Assume that we are given the adjacency matrix of our mesh, the logits of our model, and the true label of our training data:&lt;/p&gt;
@@ -715,7 +721,8 @@ optimizer.step() # update weights and parameters w.r.t new gradient
 &lt;figure id=&#34;figure-demonstration-of-graph-convolution-network-from-thomas-kipfhttpstkipfgithubiograph-convolutional-networks&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; data-caption=&#34;Demonstration of graph convolution network from Thomas Kipf.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; data-caption=&#34;Demonstration of graph convolution network from 
+Thomas Kipf.&#34;&gt;
 
 
   &lt;img src=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; alt=&#34;&#34;  &gt;
@@ -725,7 +732,8 @@ optimizer.step() # update weights and parameters w.r.t new gradient
   
   
   &lt;figcaption&gt;
-    Demonstration of graph convolution network from &lt;a href=&#34;https://tkipf.github.io/graph-convolutional-networks/&#34;&gt;Thomas Kipf&lt;/a&gt;.
+    Demonstration of graph convolution network from 
+&lt;a href=&#34;https://tkipf.github.io/graph-convolutional-networks/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Thomas Kipf&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -735,10 +743,10 @@ optimizer.step() # update weights and parameters w.r.t new gradient
 &lt;a href=&#34;http://arxiv.org/abs/1803.10336&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;, where the authors utilitize Gaussian kernels as filters over the neighborhood of nodes.  However, the authors did not open-source their code &amp;ndash; as such, I needed to implement this method myself.  Assume our input data to layer $l$ is $Y^{(l)} \in \mathbb{R}^{N \times q}$ for $N$ nodes in the graph.  We can define the Gaussian kernel-weighted convolution as follows:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}_{i}} \sum_{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
+z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}&lt;em&gt;{i}} \sum&lt;/em&gt;{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}&lt;em&gt;{i}, \hat{\mu}&lt;/em&gt;{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:&lt;/p&gt;
+&lt;p&gt;Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}&lt;em&gt;{i}, \hat{\mu}&lt;/em&gt;{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
 \phi(\hat{\mu_{i}}, \hat{\mu_{j}}; \sigma_{k}^{(l)}, \mu_{k}^{(l)}  ) = \exp^{-\sigma_{k}^{(l)} \left\Vert (\hat{\mu_{i}} - \hat{\mu_{j}}) - \mu_{k}^{(l)} \right\Vert^{2}}
@@ -763,7 +771,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-figure-from-wu-et-alhttpswwwncbinlmnihgovpmcarticlespmc7052684--v_i-is-our-voxel-of-interest-and-v_ki-for-demonstration-purposes-is-an-adjacent-node--both-v_i-and-v_ki-are-characterized-by-embedding-vectors-e_i-e_ki-in-mathbbrq-from-which-we-compute-the-kernel-weight-phi_ik-characterizing-how-similar-the-two-vertices-embedding-vectors-are&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./gaussian_radius.png&#34; data-caption=&#34;Figure from Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./gaussian_radius.png&#34; data-caption=&#34;Figure from 
+Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.&#34;&gt;
 
 
   &lt;img src=&#34;./gaussian_radius.png&#34; alt=&#34;&#34;  &gt;
@@ -773,7 +782,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Figure from &lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/&#34;&gt;Wu et al.&lt;/a&gt;.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.
+    Figure from 
+&lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Wu et al.&lt;/a&gt;.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.
   &lt;/figcaption&gt;
 
 

@@ -26,5 +26,8 @@ date_format = "Jan 2006"
   date_start = "2022-03-23"
   date_end = 0
   description = """
+  * Leading the development of AI models for in-silico de novo antibody design using graph-based protein language models
+  * Developed downstream protein purification visualization tools that reduced end-to- end analysis times by ~2 weeks per client project
+  * Orchestrated migration of company-wide on-prem applications to cloud-based hosting on AWS EC2 instances with Gitlab CI/CD pipelines
   """
 +++

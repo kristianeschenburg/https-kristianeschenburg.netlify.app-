@@ -27,10 +27,9 @@ date_format = "Jan 2006"
   date_end = "2022-04-06"
   description = """
   
-  * Developed AI capabilities for analyzing tissue-engineered cells
-  * Designed RESTful web apps w/ AWS + MySQL for image storage and analysis
-  * Implemented computer vision tools to improve efficiency and reduce cost of cell differentiation pipelines
-  * Built out propriety software platform for analysis of tissue-engineered muscular cells, yielding 2x speedup in end-to-end processing over original tool
+  * Built AI models for predicting cell differentiation success rates from high- throughput microscopy imaging datasets
+  * Explored the utility of explainable AI tools for relating imaging-based phenotypic features to cell differentiation outcomes
+  * Developed software platform for phenotypic analysis of engineered cardiac and skeletal myocyte contractility waveforms
   """
 
 [[experience]]
@@ -57,10 +56,10 @@ date_format = "Jan 2006"
   date_start = "2017-04-01"
   date_end = "2017-06-01"
   description = """
-
-  * Developed meta-genome clustering algorithms for proprietary Python-based software platform
-  * Learned and employed principles of testing-driven software development (pytest, nose)
-  * Gained experience with cloud computing (AWS)
+  
+  * Contributed to the development of meta-genome clustering algorithms for Python-based software platform
+  * Learned and employed principles of test-driven software development
+  * Gained experience with cloud computing using AWS
   """
   
 [[experience]]
@@ -72,8 +71,8 @@ date_format = "Jan 2006"
   date_end = "2016-09-01"
   description = """
   
-  * Studied data structures related to dynamic graphs and networks
+  * Studied data structures related to dynamic graphs
   * Analyzed dynamical systems of functional MRI to characterize coherent spatial patterns of brain activity
-  * Translated summer-internship research into [journal paper](https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full)
+  * Translated summer internship research into journal paper [journal paper](https://www.frontiersin.org/articles/10.3389/fncom.2019.00075/full)
   """
 +++

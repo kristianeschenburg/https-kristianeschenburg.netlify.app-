@@ -40,7 +40,8 @@
 &lt;figure id=&#34;figure-figure-from-velickovic-et-alhttpsarxivorgpdf171010903pdf--for-a-source-node-i-and-destination-node-j-vectors-vech_i-and-vech_j-are-the-input-feature-vectors-of-nodes-i-and-j-in-layer-l--mathbfw-is-a-learned-affine-projection-matrix--mathbfveca-is-the-learned-attention-function--the-source-and-destination-node-input-features-are-pushed-through-the-attention-layer-as-alpha_ij--sigmabigvecatmathbfwbigvech_i--vech_jbigbig-where-sigma-is-an-activation-function-and-alpha_ij-the-unnormalized-attention-that-node-i-pays-to-node-j-in-layer-l--attention-weights-are-then-passed-through-a-softmax-layer-mapping-the-attentions-between-01&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./attention_mechanism.png&#34; data-caption=&#34;Figure from Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./attention_mechanism.png&#34; data-caption=&#34;Figure from 
+Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].&#34;&gt;
 
 
   &lt;img src=&#34;./attention_mechanism.png&#34; alt=&#34;&#34;  &gt;
@@ -50,7 +51,8 @@
   
   
   &lt;figcaption&gt;
-    Figure from &lt;a href=&#34;https://arxiv.org/pdf/1710.10903.pdf&#34;&gt;Velickovic et al&lt;/a&gt;.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
+    Figure from 
+&lt;a href=&#34;https://arxiv.org/pdf/1710.10903.pdf&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Velickovic et al&lt;/a&gt;.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
   &lt;/figcaption&gt;
 
 
@@ -250,7 +252,8 @@ else:
 &lt;figure id=&#34;figure-demonstration-of-graph-convolution-network-from-thomas-kipfhttpstkipfgithubiograph-convolutional-networks&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; data-caption=&#34;Demonstration of graph convolution network from Thomas Kipf.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; data-caption=&#34;Demonstration of graph convolution network from 
+Thomas Kipf.&#34;&gt;
 
 
   &lt;img src=&#34;https://tkipf.github.io/graph-convolutional-networks/images/gcn_web.png&#34; alt=&#34;&#34;  &gt;
@@ -260,7 +263,8 @@ else:
   
   
   &lt;figcaption&gt;
-    Demonstration of graph convolution network from &lt;a href=&#34;https://tkipf.github.io/graph-convolutional-networks/&#34;&gt;Thomas Kipf&lt;/a&gt;.
+    Demonstration of graph convolution network from 
+&lt;a href=&#34;https://tkipf.github.io/graph-convolutional-networks/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Thomas Kipf&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -270,10 +274,10 @@ else:
 &lt;a href=&#34;http://arxiv.org/abs/1803.10336&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;here&lt;/a&gt;, where the authors utilitize Gaussian kernels as filters over the neighborhood of nodes.  However, the authors did not open-source their code &amp;ndash; as such, I needed to implement this method myself.  Assume our input data to layer $l$ is $Y^{(l)} \in \mathbb{R}^{N \times q}$ for $N$ nodes in the graph.  We can define the Gaussian kernel-weighted convolution as follows:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
-z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}_{i}} \sum_{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
+z_{i,p}^{(l)} = \sum_{j \in \mathcal{N}&lt;em&gt;{i}} \sum&lt;/em&gt;{q=1}^{M_{(l)}} \sum_{k=1}^{K_{(l)}} w_{p,q,k}^{(l)} \cdot y_{j,q}^{(l)} \cdot \phi(\hat{\mu}&lt;em&gt;{i}, \hat{\mu}&lt;/em&gt;{j}; \Theta_{k}^{(l)}) + b_{p}^{(l)}
 \end{align}
 $$&lt;/p&gt;
-&lt;p&gt;Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}_{i}, \hat{\mu}_{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:&lt;/p&gt;
+&lt;p&gt;Above, $y_{j,q}^{(l)}$ is the $q$-th input feature of neighboring node $j$, $w_{p,q,k}^{(l)}$ is the linear weight assigned to this feature for the $k$-th kernel, and $\phi(\hat{\mu}&lt;em&gt;{i}, \hat{\mu}&lt;/em&gt;{j}; \Theta_{k}^{(l)})$ is the $k$-th kernel weight between node $i$ and node $j$, defined as:&lt;/p&gt;
 &lt;p&gt;$$
 \begin{align}
 \phi(\hat{\mu_{i}}, \hat{\mu_{j}}; \sigma_{k}^{(l)}, \mu_{k}^{(l)}  ) = \exp^{-\sigma_{k}^{(l)} \left\Vert (\hat{\mu_{i}} - \hat{\mu_{j}}) - \mu_{k}^{(l)} \right\Vert^{2}}
@@ -298,7 +302,8 @@ $$&lt;/p&gt;
 &lt;figure id=&#34;figure-figure-from-wu-et-alhttpswwwncbinlmnihgovpmcarticlespmc7052684--v_i-is-our-voxel-of-interest-and-v_ki-for-demonstration-purposes-is-an-adjacent-node--both-v_i-and-v_ki-are-characterized-by-embedding-vectors-e_i-e_ki-in-mathbbrq-from-which-we-compute-the-kernel-weight-phi_ik-characterizing-how-similar-the-two-vertices-embedding-vectors-are&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;./gaussian_radius.png&#34; data-caption=&#34;Figure from Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;./gaussian_radius.png&#34; data-caption=&#34;Figure from 
+Wu et al..  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.&#34;&gt;
 
 
   &lt;img src=&#34;./gaussian_radius.png&#34; alt=&#34;&#34;  &gt;
@@ -308,7 +313,8 @@ $$&lt;/p&gt;
   
   
   &lt;figcaption&gt;
-    Figure from &lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/&#34;&gt;Wu et al.&lt;/a&gt;.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.
+    Figure from 
+&lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7052684/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Wu et al.&lt;/a&gt;.  $v_{i}$ is our voxel of interest, and $v_{k}^{i}$, for demonstration purposes, is an adjacent node.  Both $v_{i}$ and $v_{k}^{i}$ are characterized by embedding vectors $e_{i}, e_{k}^{i} \in \mathbb{R}^{q}$, from which we compute the kernel weight $\phi_{i,k}$ characterizing how similar the two vertices&amp;rsquo; embedding vectors are.
   &lt;/figcaption&gt;
 
 

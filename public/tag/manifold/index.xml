@@ -41,17 +41,19 @@
 &lt;figure id=&#34;figure-intersecting-2d-linear-subspaceshttpswwwresearchgatenetpublication327930102_optimal_exploitation_of_subspace_prior_information_in_matrix_sensing&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Intersecting 2D linear subspaces.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Intersecting 2D linear 
+subspaces.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;640&#34; height=&#34;483&#34;&gt;
+  &lt;img data-src=&#34;/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;640&#34; height=&#34;483&#34;&gt;
 &lt;/a&gt;
 
 
   
   
   &lt;figcaption&gt;
-    Intersecting 2D linear &lt;a href=&#34;https://www.researchgate.net/publication/327930102_Optimal_Exploitation_of_Subspace_Prior_Information_in_Matrix_Sensing&#34;&gt;subspaces&lt;/a&gt;.
+    Intersecting 2D linear 
+&lt;a href=&#34;https://www.researchgate.net/publication/327930102_Optimal_Exploitation_of_Subspace_Prior_Information_in_Matrix_Sensing&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;subspaces&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 
@@ -61,8 +63,8 @@
 &lt;a href=&#34;https://en.wikipedia.org/wiki/QR_decomposition&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;QR decomposition&lt;/a&gt; and the 
 &lt;a href=&#34;https://en.wikipedia.org/wiki/Singular_value_decomposition&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;Singular Value Decomposition&lt;/a&gt;.  For two subspaces $[U, W]$, we compute the QR decomposition of both:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-U &amp;amp;= Q_{u}R_{u}\\&lt;br&gt;
-W &amp;amp;= Q_{w}R_{w}\\&lt;br&gt;
+U &amp;amp;= Q_{u}R_{u}\\
+W &amp;amp;= Q_{w}R_{w}\\
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;where $Q_{u}$ and $Q_{w} \in \mathbb{R}^{n \times k}$ are orthonormal bases such that $Q_{u}^{T}Q_{u} = Q_{w}^{T}Q_{w} = I_{k}$ that span the same subspace as the original columns of $U$ and $W$, and $R_{u}$ and $R_{w} \in \mathbb{R}^{k \times k}$ are lower triangular matrices.  Next, we compute the matrix $D = \langle Q_{u}, Q_{w} \rangle = Q_{u}^{T} Q_{w} \in \mathbb{R}^{k \times k}$, and then apply the singular value decomposition:&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
@@ -70,7 +72,7 @@ D = USV^{T}
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;We can sort of think of $D$ as the cross-covariance matrix.  As such, the singular vectors represent the main orthogonal axes of cross-covariation between our two subspaces, while the singular values represent angles.  In order to compute the principle angles of our subspaces, we simply take&lt;/p&gt;
 &lt;p&gt;$$\begin{align}
-\theta &amp;amp;= cos^{-1}(S) \\&lt;br&gt;
+\theta &amp;amp;= cos^{-1}(S) \\
 &amp;amp;=cos^{-1}[\sigma_{1}, \sigma_{2}&amp;hellip;\sigma_{k}]
 \end{align}$$&lt;/p&gt;
 &lt;p&gt;which gives us the principle angles (in radians).  Because the SVD is invariant to sign (+/-), the principle angles range between $\Big[0, \frac{\pi}{2}\Big]$.  This means that subspaces that span the same space have a principle angle of 0, and subspaces that are orthogonal (maximally far apart) to one another have a principle angle of $\frac{\pi}{2}$.&lt;/p&gt;
@@ -102,17 +104,19 @@ d(X_{i}, X_{j}) = \sqrt{\sum_{n=1}^{k} cos^{-1}(\sigma_{n})^{2}}
 &lt;figure id=&#34;figure-grassmann-manifold-and-its-tangent-spacehttpsdeepaiorgpublicationautomatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version&#34;&gt;
 
 
-  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Grassmann manifold and its tangent space.&#34;&gt;
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_3.png&#34; data-caption=&#34;Grassmann manifold and its 
+tangent space.&#34;&gt;
 
 
-  &lt;img data-src=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;398&#34; height=&#34;249&#34;&gt;
+  &lt;img data-src=&#34;/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_3.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;398&#34; height=&#34;249&#34;&gt;
 &lt;/a&gt;
 
 
   
   
   &lt;figcaption&gt;
-    Grassmann manifold and its &lt;a href=&#34;https://deepai.org/publication/automatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version&#34;&gt;tangent space&lt;/a&gt;.
+    Grassmann manifold and its 
+&lt;a href=&#34;https://deepai.org/publication/automatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;tangent space&lt;/a&gt;.
   &lt;/figcaption&gt;
 
 

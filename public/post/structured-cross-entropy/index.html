@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/structured-cross-entropy/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "As I mentioned in my previous post, I work with cortical surface segmentation data. Due to the biology of the human brain, there is considerable reproducible structure and function across individuals (thankfully!). One manifestion of this reproducibility is exemplified by the neocortex a."
@@ -727,7 +727,8 @@ $$</p>
 <figure id="figure-various-maps-of-the-primate-visual-cortex--tootell-et-al-2003httpswwwjneurosciorgcontent23103981">
 
 
-  <a data-fancybox="" href="https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;height=600&amp;carousel=1" data-caption="Various maps of the primate visual cortex.  Tootell et al, 2003.">
+  <a data-fancybox="" href="https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;height=600&amp;carousel=1" data-caption="Various maps of the primate visual cortex.  
+Tootell et al, 2003.">
 
 
   <img src="https://www.jneurosci.org/content/jneuro/23/10/3981/F1.large.jpg?width=800&amp;height=600&amp;carousel=1" alt=""  >
@@ -737,7 +738,8 @@ $$</p>
   
   
   <figcaption>
-    Various maps of the primate visual cortex.  <a href="https://www.jneurosci.org/content/23/10/3981">Tootell et al, 2003</a>.
+    Various maps of the primate visual cortex.  
+<a href="https://www.jneurosci.org/content/23/10/3981" target="_blank" rel="noopener">Tootell et al, 2003</a>.
   </figcaption>
 
 
@@ -750,11 +752,11 @@ G = -\sum_{k=1}^{k}\sum_{l \in \mathcal{L}} \sum_{h \in \mathcal{L} \setminus \m
 <p>where $w_{l}^{k}$ is the probability weight assigned to label $h \in \mathcal{L}\setminus \mathcal{N_{l}}$ i.e. the set of labels not adjacent to label $l$.  In order to follow the idea of a cross-entropy, we enforce the following constraints on weights $\mathbf{w}$:</p>
 <p>$$
 \begin{align}
-w_{l}^{k} &gt;&amp;= 0 \\<br>
+w_{l}^{k} &gt;&amp;= 0 \\
 \sum_{l \in \mathcal{L}} w_{l}^{k} &amp;= 1
 \end{align}
 $$</p>
-<p>such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to <strong>not</strong> be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}_{l} = j) = 0.05$, then $log(1-p(x^{k}_{l} = j))$ will be small.  However, if $p(x^{k}_{l} = j) = 0.95$, then $log(1-p(x^{k}_{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}_{l} \in \mathcal{N_{t}}$, we simply set $w_{l}^{k} = 0$ &ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.</p>
+<p>such that the vector $\mathbf{w}$ is a probability distribution over labels.  Importantly, if we  consider more closely what this loss-function is doing, we are encouraging the predicted label of $x^{k}$ to <strong>not</strong> be in the set $\mathcal{L} \setminus \mathcal{N_{l}}$.  Assume, for example, that the true label of $x^{k}$ is $t$, and that label $j$ is not adjacent to label $t$ on the cortical surface.  If the softmax function assigns a probability $p(x^{k}<em>{l} = j) = 0.05$, then $log(1-p(x^{k}</em>{l} = j))$ will be small.  However, if $p(x^{k}<em>{l} = j) = 0.95$, then $log(1-p(x^{k}</em>{l} = j))$ will be large.  Consequentially, we penalize higher probabilities assigned to labels not adjacent to our true label &ndash; i.e. ones that are not even biologically plausible.  If a candidate label of $x^{k}<em>{l} \in \mathcal{N</em>{t}}$, we simply set $w_{l}^{k} = 0$ &ndash; that is, we do not penalize the true label (obviously), or labels adjacent to the true label, since these are the regions we really want to consider.</p>
 <p>Below, I&rsquo;ve implemented this loss function using 
 <a href="https://pytorch.org/" target="_blank" rel="noopener">Pytorch</a> and 
 <a href="https://www.dgl.ai/" target="_blank" rel="noopener">Deep Graph Library</a>.  Assume that we are given the adjacency matrix of our mesh, the logits of our model, and the true label of our training data:</p>
@@ -837,9 +839,9 @@ optimizer.step() # update weights and parameters w.r.t new gradient
   
   <a class="badge badge-light" href="/tag/pytorch/">pytorch</a>
   
-  <a class="badge badge-light" href="/tag/loss-functions/">loss functions</a>
-  
   <a class="badge badge-light" href="/tag/regularization/">regularization</a>
+  
+  <a class="badge badge-light" href="/tag/loss-functions/">loss functions</a>
   
 </div>
 
@@ -1143,7 +1145,7 @@ optimizer.step() # update weights and parameters w.r.t new gradient
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

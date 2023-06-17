@@ -256,8 +256,8 @@ Let&rsquo;s say that we have a set of independent, Poisson-distributed random va
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/overview-of-poisson-multinomial-relationship/">
 
@@ -319,7 +319,7 @@ Let&rsquo;s say that we have a set of independent, Poisson-distributed random va
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "In this post, I\u0026rsquo;m going to briefly cover the relationship between the Poisson distribution and the Multinomial distribution.\nLet\u0026rsquo;s say that we have a set of independent, Poisson-distributed random variables $Y_{1}, Y_{2}\u0026hellip; Y_{k}$ with rate parameters $\\lambda_{1}, \\lambda_{2}, \u0026hellip;\\lambda_{k}$."
@@ -707,32 +707,32 @@ Let&rsquo;s say that we have a set of independent, Poisson-distributed random va
 <p>Let&rsquo;s say that we have a set of independent, Poisson-distributed random variables $Y_{1}, Y_{2}&hellip; Y_{k}$ with rate parameters $\lambda_{1}, \lambda_{2}, &hellip;\lambda_{k}$.  We can model the sum of these random variables as a new random variable $N = \sum_{i=1}^{k} Y_{i}$.</p>
 <p>Let start with $k=2$.  We can define the distrbution of $F_{N}(n)$ as follows:</p>
 <p>$$\begin{align}
-&amp;= P(N \leq n) \\<br>
-&amp;= P(Y_{1} + Y_{2} \leq n) \\<br>
-&amp;= P(Y_{1} = y_{1}, Y_{2} = n - y_{1}) \\<br>
-&amp;= P(Y_{1} = y_{1}) \cdot P(Y_{2} = n-y_{1}) \\<br>
-&amp;= \sum_{y_{1}=0}^{n} \frac{e^{-\lambda_{1}}\lambda_{1}^{y_{1}}}{y_{1}!} \cdot \frac{e^{-\lambda_{2}}\lambda_{2}^{n-y_{1}}}{(n-y_{1})!} \\<br>
-&amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\<br>
-&amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{n!}{n!}\frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\<br>
+&amp;= P(N \leq n) \\
+&amp;= P(Y_{1} + Y_{2} \leq n) \\
+&amp;= P(Y_{1} = y_{1}, Y_{2} = n - y_{1}) \\
+&amp;= P(Y_{1} = y_{1}) \cdot P(Y_{2} = n-y_{1}) \\
+&amp;= \sum_{y_{1}=0}^{n} \frac{e^{-\lambda_{1}}\lambda_{1}^{y_{1}}}{y_{1}!} \cdot \frac{e^{-\lambda_{2}}\lambda_{2}^{n-y_{1}}}{(n-y_{1})!} \\
+&amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\
+&amp;= e^{-(\lambda_{1}+\lambda_{2})} \sum_{y_{1}=0}^{n} \frac{n!}{n!}\frac{\lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}}{y_{1}!(n-y_{1})!} \\
 &amp;= \frac{e^{-(\lambda_{1}+\lambda_{2})}}{n!} \sum_{y_{1}=0}^{n} {n\choose y_{1}} \lambda_{1}^{y_{1}}\lambda_{2}^{n-y_{1}}
 \end{align}$$</p>
 <p>Here, we can apply the Binomial Theorem to the summation to get the following (remember that the Binomial Theorem says, for two numbers $x$ and $y$, that $(x+y)^{n} = \sum_{i=0}^{n} {n \choose i}x^{i}y^{n-i}$):</p>
 <p>$$\begin{align}
-\frac{e^{-(\lambda_{1}+\lambda_{2})}(\lambda_{1} + \lambda_{2})^{n}}{n!} \\<br>
+\frac{e^{-(\lambda_{1}+\lambda_{2})}(\lambda_{1} + \lambda_{2})^{n}}{n!} \\
 \end{align}$$</p>
 <p>which we see is in fact just another Poisson distribution with rate parameter equal to $\lambda_{1} + \lambda_{2}$.  This shows that the sum of independent Poisson distributed random variables is also a Poisson random variable, with rate parameter equal to the sum of the univariate rates.  By induction, we see that for $k$ independent Poisson distributed random variables $Y_{1}&hellip;Y_{k}$, their sum $\sum_{i=1}^{k} Y_{i} \sim Poisson(\sum_{i=1}^{k} \lambda_{i})$.</p>
 <p>Now let&rsquo;s say we&rsquo;re interested in modeling the conditional distribution of $(Y_{1}&hellip;Y_{k}) \mid \sum_{i=1}^{k} = n$.  By definition of conditional probability, we have that</p>
 <p>$$\begin{align}
-P(\bar{Y} \mid N=n) &amp;= \frac{P(\bar{Y} ; \cap ; N=n)}{P(N=n)} \\<br>
+P(\bar{Y} \mid N=n) &amp;= \frac{P(\bar{Y} ; \cap ; N=n)}{P(N=n)} \\
 &amp;= \frac{P(\bar{Y})}{P(N=n)}
 \end{align}$$</p>
 <p>We have the following:</p>
 <p>$$\begin{align}
-P(\bar{Y} \mid N=n) &amp;= \frac{P(\bar{Y} \; \cap \; N=n)}{P(N=n)} \\<br>
-&amp;= \Big( \prod_{i=1}^{k} \frac{e^{-\lambda_{i}} \cdot \lambda_{i}^{y_{i}}}{y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\<br>
-&amp;= \Big( \frac{ e^{-\sum_{i=1}^{k}} \prod_{i=1}^{k} \lambda_{i}^{y_{i}}}{\prod_{i=1}^{k} y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\<br>
-&amp;= { n \choose y_{1}, y_{2}, &hellip;y_{k}} \frac{\prod_{i=1}^{k} \lambda_{i}^{y_{i}}} { \sum_{i}^{k} \lambda_{i})^{n}} \\<br>
-&amp;= { n \choose y_{1}, y_{2}, &hellip;y_{k}}  \prod_{i=1}^{k} \Big( \frac{ \lambda_{i} }{\sum_{i}^{k} \lambda_{i}} \Big)^{y_{i}} \\<br>
+P(\bar{Y} \mid N=n) &amp;= \frac{P(\bar{Y} \; \cap \; N=n)}{P(N=n)} \\
+&amp;= \Big( \prod_{i=1}^{k} \frac{e^{-\lambda_{i}} \cdot \lambda_{i}^{y_{i}}}{y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\
+&amp;= \Big( \frac{ e^{-\sum_{i=1}^{k}} \prod_{i=1}^{k} \lambda_{i}^{y_{i}}}{\prod_{i=1}^{k} y_{i}!} \Big) \Big/ \frac{e^{-\sum_{i=1}^{k} \lambda_{i}}(\sum_{i}^{k} \lambda_{i})^{n}}{n!} \\
+&amp;= { n \choose y_{1}, y_{2}, &hellip;y_{k}} \frac{\prod_{i=1}^{k} \lambda_{i}^{y_{i}}} { \sum_{i}^{k} \lambda_{i})^{n}} \\
+&amp;= { n \choose y_{1}, y_{2}, &hellip;y_{k}}  \prod_{i=1}^{k} \Big( \frac{ \lambda_{i} }{\sum_{i}^{k} \lambda_{i}} \Big)^{y_{i}} \\
 &amp;\sim MultiNom(n; \frac{\lambda_{1}}{\sum_{i=1}^{k}}, \frac{\lambda_{2}}{\sum_{i=1}^{k}}, &hellip; \frac{\lambda_{k}}{\sum_{i=1}^{k}})
 \end{align}$$</p>
 <p>So finally, we see that, given the sum of independent Poisson random variables, that conditional distribution of each element of the Poisson vector is Multinomial distributed, with count probabilities scaled by the sum of the individual rates.  Importantly, we can extend these ideas (specifically the sum of independent Poisson random variables) to other models, such as splitting and merging homogenous and non-homogenous Poisson Point Processes.</p>
@@ -1036,7 +1036,7 @@ P(\bar{Y} \mid N=n) &amp;= \frac{P(\bar{Y} \; \cap \; N=n)}{P(N=n)} \\<br>
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

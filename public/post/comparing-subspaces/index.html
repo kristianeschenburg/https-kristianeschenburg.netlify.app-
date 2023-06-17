@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/comparing-subspaces/">
 
@@ -321,7 +321,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "I\u0026rsquo;m working with some multi-dimensional float-valued data \u0026ndash; I\u0026rsquo;ll call a single instance of this data $X \\in \\mathbb{R}^{n \\times k}$. I have multiple samples $X_{1}, X_{2}\u0026hellip;X_{t}$, and want to compare these subspaces \u0026ndash; namely, I want to compute the distance between pairs of subspaces."
@@ -766,17 +766,19 @@
 <figure id="figure-intersecting-2d-linear-subspaceshttpswwwresearchgatenetpublication327930102_optimal_exploitation_of_subspace_prior_information_in_matrix_sensing">
 
 
-  <a data-fancybox="" href="/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_2.png" data-caption="Intersecting 2D linear subspaces.">
+  <a data-fancybox="" href="/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_3.png" data-caption="Intersecting 2D linear 
+subspaces.">
 
 
-  <img data-src="/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="640" height="483">
+  <img data-src="/post/comparing-subspaces/subspaces_hub081a28bf258255fb45bfa4cda66f295_17202_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="640" height="483">
 </a>
 
 
   
   
   <figcaption>
-    Intersecting 2D linear <a href="https://www.researchgate.net/publication/327930102_Optimal_Exploitation_of_Subspace_Prior_Information_in_Matrix_Sensing">subspaces</a>.
+    Intersecting 2D linear 
+<a href="https://www.researchgate.net/publication/327930102_Optimal_Exploitation_of_Subspace_Prior_Information_in_Matrix_Sensing" target="_blank" rel="noopener">subspaces</a>.
   </figcaption>
 
 
@@ -786,8 +788,8 @@
 <a href="https://en.wikipedia.org/wiki/QR_decomposition" target="_blank" rel="noopener">QR decomposition</a> and the 
 <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition" target="_blank" rel="noopener">Singular Value Decomposition</a>.  For two subspaces $[U, W]$, we compute the QR decomposition of both:</p>
 <p>$$\begin{align}
-U &amp;= Q_{u}R_{u}\\<br>
-W &amp;= Q_{w}R_{w}\\<br>
+U &amp;= Q_{u}R_{u}\\
+W &amp;= Q_{w}R_{w}\\
 \end{align}$$</p>
 <p>where $Q_{u}$ and $Q_{w} \in \mathbb{R}^{n \times k}$ are orthonormal bases such that $Q_{u}^{T}Q_{u} = Q_{w}^{T}Q_{w} = I_{k}$ that span the same subspace as the original columns of $U$ and $W$, and $R_{u}$ and $R_{w} \in \mathbb{R}^{k \times k}$ are lower triangular matrices.  Next, we compute the matrix $D = \langle Q_{u}, Q_{w} \rangle = Q_{u}^{T} Q_{w} \in \mathbb{R}^{k \times k}$, and then apply the singular value decomposition:</p>
 <p>$$\begin{align}
@@ -795,7 +797,7 @@ D = USV^{T}
 \end{align}$$</p>
 <p>We can sort of think of $D$ as the cross-covariance matrix.  As such, the singular vectors represent the main orthogonal axes of cross-covariation between our two subspaces, while the singular values represent angles.  In order to compute the principle angles of our subspaces, we simply take</p>
 <p>$$\begin{align}
-\theta &amp;= cos^{-1}(S) \\<br>
+\theta &amp;= cos^{-1}(S) \\
 &amp;=cos^{-1}[\sigma_{1}, \sigma_{2}&hellip;\sigma_{k}]
 \end{align}$$</p>
 <p>which gives us the principle angles (in radians).  Because the SVD is invariant to sign (+/-), the principle angles range between $\Big[0, \frac{\pi}{2}\Big]$.  This means that subspaces that span the same space have a principle angle of 0, and subspaces that are orthogonal (maximally far apart) to one another have a principle angle of $\frac{\pi}{2}$.</p>
@@ -827,17 +829,19 @@ d(X_{i}, X_{j}) = \sqrt{\sum_{n=1}^{k} cos^{-1}(\sigma_{n})^{2}}
 <figure id="figure-grassmann-manifold-and-its-tangent-spacehttpsdeepaiorgpublicationautomatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version">
 
 
-  <a data-fancybox="" href="/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_2.png" data-caption="Grassmann manifold and its tangent space.">
+  <a data-fancybox="" href="/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_3.png" data-caption="Grassmann manifold and its 
+tangent space.">
 
 
-  <img data-src="/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="398" height="249">
+  <img data-src="/post/comparing-subspaces/grassmann_hu2cd3f58cc8fbe46f24a9a6bd61a80bd2_41873_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="398" height="249">
 </a>
 
 
   
   
   <figcaption>
-    Grassmann manifold and its <a href="https://deepai.org/publication/automatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version">tangent space</a>.
+    Grassmann manifold and its 
+<a href="https://deepai.org/publication/automatic-recognition-of-space-time-constellations-by-learning-on-the-grassmann-manifold-extended-version" target="_blank" rel="noopener">tangent space</a>.
   </figcaption>
 
 
@@ -861,13 +865,13 @@ d(X_{i}, X_{j}) = \sqrt{\sum_{n=1}^{k} cos^{-1}(\sigma_{n})^{2}}
 
 <div class="article-tags">
   
-  <a class="badge badge-light" href="/tag/metrics/">metrics</a>
+  <a class="badge badge-light" href="/tag/subspaces/">subspaces</a>
   
   <a class="badge badge-light" href="/tag/manifold/">manifold</a>
   
   <a class="badge badge-light" href="/tag/riemannian/">Riemannian</a>
   
-  <a class="badge badge-light" href="/tag/subspaces/">subspaces</a>
+  <a class="badge badge-light" href="/tag/metrics/">metrics</a>
   
 </div>
 
@@ -1162,7 +1166,7 @@ d(X_{i}, X_{j}) = \sqrt{\sum_{n=1}^{k} cos^{-1}(\sigma_{n})^{2}}
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/constrained-gat/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "In their recent paper, Wang et al. propose a few updates to the Graph Attention Network (GAT) neural network algorithm (if you want to skip the technical bit and get to the code, click here). Briefly, GATs are a recently-developed neural network architecture applied to data distributed over a graph domain."
@@ -761,7 +761,8 @@
 <figure id="figure-figure-from-velickovic-et-alhttpsarxivorgpdf171010903pdf--for-a-source-node-i-and-destination-node-j-vectors-vech_i-and-vech_j-are-the-input-feature-vectors-of-nodes-i-and-j-in-layer-l--mathbfw-is-a-learned-affine-projection-matrix--mathbfveca-is-the-learned-attention-function--the-source-and-destination-node-input-features-are-pushed-through-the-attention-layer-as-alpha_ij--sigmabigvecatmathbfwbigvech_i--vech_jbigbig-where-sigma-is-an-activation-function-and-alpha_ij-the-unnormalized-attention-that-node-i-pays-to-node-j-in-layer-l--attention-weights-are-then-passed-through-a-softmax-layer-mapping-the-attentions-between-01">
 
 
-  <a data-fancybox="" href="./attention_mechanism.png" data-caption="Figure from Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].">
+  <a data-fancybox="" href="./attention_mechanism.png" data-caption="Figure from 
+Velickovic et al.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].">
 
 
   <img src="./attention_mechanism.png" alt=""  >
@@ -771,7 +772,8 @@
   
   
   <figcaption>
-    Figure from <a href="https://arxiv.org/pdf/1710.10903.pdf">Velickovic et al</a>.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
+    Figure from 
+<a href="https://arxiv.org/pdf/1710.10903.pdf" target="_blank" rel="noopener">Velickovic et al</a>.  For a source node $i$ and destination node $j$, vectors $\vec{h_{i}}$ and $\vec{h_{j}}$ are the input feature vectors of nodes $i$ and $j$ in layer $l$.  $\mathbf{W}$ is a learned affine projection matrix.  $\mathbf{\vec{a}}$ is the learned attention function.  The source and destination node input features are pushed through the attention layer as $\alpha_{i,j} = \sigma\Big(\vec{a}^{T}\mathbf{W}\Big(\vec{h_{i}} || \vec{h_{j}}\Big)\Big)$ where $\sigma$ is an activation function, and $\alpha_{i,j}$ the unnormalized attention that node $i$ pays to node $j$ in layer $l$.  Attention weights are then passed through a softmax layer, mapping the attentions between [0,1].
   </figcaption>
 
 
@@ -948,9 +950,9 @@ else:
 
 <div class="article-tags">
   
-  <a class="badge badge-light" href="/tag/ai/">AI</a>
-  
   <a class="badge badge-light" href="/tag/pytorch/">pytorch</a>
+  
+  <a class="badge badge-light" href="/tag/ai/">AI</a>
   
   <a class="badge badge-light" href="/tag/graph-convolution-networks/">graph convolution networks</a>
   
@@ -1258,7 +1260,7 @@ else:
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

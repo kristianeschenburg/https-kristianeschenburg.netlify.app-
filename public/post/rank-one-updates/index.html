@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/rank-one-updates/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "In this post, I\u0026rsquo;m going to go over some examples of rank-one updates of matrices. To compute rank-one updates, we rely on the Sherman-Morrison-Woodbury theorem. From the previous post on [Blockwise Matrix Inversion]({% post_url 2018-05-08-blockwise-matrix-inversion %}), recall that, given a matrix and its inverse"
@@ -703,10 +703,10 @@
     <div class="article-style">
       <p>In this post, I&rsquo;m going to go over some examples of rank-one updates of matrices.  To compute rank-one updates, we rely on the Sherman-Morrison-Woodbury theorem.  From the previous post on [Blockwise Matrix Inversion]({% post_url 2018-05-08-blockwise-matrix-inversion %}), recall that, given a matrix and its inverse</p>
 <p>$$R = \begin{bmatrix}
-A &amp; B \\<br>
+A &amp; B \\
 C &amp; D
 \end{bmatrix}  \; \; \; \; R^{-1} = \begin{bmatrix}
-W &amp; X \\<br>
+W &amp; X \\
 Y &amp; Z
 \end{bmatrix}$$</p>
 <p>we have that</p>
@@ -720,8 +720,8 @@ W = (A-BD^{-1}C)^{-1} = C^{-1}D(D-CA^{-1}B)^{-1}CA^{-1}
 <p>Given an initial matrix $A$ and its inverse $A^{-1}$, and a new matrix $R=BD^{-1}C$, we see that we can define the inverse of our new updated matrix $A+R$ in terms of the inverse of our original matrix $A$ and components of $R$.  Importantly, we can perform rank-$k$ updates, where $rank(R) = k$.</p>
 <p>For example, if we want to update our matrix $A$ with a new vector, $v$, we can rewrite the formula above as follows:</p>
 <p>$$\begin{align}
-(A+vv^{T})^{-1} &amp;=A^{-1}-A^{-1}v(1+v^{T}A^{-1}v)^{-1}v^{T}A^{-1} \\<br>
-&amp;=A^{-1}-\frac{A^{-1}vv^{T}A^{-1}}{1+v^{T}A^{-1}v} \\<br>
+(A+vv^{T})^{-1} &amp;=A^{-1}-A^{-1}v(1+v^{T}A^{-1}v)^{-1}v^{T}A^{-1} \\
+&amp;=A^{-1}-\frac{A^{-1}vv^{T}A^{-1}}{1+v^{T}A^{-1}v} \\
 \end{align}$$</p>
 <p>where the updated inverse is defined so long as the quadratic form $v^{T}A^{-1}v \neq -1$.</p>
 <hr>
@@ -737,18 +737,18 @@ X^{T}X\beta = X^{T}y
 <p>where $X$ is our design matrix, $y$ is our dependent variable, and $\beta$ is a solution to the Normal equation, due to the fact that the Normal equations are consistent.  $(X^{T}X)^{g}$ is the generalized inverse of $X^{T}X$, which is unique (i.e. $(X^{T}X)^{g} = (X^{T}X)^{-1}$) only if $X$ has full column-rank.  For our immediate purpose, we assume that $X$ has full column rank.</p>
 <p>Assume that we observe a set of observations, $X \in R^{n \times p}$ and response variable, $y$, and compute our coefficient estimates $\hat{\beta}$ via the Normal equations above, using $(X^{T}X)^{-1}$.  Now given a new observation, $v \in R^{p}$, how can we update our coefficient estimates?  We can append $v$ to $X$ as</p>
 <p>$$ X^{\text{*}} = \begin{bmatrix}
-X \\<br>
+X \\
 v
 \end{bmatrix} \in R^{(n+1) \times p}$$</p>
 <p>and directly compute $(X^{\text{*T}}X^{\text{*}})^{-1}$, <strong>or</strong> we can use the Sherman-Morrison-Woodbury theorem:</p>
 <p>$$
 \begin{align}
-(X^{\text{*T}}X^{\text{*}})^{-1} = (X^{T}X + vv^{T})^{-1} = (X^{T}X)^{-1} - \frac{(X^{T}X)^{-1}vv^{T}(X^{T}X)^{-1}}{1+v^{T}(X^{T}X)^{-1}v} \\<br>
+(X^{\text{*T}}X^{\text{*}})^{-1} = (X^{T}X + vv^{T})^{-1} = (X^{T}X)^{-1} - \frac{(X^{T}X)^{-1}vv^{T}(X^{T}X)^{-1}}{1+v^{T}(X^{T}X)^{-1}v} \\
 \end{align}
 $$</p>
 <p>from which we can easily compute our new coefficient estimates with $$.</p>
 <p>$$\begin{align}
-\beta^{\text{*}} = (X^{\text{*T}}X^{\text{*}})^{-1}X^{\text{*}T}y \\<br>
+\beta^{\text{*}} = (X^{\text{*T}}X^{\text{*}})^{-1}X^{\text{*}T}y \\
 \end{align}$$</p>
 <p>Importantly, in the case of regression, for example, this means that we can update our linear model via simple matrix calculations, rather than having to refit the model from scratch to incorporate our new data.  In the next few posts, I&rsquo;ll go over an example of an implementation of rank-updating methods that I&rsquo;ve been using in lab to study brain dynamics.</p>
 
@@ -1051,7 +1051,7 @@ $$</p>
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

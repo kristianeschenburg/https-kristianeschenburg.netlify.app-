@@ -256,8 +256,8 @@ From CB, we have the definition of convergence in probability: a sequence of ran
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/convergence-in-probability/">
 
@@ -319,7 +319,7 @@ From CB, we have the definition of convergence in probability: a sequence of ran
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "I\u0026rsquo;m going over Chapter 5 in Casella and Berger\u0026rsquo;s (CB) \u0026ldquo;Statistical Inference\u0026rdquo;, specifically Section 5.5: Convergence Concepts, and wanted to document the topic of convergence in probability with some plots demonstrating the concept.\nFrom CB, we have the definition of convergence in probability: a sequence of random variables $X_{1}, X_{2}, \u0026hellip; X_{n}$ converges in probability to a random variable $X$, if for every $\\epsilon \u0026gt; 0$,"
@@ -707,18 +707,18 @@ From CB, we have the definition of convergence in probability: a sequence of ran
 <a href="https://en.wikipedia.org/wiki/Convergence_of_random_variables#Convergence_in_probability" target="_blank" rel="noopener">convergence in probability</a> with some plots demonstrating the concept.</p>
 <p>From CB, we have the definition of <em>convergence in probability</em>: a sequence of random variables $X_{1}, X_{2}, &hellip; X_{n}$ converges in probability to a random variable $X$, if for every $\epsilon &gt; 0$,</p>
 <p>$$\begin{align}
-\lim_{n \to \infty} P(| X_{n} - X | \geq \epsilon) = 0 \\<br>
+\lim_{n \to \infty} P(| X_{n} - X | \geq \epsilon) = 0 \\
 \end{align}$$</p>
-<p>Intuitively, this means that, if we have some random variable $X_{k}$ and another random variable $X$, the absolute difference between $X_{k}$ and $X$ gets smaller and smaller as $k$ increases.  The probability that this difference exceeds some value, $\epsilon$, shrinks to zero as $k$ tends towards infinity.  Using *convergence in probability*, we can derive the 
+<p>Intuitively, this means that, if we have some random variable $X_{k}$ and another random variable $X$, the absolute difference between $X_{k}$ and $X$ gets smaller and smaller as $k$ increases.  The probability that this difference exceeds some value, $\epsilon$, shrinks to zero as $k$ tends towards infinity.  Using <em>convergence in probability</em>, we can derive the 
 <a href="https://en.wikipedia.org/wiki/Law_of_large_numbers#Weak_law" target="_blank" rel="noopener">Weak Law of Large Numbers</a> (WLLN):</p>
 <p>$$\begin{align}
 \lim_{n \to \infty} P(|\bar{X}_{n} - \mu | \geq \epsilon) = 0
 \end{align}$$</p>
 <p>which we can take to mean that the sample mean converges in probability to the population mean as the sample size goes to infinity.  If we have finite variance (that is $Var(X) &lt; \infty$), we can prove this using Chebyshev&rsquo;s Law</p>
 <p>$$\begin{align}
-&amp;= P(|\bar{X}_{n} - \mu | \geq \epsilon) \\<br>
-&amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{E\Big[(\bar{X}_{n} - \mu)^{2}\Big]}{\epsilon^{2}} \\<br>
-&amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{Var(\bar{X_{n}})}{\epsilon^{2}} \\<br>
+&amp;= P(|\bar{X}_{n} - \mu | \geq \epsilon) \\
+&amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{E\Big[(\bar{X}_{n} - \mu)^{2}\Big]}{\epsilon^{2}} \\
+&amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{Var(\bar{X_{n}})}{\epsilon^{2}} \\
 &amp;= P((\bar{X}_{n} - \mu)^{2} \geq \epsilon^{2}) \leq \frac{\sigma^{2}}{n^{2}\epsilon^{2}}
 \end{align}$$</p>
 <p>where $\frac{\sigma^{2}}{n^{2} \epsilon^{2}} \rightarrow 0$ as $n \rightarrow \infty$.  Intuitively, this means, that the sample mean converges to the population mean &ndash; and the probability that their difference is larger than some value is bounded by the variance of the estimator.  Because we showed that the variance of the estimator (right hand side) shrinks to zero, we can show that the difference between the sample mean and population mean converges to zero.</p>
@@ -949,7 +949,7 @@ for E in e:
 <p>The above plots show that, as sample size increases, the mean estimator and variance estimator both converge to their true population parameters.  Likewise, examining the empirical probability plots, we can see that the probability that either estimate exceeds the epsilon thresholds shrinks to zero as the sample size increases.</p>
 <p>If we wish to consider a stronger degree of convergence, we can consider <em>convergence almost surely</em>, which says the following:</p>
 <p>$$\begin{align}
-P(\lim_{n \to \infty} |X_{n} - X| \geq \epsilon) = 0 \<br>
+P(\lim_{n \to \infty} |X_{n} - X| \geq \epsilon) = 0 \
 \end{align}$$</p>
 <p>which considers the entire joint distribution of estimates $( X_{1}, X_{2}&hellip;X_{n}, X)$, rather than all pairwise estimates $(X_{1},X), (X_{2},X)&hellip; (X_{n},X)$ &ndash; the entire set of estimates must converge to $X$ as the sample size approaches infinity.</p>
 
@@ -1252,7 +1252,7 @@ P(\lim_{n \to \infty} |X_{n} - X| \geq \epsilon) = 0 \<br>
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

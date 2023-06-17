@@ -255,8 +255,8 @@
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/mahalanobis-distances-of-brain-connectivity/">
 
@@ -317,7 +317,7 @@
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "For one of the projects I\u0026rsquo;m working on, I have an array of multivariate data relating to brain connectivity patterns. Briefly, each brain is represented as a surface mesh, which we represent as a graph $G = (V,E)$, where $V$ is a set of $n$ vertices, and $E$ are the set of edges between vertices."
@@ -724,10 +724,10 @@
 <figure id="figure-example-of-cortical-map-and-array-of-connectivity-features">
 
 
-  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_2.png" data-caption="Example of cortical map, and array of connectivity features.">
+  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_3.png" data-caption="Example of cortical map, and array of connectivity features.">
 
 
-  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="1296" height="432">
+  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/parcellation_huf0b3bb1bc41eebdcb9d4479e215063d3_232126_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="1296" height="432">
 </a>
 
 
@@ -757,31 +757,31 @@ d &amp;= \sqrt{(\bar{x} - \mu)\Sigma^{-1}(\bar{x}-\mu)^{T}}
 <p>$$\begin{align}
 d^{2} &amp;= (\bar{x} - \mu)\Sigma^{-1}(\bar{x}-\mu)^{T}
 \end{align}$$</p>
-<p>where $\Sigma^{-1}$ is the inverse covariance matrix.  If our $X$'s were initially distributed with a multivariate normal distribution, $N_{p}(\mu,\Sigma)$ (assuming $\Sigma$ is non-degenerate i.e. positive definite), the squared Mahalanobis distance, $d^{2}$ has a $\chi^{2}_{p}$ distribution.  We show this below.</p>
+<p>where $\Sigma^{-1}$ is the inverse covariance matrix.  If our $X$&rsquo;s were initially distributed with a multivariate normal distribution, $N_{p}(\mu,\Sigma)$ (assuming $\Sigma$ is non-degenerate i.e. positive definite), the squared Mahalanobis distance, $d^{2}$ has a $\chi^{2}_{p}$ distribution.  We show this below.</p>
 <p>We know that $(X-\mu)$ is distributed $N_{p}(0,\Sigma)$.  We also know that, since $\Sigma$ is symmetric and real, that we can compute the eigendecomposition of $\Sigma$ as:</p>
 <p>$$\begin{align}
 \Sigma = U \Lambda U^{T}
 \end{align}$$</p>
 <p>and consequentially, because $U$ is an orthogonal matrix, and because $\Lambda$ is diagonal, we know that $\Sigma^{-1}$ is:</p>
 <p>$$\begin{align}
-\Sigma^{-1} &amp;= (U \Lambda U^{T})^{-1} \\<br>
-&amp;= U \Lambda^{-1} U^{T} \\<br>
-&amp;= (U \Lambda^{\frac{-1}{2}}) (U \Lambda^{\frac{-1}{2}})^{T} \\<br>
+\Sigma^{-1} &amp;= (U \Lambda U^{T})^{-1} \\
+&amp;= U \Lambda^{-1} U^{T} \\
+&amp;= (U \Lambda^{\frac{-1}{2}}) (U \Lambda^{\frac{-1}{2}})^{T} \\
 &amp;= R R^{T}
 \end{align}$$</p>
 <p>Therefore, we know that $R^{T}(X-\mu) \sim N_{p}(0,I_{p})$:</p>
 <p>$$\begin{align}
-X &amp;\sim N_{p}(\mu,\Sigma) \\<br>
-(X-\mu) = Y &amp;\sim N_{p}(0,\Sigma)\\<br>
-R^{T}Y = Z &amp;\sim N_{p}(0, R^{T} \Sigma R) \\<br>
-&amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} U^{T} (U \Lambda U^{T}) U \Lambda^{\frac{-1}{2}}) \\<br>
-&amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} I_{p} \Lambda I_{p} \Lambda^{\frac{-1}{2}}) \\<br>
+X &amp;\sim N_{p}(\mu,\Sigma) \\
+(X-\mu) = Y &amp;\sim N_{p}(0,\Sigma)\\
+R^{T}Y = Z &amp;\sim N_{p}(0, R^{T} \Sigma R) \\
+&amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} U^{T} (U \Lambda U^{T}) U \Lambda^{\frac{-1}{2}}) \\
+&amp;\sim N_{p}(0, \Lambda^{\frac{-1}{2}} I_{p} \Lambda I_{p} \Lambda^{\frac{-1}{2}}) \\
 &amp;\sim N_{p}(0,I_{p})
 \end{align}$$</p>
 <p>so that we have</p>
 <p>$$\begin{align}
-&amp;= (X-\mu)\Sigma^{-1}(X-\mu)^{T} \\<br>
-&amp;= (X-\mu)RR^{T}(X-\mu)^{T} \\<br>
+&amp;= (X-\mu)\Sigma^{-1}(X-\mu)^{T} \\
+&amp;= (X-\mu)RR^{T}(X-\mu)^{T} \\
 &amp;= Z^{T}Z
 \end{align}$$</p>
 <p>the sum of $p$ standard Normal random variables, which is the definition of a $\chi_{p}^{2}$ distribution with $p$ degrees of freedom.  So, given that we start with a $MVN$ random variable, the squared Mahalanobis distance is $\chi^{2}_{p}$ distributed.  Because the sample mean and sample covariance are consistent estimators of the population mean and population covariance parameters, we can use these estimates in our computation of the Mahalanobis distance.</p>
@@ -790,12 +790,12 @@ R^{T}Y = Z &amp;\sim N_{p}(0, R^{T} \Sigma R) \\<br>
 M(A, B) = \sqrt{(A - \mu(B))\Sigma(B)^{-1}(A-\mu(B))^{T}}
 \end{align}$$</p>
 <p>then $M(A,B) \neq M(B,A)$, clearly.  Because the parameter estimates are not guaranteed to be the same, it&rsquo;s straightforward to see why this is the case.</p>
-<p>Now, back to the task at hand.  For a specified target region, $l_{T}$, with a set of vertices, $V_{T} = {v \; : \; l(v) \; = \; l_{T}, \; \forall \; v \in V}$, each with their own distinct connectivity fingerprints, I want to explore which areas of the cortex have connectivity fingerprints that are different from or similar to $l_{T}$'s features, in distribution.  I can do this by using the Mahalanobis Distance.  And based on the analysis I showed above, we know that the data-generating process of these distances is related to the $\chi_{p}^{2}$ distribution.</p>
+<p>Now, back to the task at hand.  For a specified target region, $l_{T}$, with a set of vertices, $V_{T} = {v \; : \; l(v) \; = \; l_{T}, \; \forall \; v \in V}$, each with their own distinct connectivity fingerprints, I want to explore which areas of the cortex have connectivity fingerprints that are different from or similar to $l_{T}$&rsquo;s features, in distribution.  I can do this by using the Mahalanobis Distance.  And based on the analysis I showed above, we know that the data-generating process of these distances is related to the $\chi_{p}^{2}$ distribution.</p>
 <p>First, I&rsquo;ll estimate the covariance matrix, $\Sigma_{T}$, of our target region, $l_{T}$, using the 
 <a href="http://perso.ens-lyon.fr/patrick.flandrin/LedoitWolf_JMA2004.pdf" target="_blank" rel="noopener">Ledoit-Wolf estimator</a> (the shrunken covariance estimate has been shown to be a more reliable estimate of the population covariance), and mean connectivity fingerprint, $\mu_{T}$.  Then, I&rsquo;ll compute $d^{2} = M^{2}(A,A)$ for every $\{v: v \in V_{T}\}$.  The empirical distribution of these distances should follow a $\chi_{p}^{2}$ distribution.  If we wanted to do hypothesis testing, we would use this distribution as our null distribution.</p>
 <p>Next, in order to assess whether this intra-regional similarity is actually informative, I&rsquo;ll also compute the similarity of $l_{T}$ to every other region, $\{ l_{k} \; : \; \forall \; k \in L \setminus \{T\} \}$ &ndash; that is, I&rsquo;ll compute $M^{2}(A, B) \; \forall \; B \in L \setminus T$.  If the connectivity samples of our region of interest are as similar to one another as they are to other regions, then $d^{2}$ doesn&rsquo;t really offer us any discriminating information &ndash; I don&rsquo;t expect this to be the case, but we need to verify this.</p>
 <p>Then, as a confirmation step to ensure that our empirical data actually follows the theoretical $\chi_{p}^{2}$ distribution, I&rsquo;ll compute the location and scale 
-<a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation" target="_blank" rel="noopener">Maximumim Likelihood</a>(MLE) parameter estimates of our $d^{2}$ distribution, keeping the *d.o.f.* (e.g. $p$) fixed.</p>
+<a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation" target="_blank" rel="noopener">Maximumim Likelihood</a>(MLE) parameter estimates of our $d^{2}$ distribution, keeping the <em>d.o.f.</em> (e.g. $p$) fixed.</p>
 <p>See below for Python code and figures&hellip;</p>
 <h3 id="step-1-compute-parameter-estimates">Step 1: Compute Parameter Estimates</h3>
 <pre><code class="language-python">%matplotlib inline
@@ -945,10 +945,10 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
 <figure id="figure-density-and-qq-plot-of-null-distribution">
 
 
-  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_2.png" data-caption="Density and QQ plot of null distribution.">
+  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_3.png" data-caption="Density and QQ plot of null distribution.">
 
 
-  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="864" height="864">
+  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/Density.QQPlot_hu1d3559aae9fc2b76dfaee6ede7f1500d_47405_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="864" height="864">
 </a>
 
 
@@ -986,10 +986,10 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
 <figure id="figure-region-of-interest">
 
 
-  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_2.png" data-caption="Region of interest.">
+  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_3.png" data-caption="Region of interest.">
 
 
-  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="1440" height="821">
+  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/Region_LT_hu99f982ee794454d59a2b0bf97fc60dbf_189336_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="1440" height="821">
 </a>
 
 
@@ -1023,10 +1023,10 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
 <figure id="figure-estimated-squared-mahalanobis-distances-overlaid-on-cortical-surface">
 
 
-  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_2.png" data-caption="Estimated squared Mahalanobis distances, overlaid on cortical surface.">
+  <a data-fancybox="" href="/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_3.png" data-caption="Estimated squared Mahalanobis distances, overlaid on cortical surface.">
 
 
-  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="1440" height="821">
+  <img data-src="/post/mahalanobis-distances-of-brain-connectivity/MahalanobisDistance_hu9c9596cf29d1146f5fc3d3b7dde66282_764298_2000x2000_fit_lanczos_3.png" class="lazyload" alt="" width="1440" height="821">
 </a>
 
 
@@ -1341,7 +1341,7 @@ probplot(D2.squeeze(), sparams=mle_chi2_theory, dist=chi2, plot=plt);
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 

@@ -256,8 +256,8 @@ The Delta Method is used as a way to approximate the Standard Error of transform
   
 
   <link rel="manifest" href="/index.webmanifest">
-  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_2.png">
-  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png">
+  <link rel="icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_32x32_fill_lanczos_center_3.png">
+  <link rel="apple-touch-icon" type="image/png" href="/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png">
 
   <link rel="canonical" href="/post/the-delta-method/">
 
@@ -319,7 +319,7 @@ The Delta Method is used as a way to approximate the Standard Error of transform
     "name": "A Rambling On",
     "logo": {
       "@type": "ImageObject",
-      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_2.png"
+      "url": "/images/icon_hue3d34eb7f27f0837dcea880d4d221db4_377404_192x192_fill_lanczos_center_3.png"
     }
   },
   "description": "Here, we\u0026rsquo;ll look at various applications of the Delta Method, especially in the context of variance stabilizing transformations, along with looking at the confidence intervals of estimates.\nThe Delta Method is used as a way to approximate the Standard Error of transformations of random variables, and is based on a Taylor Series approximation."
@@ -710,7 +710,7 @@ The Delta Method is used as a way to approximate the Standard Error of transform
 <a href="https://en.wikipedia.org/wiki/Taylor_series" target="_blank" rel="noopener">Taylor Series</a> approximation.</p>
 <p>In the univariate case, if we have a random variable, $X_{n}$, that converges in distribution to a $N(0, \sigma^{2})$ distribution, we can apply a function to this random variable as:</p>
 <p>$$\begin{align}
-\sqrt{n}(X_{n} - \theta) \xrightarrow{d} N(0,\sigma^{2}) \\<br>
+\sqrt{n}(X_{n} - \theta) \xrightarrow{d} N(0,\sigma^{2}) \\
 \sqrt{n}(g(X_{n}) - g(\theta)) \xrightarrow{d} ; ?
 \end{align}$$</p>
 <p>However, we don&rsquo;t know the asymptotic variance of this transformed variable just yet.  In this case, we can approximate our function $g(x)$ using a Taylor Series approximation, evaluated at $\theta$:</p>
@@ -723,8 +723,8 @@ g(x) = g(\theta) + g\prime(\theta)(x-\theta) + O()
 <a href="https://en.wikipedia.org/wiki/Continuous_mapping_theorem" target="_blank" rel="noopener">Continious Mapping Theorem</a>, we know that since $\bar{\theta} \xrightarrow{p} \theta$, we know that $g\prime(\bar{\theta}) \xrightarrow{p} g\prime(\theta)$</p>
 <p>Plugging this back in to our original equation and applying Slutsky&rsquo;s Perturbation Theorem, we have:</p>
 <p>$$\begin{align}
-&amp;= \sqrt{n}(\Big[g(\theta) + g\prime(\theta)(x-\theta)\Big] - g(\theta)) \\<br>
-&amp;= \sqrt{n}(g\prime(\theta)(x-\theta)) \\<br>
+&amp;= \sqrt{n}(\Big[g(\theta) + g\prime(\theta)(x-\theta)\Big] - g(\theta)) \\
+&amp;= \sqrt{n}(g\prime(\theta)(x-\theta)) \\
 &amp;= g\prime(\theta)\sqrt{n}(X_{n} - \theta)
 \end{align}$$</p>
 <p>and since we know that $\sqrt{n}(\bar{X_{n}} - \theta)  \xrightarrow{d} N(0,\sigma^{2})$, we now know that $g\prime(\theta) \sqrt{n}(\bar{X_{n}} - \theta) \xrightarrow{d} N(0,g\prime(\theta)^{2} \sigma^{2})$.  As such, we have that:</p>
@@ -900,14 +900,14 @@ for j ,m in enumerate(mus):
 <p>where the variance $\sigma^{2}(\lambda)$ depends on the mean, $\lambda$.  In order to stabilize the variance of this variable, we can apply the 
 <a href="https://en.wikipedia.org/wiki/Delta_method" target="_blank" rel="noopener">Delta Method</a>, in order to generate a variable that converges to a standard Normal distribution asymptotically.</p>
 <p>$$\begin{align}
-\sqrt{n}(g(X_{\lambda}) - g(\lambda)) \xrightarrow{d} N(0,g\prime(\theta)^{2}\sigma^{2}) \<br>
+\sqrt{n}(g(X_{\lambda}) - g(\lambda)) \xrightarrow{d} N(0,g\prime(\theta)^{2}\sigma^{2}) \
 \end{align}$$</p>
 <p>where</p>
 <p>$$\begin{align}
-&amp;g\prime(\theta)^{2} \theta = 1 \\<br>
-&amp;g\prime(\theta)^{2} = \frac{1}{\theta} \\<br>
-&amp;g\prime(\theta) = \frac{1}{\sqrt{\theta}} \\<br>
-&amp;g(\theta) = \int \frac{\partial{\theta}}{\sqrt{\theta}} \\<br>
+&amp;g\prime(\theta)^{2} \theta = 1 \\
+&amp;g\prime(\theta)^{2} = \frac{1}{\theta} \\
+&amp;g\prime(\theta) = \frac{1}{\sqrt{\theta}} \\
+&amp;g(\theta) = \int \frac{\partial{\theta}}{\sqrt{\theta}} \\
 &amp;g(\theta) = 2\sqrt{\theta}
 \end{align}$$</p>
 <p>is our variance stabilizing function.</p>
@@ -1061,20 +1061,20 @@ for i,n in enumerate(N):
 <a href="https://en.wikipedia.org/wiki/Logistic_function" target="_blank" rel="noopener">logistic function</a> via logistic regression to assess whether or not a banknote is real or fake, using a set of features.   I&rsquo;ll compute confidence intervals of our prediction probabilities using the Delta Method.  There are four unique predictors in this case: the <strong>variance</strong>, <strong>skew</strong>, <strong>kurtosis</strong>, and <strong>entropy</strong> of the Wavelet-transformed banknote image.  I&rsquo;ll treat each of these predictors independently, using polynomial basis function of degree 3.</p>
 <p>In this example, we&rsquo;re interested in the standard error of our probability estimate.  Our function is the Logistic Function, as follows:</p>
 <p>$$\begin{align}
-g(\beta) &amp;= \frac{1}{1+e^{-x^{T}\beta}} \\<br>
+g(\beta) &amp;= \frac{1}{1+e^{-x^{T}\beta}} \\
 &amp;= \frac{e^{x^{T}\beta}}{1+e^{x^{T}\beta}}
 \end{align}$$</p>
 <p>where the gradient of this multivariate function is:</p>
 <p>$$\begin{align}
-\nabla g(\beta) &amp;= \frac{\partial g}{\partial \beta} e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} \\<br>
-&amp;= x^{T}e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - x^{T}e^{x^{T}\beta}e^{x^{T}\beta} \\<br>
-&amp;= x^{T}\Big(e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - e^{x^{T}\beta}e^{x^{T}\beta}\Big)(1+e^{x^{T}\beta})^{-2} \\<br>
-&amp;= x^{T} \frac{e^{x^{T}\beta}}{(1+e^{x^{T}\beta})^{2}} \\<br>
+\nabla g(\beta) &amp;= \frac{\partial g}{\partial \beta} e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} \\
+&amp;= x^{T}e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - x^{T}e^{x^{T}\beta}e^{x^{T}\beta} \\
+&amp;= x^{T}\Big(e^{x^{T}\beta}(1+e^{x^{T}\beta})^{-1} - e^{x^{T}\beta}e^{x^{T}\beta}\Big)(1+e^{x^{T}\beta})^{-2} \\
+&amp;= x^{T} \frac{e^{x^{T}\beta}}{(1+e^{x^{T}\beta})^{2}} \\
 \nabla g(\beta) &amp;= x^{T} g(\beta)(1-g(\beta))
 \end{align}$$</p>
 <p>so that the final estimate of our confidence interval becomes</p>
 <p>$$\begin{align}
-&amp; \sim N(0,x^{T} g(\beta)(1-g(\beta)) \Sigma g(\beta)(1-g(\beta))x) \\<br>
+&amp; \sim N(0,x^{T} g(\beta)(1-g(\beta)) \Sigma g(\beta)(1-g(\beta))x) \\
 &amp; \sim N(0, \nabla g(\beta)^{T} \Sigma \nabla g(\beta))
 \end{align}$$</p>
 <pre><code class="language-python">import pandas as pd
@@ -1525,7 +1525,7 @@ plt.tight_layout()
     
     
     
-    <script src="/js/academic.min.37431be2d92d7fb0160054761ab79602.js"></script>
+    <script src="/js/academic.min.cd45a9c0bbdd3dfb1c126917c601c9f2.js"></script>
 
     
 
